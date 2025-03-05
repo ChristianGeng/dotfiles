@@ -1,67 +1,60 @@
-# Dotfiles
+# dotfiles
 
-This repository contains configuration files (dotfiles) for various tools and applications. The files are organized to be easily deployed to a new machine.
+Configuration files for various tools and applications, managed using GNU Stow.
 
-## Structure
+## Installation
+
+First, install GNU Stow:
+
+```
+# Debian/Ubuntu
+$ sudo apt-get install stow
+
+# Fedora
+$ sudo dnf install stow
+
+# macOS with Homebrew
+$ brew install stow
+```
+
+Clone the repository to ~/.dotfiles
+
+```
+$ git clone git@github.com:yourusername/dotfiles.git ~/.dotfiles
+$ cd ~/.dotfiles
+```
+
+If you store the repository at a place outside of your home directory,
+the included `.stowrc` file will ensure that symlinks are created in your home directory.
+
+## Usage
+
+To create symlinks to the configuration files in this repository run
+
+```
+$ stow bash
+```
+
+This will create symlinks in your home directory to the files in the bash package.
+You can also stow multiple packages at once:
+
+```
+$ stow bash git node
+```
+
+To remove the symlinks (unstow):
+
+```
+$ stow -D bash
+```
+
+## Available Packages
+
+The repository is organized into "packages" that can be individually stowed:
 
 - `bash/`: Contains bash configuration files (.bashrc, .bash_aliases, etc.)
-- `.dotfiles/`: Contains other configuration files (.gitconfig, .nvmrc, etc.)
-- `deploy.sh`: Script to deploy the dotfiles to a new machine
-
-## Deployment
-
-To deploy these dotfiles to a new machine:
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/yourusername/dotfiles.git
-   cd dotfiles
-   ```
-
-2. Make the deployment script executable:
-   ```bash
-   chmod +x deploy.sh
-   ```
-
-3. Run the deployment script:
-   ```bash
-   ./deploy.sh
-   ```
-
-The script will:
-- Create a `.dotfiles` directory in your home directory
-- Copy all configuration files to this directory
-- Create symlinks from your home directory to the files in `.dotfiles`
-- Back up any existing files before replacing them
-
-## Manual Deployment
-
-If you prefer to manually deploy the files:
-
-1. Create a `.dotfiles` directory in your home directory:
-   ```bash
-   mkdir -p ~/.dotfiles
-   ```
-
-2. Copy the configuration files:
-   ```bash
-   cp -r bash/ ~/.dotfiles/
-   cp -r .dotfiles/ ~/.dotfiles/
-   ```
-
-3. Create symlinks:
-   ```bash
-   ln -s ~/.dotfiles/bash/.bashrc ~/.bashrc
-   ln -s ~/.dotfiles/bash/.bash_aliases ~/.bash_aliases
-   ln -s ~/.dotfiles/bash/.bash_path ~/.bash_path
-   ln -s ~/.dotfiles/bash/.shell_scripts ~/.shell_scripts
-   ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
-   ln -s ~/.dotfiles/.nvmrc ~/.nvmrc
-   ```
-
-## Customization
-
-Feel free to modify these dotfiles to suit your preferences. After making changes, you can re-run the deployment script to update the symlinks.
+- `git/`: Contains git configuration files (.gitconfig)
+- `node/`: Contains Node.js configuration files (.nvmrc)
 
 ## License
 
