@@ -1,0 +1,63 @@
+[alias]
+co = checkout
+ci = commit -v
+st = status
+ci = commit
+co = checkout
+br = branch
+unstage = reset HEAD --
+last = log -1 HEAD
+gr = log --graph --full-history --all --color --pretty=tformat:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s%x20%x1b[33m(%an)%x1b[0m"
+# status
+st = status
+# add
+a = add
+# branch
+b = branch -v
+# commit
+ca = commit -a
+ci = commit
+append = commit --amend --no-edit
+reword = commit --amend
+# checkout
+co = checkout
+nb = checkout -b
+# diff
+d = diff            # diff unstaged changes
+ds = diff --cached  # diff staged changes
+last = diff HEAD^   # diff last committed change
+# log
+l = log --pretty=format:\"%C(reset)%C(247)%h %C(188)%s  %C(247)[%an]%C(226)%d%C(reset)\"
+changes = log --pretty=format:\"%C(reset)%C(247)%h %C(228)%s %C(247)[%an]%C(reset)\" --name-status
+filelog = log -u    # show changes to a file
+# remote
+r = remote -v       # show remotes (verbose)
+# remove
+delete = "!f() { git ls-files --deleted ; }; git rm $(f)"
+# reset
+unstage = reset HEAD            # remove files from index (tracking)
+uncommit = reset --soft HEAD^   # go back before last commit, with files in
+# uncommited  state
+theirs = reset --hard           # E.g. replace your branch by the remote:
+# git reset --hard origin/feature-branch
+# edit all conflicting files in VIM
+edit-conflict = "!f() { git diff --name-only --diff-filter=U ; }; vim +/'<<<<<<<' $(f)"
+add-conflict = "!f() { git diff --name-only --diff-filter=U ; }; git add $(f)"
+root = rev-parse --show-toplevel
+permission-reset = !git diff -p -R --no-ext-diff --no-color | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+
+[format]
+pretty = format:%C(reset)%C(247)%>(14,trunc)%ar %C(247)%h %C(188)%s  %C(247)[%an]%C(226)%d%C(reset)
+
+[user]
+# email = jedhoo@gmail.com
+# name = Christian Geng
+email = christian.c.geng@gmail.com
+name = ChristianGeng
+[credential]
+helper = cache --timeout=36000
+[core]
+editor = emacsclient
+# pager = less -F -X
+pager =
+[safe]

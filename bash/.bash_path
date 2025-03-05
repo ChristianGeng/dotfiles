@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+PATH=~/bin/:$PATH
+export PATH
+
+# WORKON_HOME="~/.envs"
+WORKON_HOME="~/.envs/"
+export WORKON_HOME
+
+# NVIDIA CUDA Toolkit
+# export PATH=/usr/local/cuda-10.2/bin:$PATH
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH/usr/local/cuda-10.0/lib64
+# /usr/local/cuda-10.2/bin
+# /usr/local/cuda-10.2/lib64
+# /etc/ld.so.conf
+# ldconfig
+
+# https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/
+# export PYENV_ROOT="$HOME/.pyenv"
+# export PATH="$PYENV_ROOT/bin:$PATH"
+# if command -v pyenv 1>/dev/null 2>&1; then
+#  eval "$(pyenv init -)"
+# fi
+
+# git clone git@github.com:audeering/pyenvs.sh.git ~/bin/pyenvs
+# venv_dir=${HOME}/pyenvs/
+# source ${venv_dir}pyenvs.sh
+# export PYENVS_DIR="${HOME}/.envs"
+# export PYENVS_DIR="$HOME/work/.envs"
+# mkdir -p ${PYENVS_DIR}
+# export PYENVS_PYTHON_VERSION="3"
+# whil put in /usr/loca,
+# export PATH=$PATH:$HOME/go/bin/
+
+export PYENVS_DIR="$HOME/.envs"
+mkdir -p ${PYENVS_DIR}
+export PYENVS_PYTHON_VERSION="3"
+source  ${HOME}/pyenvs.sh/pyenvs.sh
+echo "env variable PYENVS_DIR as in .bash_path:"
+echo ${PYENVS_DIR}
+  source  ${HOME}/pyenvs.sh/pyenvs.sh
+
+
+# export PATH=/home/audeering.local/cgeng/bin/grpc-bin/bin:$PATH
+# export PATH=$PATH:/home/audeering.local/cgeng/bin/cmake-3.19.6/bin
+# # export MY_INSTALL_DIR=/home/audeering.local/cgeng/bin/grpc-bin/
+# export PATH=/home/audeering.local/cgeng/bin/grpc-bin/bin:$PATH
+
+# export
+MY_INSTALL_DIR=$HOME/bin/grpc
+
+# PATH=$PATH:"/home/audeering.local/cgeng/bin/go/bin"
+# PATH=$PATH:"/home/audeering.local/cgeng/bin/rtags/bin"
+# PATH=$PATH:"/home/audeering.local/cgeng/bin/protodot/binaries/"
+
+# SPACK
+_ROOT=${HOME}/bin/spack/
+PATH=$PATH:${SPACK_ROOT}/bin/
+export PATH

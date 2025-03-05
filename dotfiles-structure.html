@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dotfiles Structure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        .file-tree {
+            margin-left: 20px;
+        }
+        .folder {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .file {
+            color: #27ae60;
+        }
+        .description {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-left: 5px;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        .deployment {
+            background-color: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dotfiles Structure</h1>
+        
+        <p>This visualization shows the structure of the dotfiles repository and explains the purpose of each file.</p>
+        
+        <div class="deployment">
+            <strong>Deployment:</strong> These files should be copied to a <code>.dotfiles</code> directory in your home folder and then symlinked to their appropriate locations.
+            Use the <code>deploy.sh</code> script to automate this process.
+        </div>
+        
+        <h2>Repository Structure</h2>
+        
+        <div class="file-tree">
+            <div>
+                <span class="folder">dotfiles/</span> <span class="description">Root directory</span>
+            </div>
+            <div class="file-tree">
+                <div>
+                    <span class="file">README.md</span> <span class="description">Instructions for using this repository</span>
+                </div>
+                <div>
+                    <span class="file">README.org</span> <span class="description">Original documentation in Org format</span>
+                </div>
+                <div>
+                    <span class="file">deploy.sh</span> <span class="description">Script to deploy dotfiles to a new machine</span>
+                </div>
+                <div>
+                    <span class="file">dotfiles-structure.html</span> <span class="description">This visualization file</span>
+                </div>
+                <div>
+                    <span class="folder">bash/</span> <span class="description">Bash configuration files</span>
+                </div>
+                <div class="file-tree">
+                    <div>
+                        <span class="file">.bashrc</span> <span class="description">Main bash configuration</span>
+                    </div>
+                    <div>
+                        <span class="file">.bash_aliases</span> <span class="description">Aliases for bash commands</span>
+                    </div>
+                    <div>
+                        <span class="file">.bash_path</span> <span class="description">PATH environment variable configuration</span>
+                    </div>
+                    <div>
+                        <span class="file">.shell_scripts</span> <span class="description">Custom shell functions and utilities</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="folder">.dotfiles/</span> <span class="description">Other configuration files</span>
+                </div>
+                <div class="file-tree">
+                    <div>
+                        <span class="file">.gitconfig</span> <span class="description">Git configuration</span>
+                    </div>
+                    <div>
+                        <span class="file">.nvmrc</span> <span class="description">Node Version Manager configuration</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2>Deployment Process</h2>
+        
+        <p>The deployment process involves:</p>
+        
+        <ol>
+            <li>Creating a <code>.dotfiles</code> directory in your home folder</li>
+            <li>Copying all configuration files to this directory</li>
+            <li>Creating symlinks from your home directory to the files in <code>.dotfiles</code></li>
+        </ol>
+        
+        <p>You can automate this process by running the <code>deploy.sh</code> script:</p>
+        
+        <pre>chmod +x deploy.sh
+./deploy.sh</pre>
+        
+        <h2>File Descriptions</h2>
+        
+        <h3>.bashrc</h3>
+        <p>The main bash configuration file. It sets up the shell environment, loads other configuration files, and configures various bash behaviors.</p>
+        
+        <h3>.bash_aliases</h3>
+        <p>Contains aliases for commonly used commands to make them shorter or add default options.</p>
+        
+        <h3>.bash_path</h3>
+        <p>Configures the PATH environment variable to include directories with executable files.</p>
+        
+        <h3>.shell_scripts</h3>
+        <p>Contains custom shell functions and utilities for various tasks like file manipulation, system information, and more.</p>
+        
+        <h3>.gitconfig</h3>
+        <p>Configures Git settings like user information, aliases, and behavior.</p>
+        
+        <h3>.nvmrc</h3>
+        <p>Specifies the Node.js version to use with Node Version Manager (NVM).</p>
+    </div>
+</body>
+</html>
