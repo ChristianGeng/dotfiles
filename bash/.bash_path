@@ -7,6 +7,10 @@ export PATH
 WORKON_HOME="~/.envs/"
 export WORKON_HOME
 
+
+export PATH=~/local/bin/:$PATH
+
+
 # NVIDIA CUDA Toolkit
 # export PATH=/usr/local/cuda-10.2/bin:$PATH
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH/usr/local/cuda-10.0/lib64

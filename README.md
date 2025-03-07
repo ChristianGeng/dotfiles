@@ -69,6 +69,14 @@ $ stow -D bash
 ### node/
 - `.nvmrc`: Node.js version configuration for nvm
 
+### emacs/
+- `.emacs-profiles.el`: Defines profiles for:
+  - Doom Emacs (`doom` profile)
+  - Default configuration (`default`)
+  - Spacemacs (`spacemacs`)
+
+Deploy with: `./stow-deploy.sh emacs`
+
 ## Troubleshooting
 
 ### Existing Files
@@ -88,6 +96,34 @@ $ rm -f ~/.bash* ~/.gitconfig ~/.nvmrc ~/.shell_scripts
 3. Run the deployment script:
 ```bash
 $ ./stow-deploy.sh
+```
+
+### Conflict Resolution
+Use `--force` flag to override conflicting files:
+```bash
+./stow-deploy.sh --force emacs
+```
+
+### Manual Conflict Resolution
+
+If automated force mode fails:
+```bash
+# Remove conflicting file
+rm ~/.emacs-profiles.el
+
+# Retry deployment
+./stow-deploy.sh emacs
+```
+
+### Backup/Restore
+
+1. Create backup:
+```bash
+./stow-deploy.sh backup
+```
+2. Restore from backup:
+```bash
+./stow-deploy.sh restore
 ```
 
 ### Restore Backup

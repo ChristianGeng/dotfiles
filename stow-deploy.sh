@@ -61,6 +61,10 @@ while [[ $# -gt 0 ]]; do
       echo "  --help, -h      Show this help message"
       exit 0
       ;;
+    --force)
+      FORCE_FLAG="--override='.*\.emacs-profiles\.el'"
+      shift
+      ;;
     *)
       # Add any specified packages to the list
       PACKAGES+=("$1")
