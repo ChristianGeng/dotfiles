@@ -57,7 +57,9 @@ MY_INSTALL_DIR=$HOME/bin/grpc
 # PATH=$PATH:"/home/audeering.local/cgeng/bin/rtags/bin"
 # PATH=$PATH:"/home/audeering.local/cgeng/bin/protodot/binaries/"
 
+export PATH="$HOME/doom-emacs/bin:$PATH"
+
 # SPACK
-_ROOT=${HOME}/bin/spack/
+SPACK_ROOT=${HOME}/bin/spack/
 PATH=$PATH:${SPACK_ROOT}/bin/
 export PATH
