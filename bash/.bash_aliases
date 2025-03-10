@@ -50,3 +50,8 @@ alias mem="egrep 'MemTotal|MemFree|MemAvailable' /proc/meminfo; vmstat; free"
 alias clear_gradle_cache="rm -rf $HOME/.gradle/caches/"
 alias pdfx="wine64 ~/bin/pdfx/PDFXCview.exe &>/dev/null"
 alias zap="java -jar /home/audeering.local/cgeng/bin/ZAP_2.10.0/zap-2.10.0.jar"
+
+# Emacs profile aliases
+alias emacs-doom='emacs --with-profile doom'
+alias emacs-default='emacs --with-profile default'
+alias emacs-spacemacs='emacs --with-profile spacemacs'

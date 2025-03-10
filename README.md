@@ -75,7 +75,29 @@ $ stow -D bash
   - Default configuration (`default`)
   - Spacemacs (`spacemacs`)
 
+## Emacs Configuration Profiles
+
+Three predefined profiles are available:
+- `doom`: Doom Emacs configuration (~/doom-emacs)
+- `default`: Primary custom configuration (~/emacs-conf)
+- `spacemacs`: Spacemacs configuration (~/spacemacs)
+
+Usage after deployment:
+```bash
+emacs-doom      # Launch Doom configuration
+emacs-default   # Launch default config
+emacs-spacemacs # Launch Spacemacs
+```
+
 Deploy with: `./stow-deploy.sh emacs`
+
+## Deployment
+
+### Recommended Method
+Use the `stow-deploy.sh` script with options:
+```bash
+./stow-deploy.sh [--force] [--help]
+```
 
 ## Troubleshooting
 
@@ -113,6 +135,38 @@ rm ~/.emacs-profiles.el
 
 # Retry deployment
 ./stow-deploy.sh emacs
+```
+
+### Common Issues
+
+#### Existing File Conflicts
+```bash
+ERROR: File conflict detected for ~/.bashrc
+  Existing file: /home/user/.bashrc
+  New file: dotfiles/bash/.bashrc
+```
+Solution: Use `--force` to overwrite (backup created automatically)
+
+#### Broken Symlinks After Package Deletion
+```bash
+find ~/ -type l -xtype l -delete  # Remove broken symlinks
+```
+
+#### Profile-Specific Configuration Issues
+1. Verify profile exists in ~/.emacs-profiles.el
+2. Check corresponding directory exists (e.g. ~/doom-emacs)
+3. Test with: `emacs --with-profile PROFILE --eval '(kill-emacs)'`
+
+### Backup/Restore Procedure
+
+#### Create Backup
+```bash
+./stow-deploy.sh backup-$(date +%s)  # Creates timestamped backup
+```
+
+#### Restore Backup
+```bash
+./stow-deploy.sh --restore backup-1678901234
 ```
 
 ### Backup/Restore
