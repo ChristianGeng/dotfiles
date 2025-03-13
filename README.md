@@ -61,6 +61,7 @@ $ stow -D bash
 - `.bashrc`: Main bash configuration
 - `.bash_aliases`: Custom command aliases
 - `.bash_path`: PATH environment variable configuration
+- `.bash_variables`: Environment variable settings (e.g., SLURM configuration)
 - `.shell_scripts`: Collection of useful shell scripts
 
 ### git/
