@@ -135,28 +135,40 @@ for package in "${PACKAGES[@]}"; do
   
   # Handle special case for doom package (deploying to .config/doom directory)
   if [ "$package" = "doom" ]; then
-    # Create .config directory if it doesn't exist
-    mkdir -p "$TARGET_DIR/.config"
+    echo "Using special handling for the doom package..."
     
-    # First unstow if force is specified
+    # Create the .config/doom directory if it doesn't exist
+    echo "Creating target directory..."
+    mkdir -p "$TARGET_DIR/.config/doom"
+    
+    # Directory to copy from
+    DOOM_SRC="$SCRIPT_DIR/doom/.config/doom"
+    DOOM_DST="$TARGET_DIR/.config/doom"
+    
     if [ "$FORCE" = true ]; then
-      echo "Force flag enabled, removing existing symlinks first..."
-      stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" -D "$package" 2>/dev/null || true
+      # Backup existing .config/doom directory if needed
+      if [ -d "$DOOM_DST" ] && [ "$(ls -A $DOOM_DST)" ]; then
+        BACKUP_DIR="$TARGET_DIR/.config/doom.backup.$(date +%Y%m%d-%H%M%S)"
+        echo "Backing up existing doom configuration to $BACKUP_DIR"
+        cp -r "$DOOM_DST" "$BACKUP_DIR"
+      fi
     fi
     
-    # Stow the doom configuration
-    echo "Stowing $package to $TARGET_DIR..."
-    stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" "$package"
+    # Copy/sync the content
+    echo "Copying doom configuration to $DOOM_DST..."
+    rsync -av --exclude "*.backup*" "$DOOM_SRC/" "$DOOM_DST/"
+    
+    echo "Doom configuration successfully deployed to $DOOM_DST"
   else
     # Normal stow operation for other packages
     if [ "$FORCE" = true ]; then
       echo "Force flag enabled, removing existing symlinks first..."
-      stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" -D "$package" 2>/dev/null || true
+      stow --no-folding -v $STOW_OPTS -D "$package" 2>/dev/null || true
     fi
     
     # Stow the package
     echo "Stowing $package to $TARGET_DIR..."
-    stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" "$package"
+    stow --no-folding -v $STOW_OPTS "$package"
   fi
 done
 
