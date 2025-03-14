@@ -1,7 +1,22 @@
 #!/bin/bash
 
 # stow-deploy.sh - Deploy dotfiles using GNU Stow
-# This script uses GNU Stow to create symlinks from your home directory to your dotfiles
+# Usage: ./stow-deploy.sh [OPTIONS] [PACKAGES...]
+#
+# Options:
+#   --force       Force overwrite of existing files
+#   --absolute    Use absolute symlinks instead of relative ones
+#   --target=DIR  Target directory (default: $HOME)
+#   --help        Display this help message
+#
+# If no packages are specified, all default packages will be deployed.
+# Default packages: bash git node doom
+#
+# Examples:
+#   ./stow-deploy.sh                # Deploy all default packages
+#   ./stow-deploy.sh doom           # Deploy only the doom package
+#   ./stow-deploy.sh --force bash   # Force deployment of bash package
+#   ./stow-deploy.sh bash git       # Deploy bash and git packages
 
 set -e  # Exit on error
 
@@ -38,43 +53,71 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Display help
+show_help() {
+  echo "stow-deploy.sh - Deploy dotfiles using GNU Stow"
+  echo "Usage: ./stow-deploy.sh [OPTIONS] [PACKAGES...]"
+  echo
+  echo "Options:"
+  echo "  --force         Force overwrite of existing files"
+  echo "  --absolute      Use absolute symlinks instead of relative ones"
+  echo "  --target=DIR    Target directory (default: \$HOME)"
+  echo "  --help          Display this help message"
+  echo
+  echo "Available packages:"
+  echo "  bash            Bash shell configuration files"
+  echo "  git             Git version control configuration"
+  echo "  node            Node.js development environment settings"
+  echo "  doom            Doom Emacs configuration (based on Derek Taylor's setup)"
+  echo "  emacs           Emacs profile configuration for Chemacs"
+  echo
+  echo "If no packages are specified, the default packages will be deployed."
+  echo "Default packages: bash git node doom"
+  echo
+  echo "Examples:"
+  echo "  ./stow-deploy.sh                # Deploy all default packages"
+  echo "  ./stow-deploy.sh doom           # Deploy only the doom package"
+  echo "  ./stow-deploy.sh --force bash   # Force deployment of bash package"
+  echo "  ./stow-deploy.sh bash git       # Deploy bash and git packages"
+}
+
 # Parse command line arguments
 FORCE=false
 ABSOLUTE=false
+TARGET_DIR="$HOME"
 PACKAGES=("bash" "git" "node" "doom")
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --force|-f)
+    --force)
       FORCE=true
       shift
       ;;
-    --absolute|-a)
+    --absolute)
       ABSOLUTE=true
       shift
       ;;
-    --help|-h)
-      echo "Usage: $0 [options]"
-      echo "Options:"
-      echo "  --force, -f     Force creation of symlinks, overriding existing files"
-      echo "  --absolute, -a  Create absolute symlinks instead of relative ones"
-      echo "  --help, -h      Show this help message"
-      exit 0
-      ;;
-    --force)
-      FORCE_FLAG="--override='.*\.emacs-profiles\.el'"
+    --target=*)
+      TARGET_DIR="${1#*=}"
       shift
       ;;
+    --help)
+      show_help
+      exit 0
+      ;;
     *)
-      # Add any specified packages to the list
-      PACKAGES+=("$1")
+      if [[ -d "$1" ]]; then
+        PACKAGES+=("$1")
+      else
+        echo "Warning: Package directory '$1' not found, skipping."
+      fi
       shift
       ;;
   esac
 done
 
 # Stow options
-STOW_OPTS="-v -t $HOME"
+STOW_OPTS="-v -t $TARGET_DIR"
 
 if $FORCE; then
   print_warn "Force mode enabled. Existing files will be overridden."
@@ -86,13 +129,34 @@ if $ABSOLUTE; then
   STOW_OPTS="$STOW_OPTS --absolute"
 fi
 
-# Stow each package
-for pkg in "${PACKAGES[@]}"; do
-  if [ -d "$pkg" ]; then
-    print_msg "Stowing $pkg..."
-    stow $STOW_OPTS "$pkg"
+# Loop through all packages and run stow
+for package in "${PACKAGES[@]}"; do
+  echo "[DEPLOY] Stowing $package..."
+  
+  # Handle special case for doom package (deploying to .config/doom directory)
+  if [ "$package" = "doom" ]; then
+    # Create .config directory if it doesn't exist
+    mkdir -p "$TARGET_DIR/.config"
+    
+    # First unstow if force is specified
+    if [ "$FORCE" = true ]; then
+      echo "Force flag enabled, removing existing symlinks first..."
+      stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" -D "$package" 2>/dev/null || true
+    fi
+    
+    # Stow the doom configuration
+    echo "Stowing $package to $TARGET_DIR..."
+    stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" "$package"
   else
-    print_warn "Package directory $pkg not found, skipping."
+    # Normal stow operation for other packages
+    if [ "$FORCE" = true ]; then
+      echo "Force flag enabled, removing existing symlinks first..."
+      stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" -D "$package" 2>/dev/null || true
+    fi
+    
+    # Stow the package
+    echo "Stowing $package to $TARGET_DIR..."
+    stow --no-folding -v $STOW_OPTS --target="$TARGET_DIR" "$package"
   fi
 done
 
