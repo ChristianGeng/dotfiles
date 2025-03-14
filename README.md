@@ -70,11 +70,56 @@ $ stow -D bash
 ### node/
 - `.nvmrc`: Node.js version configuration for nvm
 
+### doom/
+- Doom Emacs configuration (based on [Derek Taylor's configuration](https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom))
+- Configuration symlinked to `~/.config/doom/` 
+- Main files:
+  - `config.el`: Main configuration file
+  - `init.el`: Initialization and module selection
+  - `packages.el`: Custom package configuration
+  - Additional theme and utility files
+- Deploy with: `./stow-deploy.sh doom`
+
 ### emacs/
 - `.emacs-profiles.el`: Defines profiles for:
   - Doom Emacs (`doom` profile)
   - Default configuration (`default`)
   - Spacemacs (`spacemacs`)
+  - Deploy with: `./stow-deploy.sh emacs`
+
+## Specific Package Deployment
+
+### Doom Emacs Configuration
+To deploy only the Doom Emacs configuration:
+```bash
+# Standard deployment
+./stow-deploy.sh doom
+
+# Force deployment (overwrite existing files)
+./stow-deploy.sh --force doom
+```
+
+This will deploy the Doom Emacs configuration to `~/.config/doom/`.
+
+### Bash Configuration
+```bash
+./stow-deploy.sh bash
+```
+
+### Git Configuration
+```bash
+./stow-deploy.sh git
+```
+
+### Node Configuration
+```bash
+./stow-deploy.sh node
+```
+
+### Emacs Profiles
+```bash
+./stow-deploy.sh emacs
+```
 
 ## Emacs Configuration Profiles
 
@@ -108,12 +153,13 @@ If you have existing configuration files, the deployment might fail with "existi
 1. Backup your existing files:
 ```bash
 $ mkdir -p ~/.dotfiles.backup
-$ cp -r ~/.bash* ~/.gitconfig ~/.nvmrc ~/.shell_scripts ~/.dotfiles.backup/
+$ cp -r ~/.bash* ~/.gitconfig ~/.nvmrc ~/.shell_scripts ~/.config/doom ~/.dotfiles.backup/
 ```
 
 2. Remove existing files:
 ```bash
 $ rm -f ~/.bash* ~/.gitconfig ~/.nvmrc ~/.shell_scripts
+$ rm -rf ~/.config/doom  # Be careful with this command
 ```
 
 3. Run the deployment script:
@@ -125,6 +171,33 @@ $ ./stow-deploy.sh
 Use `--force` flag to override conflicting files:
 ```bash
 ./stow-deploy.sh --force emacs
+```
+
+### Doom Emacs Configuration Issues
+
+If you encounter issues with the Doom Emacs configuration:
+
+1. Ensure your `~/.config/doom` directory is properly linked:
+```bash
+ls -la ~/.config/doom  # Should show a symlink to your dotfiles repository
+```
+
+2. If you have an existing Doom Emacs configuration that you want to preserve:
+```bash
+# Backup existing configuration
+mkdir -p ~/.config-backup
+cp -r ~/.config/doom ~/.config-backup/
+
+# Remove existing configuration
+rm -rf ~/.config/doom
+
+# Deploy new configuration
+./stow-deploy.sh doom
+```
+
+3. After deploying, you may need to rebuild Doom Emacs:
+```bash
+~/.emacs.d/bin/doom sync
 ```
 
 ### Manual Conflict Resolution

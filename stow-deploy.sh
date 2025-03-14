@@ -41,7 +41,7 @@ cd "$SCRIPT_DIR"
 # Parse command line arguments
 FORCE=false
 ABSOLUTE=false
-PACKAGES=("bash" "git" "node")
+PACKAGES=("bash" "git" "node" "doom")
 
 while [[ $# -gt 0 ]]; do
   case $1 in
