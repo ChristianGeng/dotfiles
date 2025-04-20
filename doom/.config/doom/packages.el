@@ -64,7 +64,7 @@
 (package! dirvish)
 (package! dmenu)
 (package! ednc)
-(package! emojify)
+;; (package! emojify)
 (package! evil-tutor)
 (package! exwm)
 (package! imenu-list)
