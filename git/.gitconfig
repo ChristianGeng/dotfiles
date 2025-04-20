@@ -61,3 +61,5 @@ editor = emacsclient
 # pager = less -F -X
 pager =
 [safe]
+[init]
+	defaultBranch = main
