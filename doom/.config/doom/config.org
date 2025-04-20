@@ -30,6 +30,9 @@
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#registers][REGISTERS]]
 - [[#shells][SHELLS]]
+- [[#start-page][START PAGE]]
+- [[#winner-mode][WINNER MODE]]
+- [[#zap-to-char][ZAP TO CHAR]]
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
@@ -531,8 +534,11 @@ Settings for the various shells and terminal emulators within Emacs.
 | counsel-esh-history | /Browse the eshell history/  | SPC e h    |
 | +vterm/toggle       | /Toggle vterm popup window/  | SPC v t    |
 
+
+I am noch using ~fish~ as my shell as it is often not installed!
+
 #+BEGIN_SRC emacs-lisp
-(setq shell-file-name "/bin/fish"
+(setq shell-file-name "/bin/bash"
       vterm-max-scrollback 5000)
 (setq eshell-rc-script "~/.config/doom/eshell/profile"
       eshell-aliases-file "~/.config/doom/eshell/aliases"
@@ -547,4 +553,60 @@ Settings for the various shells and terminal emulators within Emacs.
       :desc "Eshell popup toggle"    "e t" #'+eshell/toggle
       :desc "Counsel eshell history" "e h" #'counsel-esh-history
       :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
+#+END_SRC
+
+* START PAGE
+Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided to just set an custom start file as my "dashboard" since it allows me more customization options.  I have added to the 'start-mode-hook' the argument 'read-only-mode'.  This is to prevent accidental editing of the start file, and to prevent clashes with the 'start-mode' specific keybindings.  You can toggle on/off read-only-mode with 'SPC t r'.
+
+#+begin_src emacs-lisp
+(setq initial-buffer-choice "~/.config/doom/start.org")
+
+(define-minor-mode start-mode
+  "Provide functions for custom start page."
+  :lighter " start"
+  :keymap (let ((map (make-sparse-keymap)))
+          ;;(define-key map (kbd "M-z") 'eshell)
+            (evil-define-key 'normal start-mode-map
+              (kbd "1") '(lambda () (interactive) (find-file "~/.config/doom/config.org"))
+              (kbd "2") '(lambda () (interactive) (find-file "~/.config/doom/init.el"))
+              (kbd "3") '(lambda () (interactive) (find-file "~/.config/doom/packages.el"))
+              (kbd "4") '(lambda () (interactive) (find-file "~/.config/doom/eshell/aliases"))
+              (kbd "5") '(lambda () (interactive) (find-file "~/.config/doom/eshell/profile")))
+          map))
+
+(add-hook 'start-mode-hook 'read-only-mode) ;; make start.org read-only; use 'SPC t r' to toggle off read-only.
+(provide 'start-mode)
+#+end_src
+
+* WINNER MODE
+Winner mode has been included with GNU Emacs since version 20.  This is a global minor mode and, when activated, it allows you to “undo” (and “redo”) changes in the window configuration with the key commands 'SCP w <left>' and 'SPC w <right>'.
+
+#+BEGIN_SRC emacs-lisp
+(map! :leader
+      (:prefix ("w" . "window")
+       :desc "Winner redo" "<right>" #'winner-redo
+       :desc "Winner undo" "<left>"  #'winner-undo))
+#+END_SRC
+
+* ZAP TO CHAR
+Emacs provides a 'zap-to-char' command that kills from the current point to a character.  It is bound to 'M-z' in standard GNU Emacs but since Doom Emacs uses 'SPC' as its leader key and does not have 'SPC z' binded to anything, it just makes since to use it for 'zap-to-char'.  Note that 'zap-to-char' can be used with the universal argument 'SPC u' to modify its behavior.  Examples of 'zap-to-char' usage are listed in the table below:
+
+| KEYBINDING                | WHAT IS DOES                                               |
+|---------------------------+------------------------------------------------------------|
+| SPC z e                   | /deletes all chars to the next occurrence of 'e'/            |
+| SPC u 2 SPC z e           | /deletes all chars to the second occurrence of 'e'/          |
+| SPC u - SPC z e           | /deletes all chars to the previous occurrence of 'e'/        |
+| SPC u - 2 SPC z e         | /deletes all chars to the second previous occurrence of 'e'/ |
+| SPC u 1 0 0 SPC u SPC z e | /deletes all chars to the 100th occurrence of 'e'/           |
+
+=TIP=: The universal argument (SPC u) can only take a single integer by default.  If you need to use a multi-digit number (like 100 in the last example in the table above), then you must terminate the universal argument with another 'SPC u' after typing the number.
+
+'zap-up-to-char' is an alternative command that does not zap the char specified.  It is binded to 'SPC Z'.  It can also be used in conjunction with the universal argument 'SPC u' in similar fashion to the the 'zap-to-char' examples above.
+
+=NOTE=:  Vim (evil mode) has similar functionality builtin.  You can delete to the next occurrence of 'e' by using 'dte' in normal.  To delete to the next occurrence of 'e' including the 'e', then you would use 'dfe'.  And you can modify 'dt' and 'df' by prefixing them with numbers, so '2dte' would delete to the second occurrence of 'e'.
+
+#+BEGIN_SRC emacs-lisp
+(map! :leader
+      :desc "Zap to char"    "z" #'zap-to-char
+      :desc "Zap up to char" "Z" #'zap-up-to-char)
 #+END_SRC
