@@ -25,6 +25,11 @@
 - [[#mouse-support][MOUSE SUPPORT]]
 - [[#neotree][NEOTREE]]
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
+- [[#org-mode][ORG MODE]]
+  - [[#org-roam][Org-roam]]
+- [[#rainbow-mode][RAINBOW MODE]]
+- [[#registers][REGISTERS]]
+- [[#shells][SHELLS]]
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
@@ -412,3 +417,134 @@ Keybindings to open files that I work with all the time using the find-file comm
 #+END_SRC
 
  Note: commented out agenda.org
+
+
+
+
+* ORG MODE
+
+Only parts of it included. TODO
+
+** Org-roam
+[[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.  Org-roam borrows principles from the =Zettelkasten= method, providing a solution for non-hierarchical note-taking.  It should also work as a plug-and-play solution for anyone already using Org-mode for their personal wiki.
+
+| COMMAND                | DESCRIPTION                        | KEYBINDING |
+|------------------------+------------------------------------+------------|
+| completion-at-point    | /Completion of node-insert at point/ | SPC n r c  |
+| org-roam-node-find     | /Find node or create a new one/      | SPC n r f  |
+| org-roam-graph         | /Show graph of all nodes/            | SPC n r g  |
+| org-roam-node-insert   | /Insert link to a node/              | SPC n r i  |
+| org-roam-capture       | /Capture to node/                    | SPC n r n  |
+| org-roam-buffer-toggle | /Toggle roam buffer/                 | SPC n r r  |
+
+#+begin_src emacs-lisp
+(after! org
+  (setq org-roam-directory "~/nc/Org/roam/"
+        org-roam-graph-viewer "/usr/bin/brave"))
+
+(map! :leader
+      (:prefix ("n r" . "org-roam")
+       :desc "Completion at point" "c" #'completion-at-point
+       :desc "Find node"           "f" #'org-roam-node-find
+       :desc "Show graph"          "g" #'org-roam-graph
+       :desc "Insert node"         "i" #'org-roam-node-insert
+       :desc "Capture to node"     "n" #'org-roam-capture
+       :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
+#+end_src
+
+
+PERSPECTIVE
+Perspective provides multiple named workspaces (or "perspectives") in Emacs, similar to having multiple desktops in window managers like Awesome and XMonad.  Each perspective has its own buffer list and its own window layout, making it easy to work on many separate projects without getting lost in all the buffers.  Switching to a perspective activates its window configuration, and when in a perspective, only its buffers are available (by default).  Doom Emacs uses 'SPC some_key' for binding some of the perspective commands, so I used this binging format for the perspective bindings that I created..
+
+| COMMAND                    | DESCRIPTION                         | KEYBINDING |
+|----------------------------+-------------------------------------+------------|
+| persp-switch               | /Switch to perspective NAME/          | SPC DEL    |
+| persp-switch-to-buffer     | /Switch to buffer in perspective/     | SPC ,      |
+| persp-next                 | /Switch to next perspective/          | SPC ]      |
+| persp-prev                 | /Switch to previous perspective/      | SPC [      |
+| persp-add-buffer           | /Add a buffer to current perspective/ | SPC +      |
+| persp-remove-by-name       | /Remove perspective by name/          | SPC -      |
+| +workspace/switch-to-{0-9} | /Switch to workspace n/               | SPC 0-9    |
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Switch to perspective NAME"       "DEL" #'persp-switch
+      :desc "Switch to buffer in perspective"  "," #'persp-switch-to-buffer
+      :desc "Switch to next perspective"       "]" #'persp-next
+      :desc "Switch to previous perspective"   "[" #'persp-prev
+      :desc "Add a buffer current perspective" "+" #'persp-add-buffer
+      :desc "Remove perspective by name"       "-" #'persp-remove-by-name)
+#+end_src
+
+* RAINBOW MODE
+Rainbox mode displays the actual color for any hex value color.  It's such a nice feature that I wanted it turned on all the time, regardless of what mode I am in.  The following creates a global minor mode for rainbow-mode and enables it (exception: org-agenda-mode since rainbow-mode destroys all highlighting in org-agenda).
+
+#+begin_src emacs-lisp
+(define-globalized-minor-mode global-rainbow-mode rainbow-mode
+  (lambda ()
+    (when (not (memq major-mode
+                (list 'org-agenda-mode)))
+     (rainbow-mode 1))))
+(global-rainbow-mode 1 )
+#+end_src
+
+* REGISTERS
+Emacs registers are compartments where you can save text, rectangles and positions for later use. Once you save text or a rectangle in a register, you can copy it into the buffer once or many times; once you save a position in a register, you can jump back to that position once or many times.  The default GNU Emacs keybindings for these commands (with the exception of counsel-register) involves 'C-x r' followed by one or more other keys.  I wanted to make this a little more user friendly, and since I am using Doom Emacs, I choose to replace the 'C-x r' part of the key chords with 'SPC r'.
+
+| COMMAND                          | DESCRIPTION                      | KEYBINDING |
+|----------------------------------+----------------------------------+------------|
+| copy-to-register                 | /Copy to register/                 | SPC r c    |
+| frameset-to-register             | /Frameset to register/             | SPC r f    |
+| insert-register                  | /Insert contents of register/      | SPC r i    |
+| jump-to-register                 | /Jump to register/                 | SPC r j    |
+| list-registers                   | /List registers/                   | SPC r l    |
+| number-to-register               | /Number to register/               | SPC r n    |
+| counsel-register                 | /Interactively choose a register/  | SPC r r    |
+| view-register                    | /View a register/                  | SPC r v    |
+| window-configuration-to-register | /Window configuration to register/ | SPC r w    |
+| increment-register               | /Increment register/               | SPC r +    |
+| point-to-register                | /Point to register/                | SPC r SPC  |
+
+#+BEGIN_SRC emacs-lisp
+(map! :leader
+      (:prefix ("r" . "registers")
+       :desc "Copy to register" "c" #'copy-to-register
+       :desc "Frameset to register" "f" #'frameset-to-register
+       :desc "Insert contents of register" "i" #'insert-register
+       :desc "Jump to register" "j" #'jump-to-register
+       :desc "List registers" "l" #'list-registers
+       :desc "Number to register" "n" #'number-to-register
+       :desc "Interactively choose a register" "r" #'counsel-register
+       :desc "View a register" "v" #'view-register
+       :desc "Window configuration to register" "w" #'window-configuration-to-register
+       :desc "Increment register" "+" #'increment-register
+       :desc "Point to register" "SPC" #'point-to-register))
+#+END_SRC
+
+* SHELLS
+Settings for the various shells and terminal emulators within Emacs.
+
+| COMMAND             | DESCRIPTION                | KEYBINDING |
+|---------------------+----------------------------+------------|
+| eshell              | /Launch the eshell/          | SPC e s    |
+| +eshell/toggle      | /Toggle eshell popup window/ | SPC e t    |
+| counsel-esh-history | /Browse the eshell history/  | SPC e h    |
+| +vterm/toggle       | /Toggle vterm popup window/  | SPC v t    |
+
+#+BEGIN_SRC emacs-lisp
+(setq shell-file-name "/bin/fish"
+      vterm-max-scrollback 5000)
+(setq eshell-rc-script "~/.config/doom/eshell/profile"
+      eshell-aliases-file "~/.config/doom/eshell/aliases"
+      eshell-history-size 5000
+      eshell-buffer-maximum-lines 5000
+      eshell-hist-ignoredups t
+      eshell-scroll-to-bottom-on-input t
+      eshell-destroy-buffer-when-process-dies t
+      eshell-visual-commands'("bash" "fish" "htop" "ssh" "top" "zsh"))
+(map! :leader
+      :desc "Eshell"                 "e s" #'eshell
+      :desc "Eshell popup toggle"    "e t" #'+eshell/toggle
+      :desc "Counsel eshell history" "e h" #'counsel-esh-history
+      :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
+#+END_SRC
