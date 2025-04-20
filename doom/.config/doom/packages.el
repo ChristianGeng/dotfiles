@@ -88,3 +88,6 @@
 (package! ripgrep)
 (package! rg)
 (package! projectile-ripgrep)
+
+;; python
+(package! lsp-pyright)

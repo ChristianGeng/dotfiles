@@ -33,6 +33,7 @@
 - [[#start-page][START PAGE]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
+- [[#python][Python]]
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
@@ -610,3 +611,12 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
       :desc "Zap to char"    "z" #'zap-to-char
       :desc "Zap up to char" "Z" #'zap-up-to-char)
 #+END_SRC
+
+* Python
+
+#+begin_src emacs-lisp
+
+(after! lsp-mode
+  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
+  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
+#+end_src

@@ -243,3 +243,7 @@
 (map! :leader
       :desc "Zap to char"    "z" #'zap-to-char
       :desc "Zap up to char" "Z" #'zap-up-to-char)
+
+(after! lsp-mode
+  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
+  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level

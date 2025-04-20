@@ -20,10 +20,14 @@
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       company           ; the ultimate code completion backend
+       ;; company           ; the ultimate code completion backend
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
-       (ivy +fonts +childframe)             ; a search engine for love and life
+       ;; (ivy +fonts +childframe)             ; a search engine for love and life
+       ;;
+       (corfu +dabbrev +icons)
+       ;; ivy
+       (vertico +icons)
 
        :ui
        ;;deft              ; notational velocity for Emacs
@@ -86,6 +90,7 @@
        :tools
        ;;ansible
        ;;debugger          ; FIXME stepping through code, to help you add bugs
+       (debugger +lsp)
        ;;direnv
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
@@ -93,14 +98,15 @@
        (eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
-       ;;lsp
-       magit             ; a git porcelain for Emacs
+       lsp
+       (magit +childframe +forge)
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
        pdf               ; pdf enhancements
        ;;prodigy           ; FIXME managing external services & code builders
        ;;rgb               ; creating color strings
        ;;taskrunner        ; taskrunner for all your projects
+       treesitter
        ;;terraform         ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
        ;;upload            ; map local to remote projects via ssh/ftp
@@ -154,7 +160,8 @@
        php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
-       python           ; beautiful is better than ugly
+       (python +lsp +pyenv +pyright)
+                        ;
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
