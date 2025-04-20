@@ -91,3 +91,4 @@
 
 ;; python
 (package! lsp-pyright)
+(package! python-pytest)
