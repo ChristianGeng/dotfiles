@@ -83,3 +83,8 @@
 (package! clippy)
 (package! minimap)
 (package! olivetti)
+
+;; Enable project grepping in ag-style
+(package! ripgrep)
+(package! rg)
+(package! projectile-ripgrep)
