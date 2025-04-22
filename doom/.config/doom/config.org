@@ -33,6 +33,7 @@
 - [[#start-page][START PAGE]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
+- [[#other-file-stuff][Other file stuff]]
 - [[#python][Python]]
 
 * ABOUT THIS CONFIG
@@ -612,10 +613,17 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
       :desc "Zap up to char" "Z" #'zap-up-to-char)
 #+END_SRC
 
+* Other file stuff
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Find file at point"
+      "f ." #'find-file-at-point)
+#+end_src
+
 * Python
 
 #+begin_src emacs-lisp
-
 (after! lsp-mode
   (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
   (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
