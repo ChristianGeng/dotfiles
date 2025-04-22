@@ -23,7 +23,7 @@
        ;; company           ; the ultimate code completion backend
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
-       ;; (ivy +fonts +childframe)             ; a search engine for love and life
+       (ivy +fonts +childframe +fuzzy)             ; a search engine for love and life
        ;;
        (corfu +dabbrev +icons)
        ;; ivy
