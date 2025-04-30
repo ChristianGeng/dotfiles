@@ -21,6 +21,7 @@
 - [[#line-settings][LINE SETTINGS]]
 - [[#markdown][MARKDOWN]]
 - [[#minimap][MINIMAP]]
+- [[#menubar-and-toolbar-modes][Menubar and Toolbar Modes]]
 - [[#modeline][MODELINE]]
 - [[#mouse-support][MOUSE SUPPORT]]
 - [[#neotree][NEOTREE]]
@@ -350,7 +351,17 @@ A minimap sidebar displaying a smaller version of the current buffer on either t
 #+RESULTS:
 : minimap-mode
 
+* Menubar and Toolbar Modes
 
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix ("t" . "toggle")
+       :desc "Toggle menu bar" "M" #'menu-bar-mode))
+
+ (map! :leader
+      (:prefix ("t" . "toggle")
+       :desc "Toggle menu bar" "T" #'tool-bar-mode))
+#+end_src
 
 * MODELINE
 The modeline is the bottom status bar that appears in Emacs windows.  For more information on what is available to configure in the Doom modeline, check out:

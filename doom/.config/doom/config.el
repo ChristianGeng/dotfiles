@@ -130,13 +130,41 @@
       (:prefix ("t" . "toggle")
        :desc "Toggle minimap-mode" "m" #'minimap-mode))
 
+(map! :leader
+      (:prefix ("t" . "toggle")
+       :desc "Toggle menu bar" "M" #'menu-bar-mode))
+
+ (map! :leader
+      (:prefix ("t" . "toggle")
+       :desc "Toggle menu bar" "T" #'tool-bar-mode))
+
 (set-face-attribute 'mode-line nil :font "Ubuntu Mono-13")
 (setq doom-modeline-height 30     ;; sets modeline height
       doom-modeline-bar-width 5   ;; sets right bar width
       doom-modeline-persp-name t  ;; adds perspective name to modeline
       doom-modeline-persp-icon t) ;; adds folder icon next to persp name
 
-(xterm-mouse-mode 1)
+;; should be moved to dedicated function
+;; (add-to-list 'load-path "~/.config/doom/lisp/")
+;; (require 'cg-utils)  ;; or (load "cg-utils.el")
+
+(defun cg/toggle-mouse-and-line-numbers ()
+  "Toggle xterm-mouse-mode and line numbers together.
+When mouse mode is disabled, also disable line numbers for easier copy-paste."
+  (interactive)
+  (if xterm-mouse-mode
+      (progn
+        (xterm-mouse-mode -1)
+        (display-line-numbers-mode -1)
+        (message "xterm-mouse-mode OFF, line numbers OFF"))
+    (xterm-mouse-mode 1)
+    (display-line-numbers-mode 1)
+    (message "xterm-mouse-mode ON, line numbers ON")))
+
+(unless (display-graphic-p)
+  (map! :leader
+        (:prefix ("t" . "toggle")
+         :desc "Toggle xterm-mouse-mode" "M" #'cg/toggle-mouse-and-line-numbers )))
 
 (after! neotree
   (setq neo-smart-open t
@@ -243,6 +271,10 @@
 (map! :leader
       :desc "Zap to char"    "z" #'zap-to-char
       :desc "Zap up to char" "Z" #'zap-up-to-char)
+
+(map! :leader
+      :desc "Find file at point"
+      "f ." #'find-file-at-point)
 
 (after! lsp-mode
   (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
