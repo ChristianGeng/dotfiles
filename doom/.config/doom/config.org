@@ -21,7 +21,7 @@
 - [[#line-settings][LINE SETTINGS]]
 - [[#markdown][MARKDOWN]]
 - [[#minimap][MINIMAP]]
-- [[#menubar-and-toolbar-modes][Menubar and Toolbar Modes]]
+- [[#menubartoolbar][MENUBAR/TOOLBAR]]
 - [[#modeline][MODELINE]]
 - [[#mouse-support][MOUSE SUPPORT]]
 - [[#neotree][NEOTREE]]
@@ -351,7 +351,7 @@ A minimap sidebar displaying a smaller version of the current buffer on either t
 #+RESULTS:
 : minimap-mode
 
-* Menubar and Toolbar Modes
+* MENUBAR/TOOLBAR
 
 #+begin_src emacs-lisp
 (map! :leader
