@@ -364,13 +364,31 @@ https://github.com/seagle0128/doom-modeline
       doom-modeline-persp-icon t) ;; adds folder icon next to persp name
 #+end_src
 
-
-
 * MOUSE SUPPORT
 Adding mouse support in the terminal version of Emacs.
 
 #+begin_src emacs-lisp
-(xterm-mouse-mode 1)
+;; should be moved to dedicated function
+;; (add-to-list 'load-path "~/.config/doom/lisp/")
+;; (require 'cg-utils)  ;; or (load "cg-utils.el")
+
+(defun cg/toggle-mouse-and-line-numbers ()
+  "Toggle xterm-mouse-mode and line numbers together.
+When mouse mode is disabled, also disable line numbers for easier copy-paste."
+  (interactive)
+  (if xterm-mouse-mode
+      (progn
+        (xterm-mouse-mode -1)
+        (display-line-numbers-mode -1)
+        (message "xterm-mouse-mode OFF, line numbers OFF"))
+    (xterm-mouse-mode 1)
+    (display-line-numbers-mode 1)
+    (message "xterm-mouse-mode ON, line numbers ON")))
+
+(unless (display-graphic-p)
+  (map! :leader
+        (:prefix ("t" . "toggle")
+         :desc "Toggle xterm-mouse-mode" "M" #'cg/toggle-mouse-and-line-numbers )))
 #+end_src
 
 * NEOTREE
