@@ -5,6 +5,7 @@
 
 * TABLE OF CONTENTS :toc:
 - [[#about-this-config][ABOUT THIS CONFIG]]
+- [[#0-definitions][0-DEFINITIONS]]
 - [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
   - [[#bookmarks][Bookmarks]]
   - [[#global-auto-revert][Global Auto Revert]]
@@ -28,6 +29,7 @@
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
 - [[#org-mode][ORG MODE]]
   - [[#org-roam][Org-roam]]
+- [[#python][Python]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#registers][REGISTERS]]
 - [[#shells][SHELLS]]
@@ -35,11 +37,27 @@
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
 - [[#other-file-stuff][Other file stuff]]
-- [[#python][Python]]
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
  Mainly absorbed from distrotube's https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom
+
+* 0-DEFINITIONS
+
+ ~user-emacs-directory~ is "/home/cgeng/doom-emacs/.local/cache/" in doom emacs.
+ and "~/emacs-conf/" in ~emacs-default~.
+
+#+begin_src emacs-lisp
+  ;; Functions (load all files in defuns-dir)
+  ;;(add-to-list 'load-path user-emacs-directory)
+  (setq user-emacs-default-dir "~/emacs-conf/")
+  (setq defuns-dir (expand-file-name "defuns" user-emacs-default-dir))
+  (dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
+    (when (file-regular-p file)
+      (load (file-name-sans-extension file))))
+#+end_src
+
+#+RESULTS:
 
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
@@ -510,6 +528,13 @@ Perspective provides multiple named workspaces (or "perspectives") in Emacs, sim
       :desc "Remove perspective by name"       "-" #'persp-remove-by-name)
 #+end_src
 
+* Python
+
+#+begin_src emacs-lisp
+(after! lsp-mode
+  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
+  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
+#+end_src
 * RAINBOW MODE
 Rainbox mode displays the actual color for any hex value color.  It's such a nice feature that I wanted it turned on all the time, regardless of what mode I am in.  The following creates a global minor mode for rainbow-mode and enables it (exception: org-agenda-mode since rainbow-mode destroys all highlighting in org-agenda).
 
@@ -650,10 +675,3 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
       "f ." #'find-file-at-point)
 #+end_src
 
-* Python
-
-#+begin_src emacs-lisp
-(after! lsp-mode
-  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
-  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
-#+end_src

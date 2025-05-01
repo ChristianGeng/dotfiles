@@ -1,3 +1,11 @@
+;; Functions (load all files in defuns-dir)
+;;(add-to-list 'load-path user-emacs-directory)
+(setq user-emacs-default-dir "~/emacs-conf/")
+(setq defuns-dir (expand-file-name "defuns" user-emacs-default-dir))
+(dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
+  (when (file-regular-p file)
+    (load (file-name-sans-extension file))))
+
 (setq bookmark-default-file "~/.config/doom/bookmarks")
 
 (map! :leader
@@ -208,6 +216,10 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Add a buffer current perspective" "+" #'persp-add-buffer
       :desc "Remove perspective by name"       "-" #'persp-remove-by-name)
 
+(after! lsp-mode
+  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
+  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
+
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()
     (when (not (memq major-mode
@@ -275,7 +287,3 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (map! :leader
       :desc "Find file at point"
       "f ." #'find-file-at-point)
-
-(after! lsp-mode
-  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
-  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
