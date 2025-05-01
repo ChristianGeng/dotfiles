@@ -6,6 +6,8 @@
   (when (file-regular-p file)
     (load (file-name-sans-extension file))))
 
+(setq org-directory "~/Dropbox/org")
+
 (setq bookmark-default-file "~/.config/doom/bookmarks")
 
 (map! :leader
@@ -195,9 +197,15 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Edit eshell aliases"   "a" #'(lambda () (interactive) (find-file "~/.config/doom/eshell/aliases"))
        :desc "Edit eshell profile"   "p" #'(lambda () (interactive) (find-file "~/.config/doom/eshell/profile"))))
 
+(setq org-journal-dir (joindirs org-directory "journal")
+      org-journal-date-prefix "#+TITLE: "
+      org-journal-time-prefix "* "
+      org-journal-date-format "%A, %-d. %B %Y"
+      org-journal-file-format "%Y-%m-%d.org")
+
 (after! org
-  (setq org-roam-directory "~/nc/Org/roam/"
-        org-roam-graph-viewer "/usr/bin/brave"))
+  (setq org-org-roam-directory (joindirs org-directory "roam"))
+        org-roam-graph-viewer "/usr/bin/google-chrome"))
 
 (map! :leader
       (:prefix ("n r" . "org-roam")

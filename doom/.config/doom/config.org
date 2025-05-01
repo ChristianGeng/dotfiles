@@ -6,6 +6,8 @@
 * TABLE OF CONTENTS :toc:
 - [[#about-this-config][ABOUT THIS CONFIG]]
 - [[#0-definitions][0-DEFINITIONS]]
+  - [[#emacs-directories][Emacs Directories]]
+  - [[#org-directory][Org-Directory]]
 - [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
   - [[#bookmarks][Bookmarks]]
   - [[#global-auto-revert][Global Auto Revert]]
@@ -28,6 +30,7 @@
 - [[#neotree][NEOTREE]]
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
 - [[#org-mode][ORG MODE]]
+  - [[#org-journal][Org-Journal]]
   - [[#org-roam][Org-roam]]
 - [[#python][Python]]
 - [[#rainbow-mode][RAINBOW MODE]]
@@ -40,12 +43,15 @@
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
- Mainly absorbed from distrotube's https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom
+ Mainly absorbed from the configuration by [[https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom][distrotube]].
 
 * 0-DEFINITIONS
 
- ~user-emacs-directory~ is "/home/cgeng/doom-emacs/.local/cache/" in doom emacs.
- and "~/emacs-conf/" in ~emacs-default~.
+** Emacs Directories
+I want to use parts of the code from my old emacs configuration.
+This above all involves my lisp function.
+~user-emacs-directory~ is "/home/cgeng/doom-emacs/.local/cache/" in doom emacs.
+and "~/emacs-conf/" in ~emacs-default~.
 
 #+begin_src emacs-lisp
   ;; Functions (load all files in defuns-dir)
@@ -57,7 +63,10 @@ This is my personal Doom Emacs config.
       (load (file-name-sans-extension file))))
 #+end_src
 
-#+RESULTS:
+** Org-Directory
+#+begin_src emacs-lisp
+(setq org-directory "~/Dropbox/org")
+#+end_src
 
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
@@ -477,6 +486,21 @@ Keybindings to open files that I work with all the time using the find-file comm
 
 Only parts of it included. TODO
 
+** Org-Journal
+
+| COMMAND               | DESCRIPTION             | KEYBINDING |
+|-----------------------+-------------------------+------------|
+| org-journal-new-entry | Add a new journal entry | SPC n j j  |
+
+#+begin_src emacs-lisp
+(setq org-journal-dir (joindirs org-directory "journal")
+      org-journal-date-prefix "#+TITLE: "
+      org-journal-time-prefix "* "
+      org-journal-date-format "%A, %-d. %B %Y"
+      org-journal-file-format "%Y-%m-%d.org")
+#+end_src
+
+
 ** Org-roam
 [[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.  Org-roam borrows principles from the =Zettelkasten= method, providing a solution for non-hierarchical note-taking.  It should also work as a plug-and-play solution for anyone already using Org-mode for their personal wiki.
 
@@ -485,14 +509,14 @@ Only parts of it included. TODO
 | completion-at-point    | /Completion of node-insert at point/ | SPC n r c  |
 | org-roam-node-find     | /Find node or create a new one/      | SPC n r f  |
 | org-roam-graph         | /Show graph of all nodes/            | SPC n r g  |
-| org-roam-node-insert   | /Insert link to a node/              | SPC n r i  |
+| org-roam-node-insert   | /Insert link to a node -> backlink/  | SPC n r i  |
 | org-roam-capture       | /Capture to node/                    | SPC n r n  |
 | org-roam-buffer-toggle | /Toggle roam buffer/                 | SPC n r r  |
 
 #+begin_src emacs-lisp
 (after! org
-  (setq org-roam-directory "~/nc/Org/roam/"
-        org-roam-graph-viewer "/usr/bin/brave"))
+  (setq org-org-roam-directory (joindirs org-directory "roam"))
+        org-roam-graph-viewer "/usr/bin/google-chrome"))
 
 (map! :leader
       (:prefix ("n r" . "org-roam")
