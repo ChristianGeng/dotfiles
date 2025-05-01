@@ -99,6 +99,11 @@
        ;;gist              ; interacting with github gists
        lookup              ; navigate your code and its documentation
        lsp
+       ;; (lsp +peek)      ; Instead of jumping to definition "peek" shows the target
+                           ; (e.g., definition, references) in a
+                           ; temporary popup or side window.
+                           ; No effect for me so far
+
        (magit +childframe +forge)
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
