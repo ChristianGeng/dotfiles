@@ -216,6 +216,14 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Capture to node"     "n" #'org-roam-capture
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
 
+(setq org-preview-latex-default-process 'dvisvgm)
+(after! org
+  (map! :map org-mode-map
+        :localleader
+        (:prefix ("v" . "view/toggle")
+         :desc "Toggle LaTeX fragments" "l" #'org-toggle-latex-fragment
+         :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
+
 (map! :leader
       :desc "Switch to perspective NAME"       "DEL" #'persp-switch
       :desc "Switch to buffer in perspective"  "," #'persp-switch-to-buffer
