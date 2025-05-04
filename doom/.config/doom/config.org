@@ -30,9 +30,10 @@
 - [[#neotree][NEOTREE]]
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
 - [[#org-mode][ORG MODE]]
+  - [[#org-agenda][Org-agenda]]
   - [[#org-journal][Org-Journal]]
-  - [[#org-roam][Org-roam]]
   - [[#org-and-latex-inline-images][Org and latex inline images]]
+  - [[#org-roam][Org-roam]]
 - [[#perspective][PERSPECTIVE]]
 - [[#python][Python]]
 - [[#rainbow-mode][RAINBOW MODE]]
@@ -458,7 +459,7 @@ Keybindings to open files that I work with all the time using the find-file comm
 | PATH TO FILE                  | DESCRIPTION                 | KEYBINDING |
 |-------------------------------+-----------------------------+------------|
 | ~/.config/doom/start.org      | /Edit start.org (start page)/ | SPC = =    |
-| ~/nc/Org/agenda.org           | /Edit agenda file/            | SPC = a    |
+| ~/Dropbox/org/agenda.org      | /Edit agenda file/            | SPC = a    |
 | ~/.config/doom/config.org     | /Edit doom config.org/        | SPC = c    |
 | ~/.config/doom/init.el        | /Edit doom init.el/           | SPC = i    |
 | ~/.config/doom/packages.el    | /Edit doom packages.el/       | SPC = p    |
@@ -483,7 +484,61 @@ Keybindings to open files that I work with all the time using the find-file comm
 
 * ORG MODE
 
-Only parts of it included. TODO
+- *Org Agenda* displays tasks, deadlines, and scheduled items from files in `org-agenda-files`.
+- *Org Capture* lets you quickly add entries to any Org file via templates.
+  Captured tasks only appear in the agenda if their file is in `org-agenda-files`.
+- *Journaling* can be done either with capture templates (single file)
+  or with `org-journal` (daily files in a directory).
+- *Org-roam* manages networked notes, separate from agenda and journal.
+
+*** Current State
+
+- Capture and journaling use separate files and locations.
+- Only files in `org-agenda-files` contribute items to the agenda.
+- Org-roam notes are not included in agenda or journal views.
+
+*** Recommendation
+
+- Unify journal and capture destinations if you want all entries together.
+- Add all relevant files to `org-agenda-files` for a complete agenda view.
+
+** Org-agenda
+
+#+begin_src emacs-lisp
+(after! org
+    (setq org-agenda-files
+        (list
+         (joindirs org-directory "agenda.org")
+         )
+        ))
+(setq
+   ;; org-fancy-priorities-list '("[A]" "[B]" "[C]")
+   ;; org-fancy-priorities-list '("❗" "[B]" "[C]")
+   org-fancy-priorities-list '("🟥" "🟧" "🟨")
+   org-priority-faces
+   '((?A :foreground "#ff6c6b" :weight bold)
+     (?B :foreground "#98be65" :weight bold)
+     (?C :foreground "#c678dd" :weight bold))
+   org-agenda-block-separator 8411)
+
+(setq org-agenda-custom-commands
+      '(("v" "A better agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (tags "PRIORITY=\"B\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
+          (tags "PRIORITY=\"C\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Low-priority unfinished tasks:")))
+          (tags "customtag"
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Tasks marked with customtag:")))
+
+          (agenda "")
+          (alltodo "")))))
+#+end_src
 
 ** Org-Journal
 
@@ -499,6 +554,24 @@ Only parts of it included. TODO
       org-journal-file-format "%Y-%m-%d.org")
 #+end_src
 
+** Org and latex inline images
+
+| Keybinding | Action                       |
+|------------+------------------------------|
+| SPC m v l  | Toggle LaTeX fragment images |
+| SPC m v i  | Toggle inline images         |
+
+Nicer formula
+
+#+begin_src emacs-lisp
+(setq org-preview-latex-default-process 'dvisvgm)
+(after! org
+  (map! :map org-mode-map
+        :localleader
+        (:prefix ("v" . "view/toggle")
+         :desc "Toggle LaTeX fragments" "l" #'org-toggle-latex-fragment
+         :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
+#+end_src
 
 ** Org-roam
 [[https://github.com/org-roam/org-roam][Org-roam]] is a plain-text knowledge management system.  Org-roam borrows principles from the =Zettelkasten= method, providing a solution for non-hierarchical note-taking.  It should also work as a plug-and-play solution for anyone already using Org-mode for their personal wiki.
@@ -526,27 +599,6 @@ Only parts of it included. TODO
        :desc "Capture to node"     "n" #'org-roam-capture
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
 #+end_src
-
-** Org and latex inline images
-
-| Keybinding | Action                       |
-|------------+------------------------------|
-| SPC m v l  | Toggle LaTeX fragment images |
-| SPC m v i  | Toggle inline images         |
-
-Nicer formula
-
-#+begin_src emacs-lisp
-(setq org-preview-latex-default-process 'dvisvgm)
-(after! org
-  (map! :map org-mode-map
-        :localleader
-        (:prefix ("v" . "view/toggle")
-         :desc "Toggle LaTeX fragments" "l" #'org-toggle-latex-fragment
-         :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
-#+end_src
-
-#+RESULTS:
 
 * PERSPECTIVE
 Perspective provides multiple named workspaces (or "perspectives") in Emacs, similar to having multiple desktops in window managers like Awesome and XMonad.  Each perspective has its own buffer list and its own window layout, making it easy to work on many separate projects without getting lost in all the buffers.  Switching to a perspective activates its window configuration, and when in a perspective, only its buffers are available (by default).  Doom Emacs uses 'SPC some_key' for binding some of the perspective commands, so I used this binging format for the perspective bindings that I created..

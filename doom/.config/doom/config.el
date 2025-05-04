@@ -197,11 +197,53 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Edit eshell aliases"   "a" #'(lambda () (interactive) (find-file "~/.config/doom/eshell/aliases"))
        :desc "Edit eshell profile"   "p" #'(lambda () (interactive) (find-file "~/.config/doom/eshell/profile"))))
 
+(after! org
+    (setq org-agenda-files
+        (list
+         (joindirs org-directory "agenda.org")
+         )
+        ))
+(setq
+   ;; org-fancy-priorities-list '("[A]" "[B]" "[C]")
+   ;; org-fancy-priorities-list '("❗" "[B]" "[C]")
+   org-fancy-priorities-list '("🟥" "🟧" "🟨")
+   org-priority-faces
+   '((?A :foreground "#ff6c6b" :weight bold)
+     (?B :foreground "#98be65" :weight bold)
+     (?C :foreground "#c678dd" :weight bold))
+   org-agenda-block-separator 8411)
+
+(setq org-agenda-custom-commands
+      '(("v" "A better agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (tags "PRIORITY=\"B\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Medium-priority unfinished tasks:")))
+          (tags "PRIORITY=\"C\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Low-priority unfinished tasks:")))
+          (tags "customtag"
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Tasks marked with customtag:")))
+
+          (agenda "")
+          (alltodo "")))))
+
 (setq org-journal-dir (joindirs org-directory "journal")
       org-journal-date-prefix "#+TITLE: "
       org-journal-time-prefix "* "
       org-journal-date-format "%A, %-d. %B %Y"
       org-journal-file-format "%Y-%m-%d.org")
+
+(setq org-preview-latex-default-process 'dvisvgm)
+(after! org
+  (map! :map org-mode-map
+        :localleader
+        (:prefix ("v" . "view/toggle")
+         :desc "Toggle LaTeX fragments" "l" #'org-toggle-latex-fragment
+         :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
 
 (after! org
   (setq org-org-roam-directory (joindirs org-directory "roam"))
@@ -215,14 +257,6 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Insert node"         "i" #'org-roam-node-insert
        :desc "Capture to node"     "n" #'org-roam-capture
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
-
-(setq org-preview-latex-default-process 'dvisvgm)
-(after! org
-  (map! :map org-mode-map
-        :localleader
-        (:prefix ("v" . "view/toggle")
-         :desc "Toggle LaTeX fragments" "l" #'org-toggle-latex-fragment
-         :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
 
 (map! :leader
       :desc "Switch to perspective NAME"       "DEL" #'persp-switch
