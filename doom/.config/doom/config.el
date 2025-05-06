@@ -262,8 +262,9 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
          :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
 
 (after! org
-  (setq org-org-roam-directory (joindirs org-directory "roam"))
-        org-roam-graph-viewer "/usr/bin/google-chrome"))
+  (when (display-graphic-p)
+    (setq org-roam-directory (expand-file-name "roam" org-directory)
+          org-roam-graph-viewer "/usr/bin/google-chrome")))
 
 (map! :leader
       (:prefix ("n r" . "org-roam")

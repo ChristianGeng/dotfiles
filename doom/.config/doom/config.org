@@ -616,9 +616,11 @@ Nicer formula
 | org-roam-buffer-toggle | /Toggle roam buffer/                 | SPC n r r  |
 
 #+begin_src emacs-lisp
+
 (after! org
-  (setq org-org-roam-directory (joindirs org-directory "roam"))
-        org-roam-graph-viewer "/usr/bin/google-chrome"))
+  (when (display-graphic-p)
+    (setq org-roam-directory (expand-file-name "roam" org-directory)
+          org-roam-graph-viewer "/usr/bin/google-chrome")))
 
 (map! :leader
       (:prefix ("n r" . "org-roam")
@@ -628,7 +630,9 @@ Nicer formula
        :desc "Insert node"         "i" #'org-roam-node-insert
        :desc "Capture to node"     "n" #'org-roam-capture
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
+
 #+end_src
+
 
 * Org-auto-tangle
 =org-auto-tangle= allows you to add the option =#+auto_tangle: t= in your Org file so that it automatically tangles when you save the document.  I have made adding this to your file even easier by creating a function 'dt/insert-auto-tangle-tag' and setting it to a keybinding 'SPC i a'.
