@@ -94,6 +94,22 @@
       (:prefix ("t" . "Toggle")
        :desc "Toggle imenu shown in a sidebar" "i" #'imenu-list-smart-toggle))
 
+(emms-all)
+(emms-default-players)
+(emms-mode-line 1)
+(emms-playing-time 1)
+(setq emms-source-file-default-directory "/media/cgeng/TOSHIBA EXT/mp3"
+      emms-playlist-buffer-name "*Music*"
+      emms-info-asynchronously t
+      emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+(map! :leader
+      (:prefix ("a" . "EMMS audio player")
+       :desc "Go to emms playlist"      "a" #'emms-playlist-mode-go
+       :desc "Emms pause track"         "x" #'emms-pause
+       :desc "Emms stop track"          "s" #'emms-stop
+       :desc "Emms play previous track" "p" #'emms-previous
+       :desc "Emms play next track"     "n" #'emms-next))
+
 (setq ivy-posframe-display-functions-alist
       '((swiper                     . ivy-posframe-display-at-point)
         (complete-symbol            . ivy-posframe-display-at-point)
@@ -265,6 +281,11 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Switch to previous perspective"   "[" #'persp-prev
       :desc "Add a buffer current perspective" "+" #'persp-add-buffer
       :desc "Remove perspective by name"       "-" #'persp-remove-by-name)
+
+(map! :leader
+      :desc "Projectile run shell" "p S" #'projectile-run-shell
+      :desc "Open eshell here"     "p E" #'eshell
+      :desc "Open term here"       "p T" (cmd! (let ((default-directory (projectile-project-root))) (term (getenv "SHELL")))))
 
 (after! lsp-mode
   (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python

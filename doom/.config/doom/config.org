@@ -18,6 +18,7 @@
   - [[#keybindings-within-dired-with-peep-dired-mode-enabled][Keybindings Within Dired With Peep-Dired-Mode Enabled]]
   - [[#making-deleted-files-go-to-trash-can][Making deleted files go to trash can]]
 - [[#imenu][IMENU]]
+- [[#emms][EMMS]]
 - [[#ivy][IVY]]
   - [[#ivy-posframe][IVY-POSFRAME]]
   - [[#ivy-keybindings][IVY KEYBINDINGS]]
@@ -35,6 +36,7 @@
   - [[#org-and-latex-inline-images][Org and latex inline images]]
   - [[#org-roam][Org-roam]]
 - [[#perspective][PERSPECTIVE]]
+- [[#project][Project]]
 - [[#python][Python]]
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#registers][REGISTERS]]
@@ -274,6 +276,34 @@ Imenu produces menus for accessing locations in documents, typically in the curr
        :desc "Toggle imenu shown in a sidebar" "i" #'imenu-list-smart-toggle))
 
 #+END_SRC
+* EMMS
+
+| COMMAND               | DESCRIPTION                       | KEYBINDING |
+|-----------------------+-----------------------------------+------------|
+| emms-playlist-mode-go | /Switch to the playlist buffer/     | SPC a a    |
+| emms-pause            | /Pause the track/                   | SPC a x    |
+| emms-stop             | /Stop the track/                    | SPC a s    |
+| emms-previous         | /Play previous track in playlist/   | SPC a p    |
+| emms-next             | /Play next track in playlist/       | SPC a n    |
+
+
+#+begin_src emacs-lisp
+(emms-all)
+(emms-default-players)
+(emms-mode-line 1)
+(emms-playing-time 1)
+(setq emms-source-file-default-directory "/media/cgeng/TOSHIBA EXT/mp3"
+      emms-playlist-buffer-name "*Music*"
+      emms-info-asynchronously t
+      emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
+(map! :leader
+      (:prefix ("a" . "EMMS audio player")
+       :desc "Go to emms playlist"      "a" #'emms-playlist-mode-go
+       :desc "Emms pause track"         "x" #'emms-pause
+       :desc "Emms stop track"          "s" #'emms-stop
+       :desc "Emms play previous track" "p" #'emms-previous
+       :desc "Emms play next track"     "n" #'emms-next))
+#+end_src
 
 * IVY
 Ivy is a generic completion mechanism for Emacs.
@@ -361,7 +391,6 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
 #+end_src
 
 #+RESULTS:
-
 
 
 * MINIMAP
@@ -621,6 +650,15 @@ Perspective provides multiple named workspaces (or "perspectives") in Emacs, sim
       :desc "Switch to previous perspective"   "[" #'persp-prev
       :desc "Add a buffer current perspective" "+" #'persp-add-buffer
       :desc "Remove perspective by name"       "-" #'persp-remove-by-name)
+#+end_src
+
+* Project
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Projectile run shell" "p S" #'projectile-run-shell
+      :desc "Open eshell here"     "p E" #'eshell
+      :desc "Open term here"       "p T" (cmd! (let ((default-directory (projectile-project-root))) (term (getenv "SHELL")))))
 #+end_src
 
 * Python
