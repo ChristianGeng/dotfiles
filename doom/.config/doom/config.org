@@ -279,13 +279,13 @@ Imenu produces menus for accessing locations in documents, typically in the curr
 #+END_SRC
 * EMMS
 
-| COMMAND               | DESCRIPTION                       | KEYBINDING |
-|-----------------------+-----------------------------------+------------|
-| emms-playlist-mode-go | /Switch to the playlist buffer/     | SPC a a    |
-| emms-pause            | /Pause the track/                   | SPC a x    |
-| emms-stop             | /Stop the track/                    | SPC a s    |
-| emms-previous         | /Play previous track in playlist/   | SPC a p    |
-| emms-next             | /Play next track in playlist/       | SPC a n    |
+| COMMAND               | DESCRIPTION                     | KEYBINDING |
+|-----------------------+---------------------------------+------------|
+| emms-pause            | /Pause the track/                 | SPC e x    |
+| emms-stop             | /Stop the track/                  | SPC e s    |
+| emms-previous         | /Play previous track in playlist/ | SPC e p    |
+| emms-playlist-mode-go | /Switch to the playlist buffer/   | SPC e a    |
+| emms-next             | /Play next track in playlist/     | SPC e n    |
 
 
 #+begin_src emacs-lisp
@@ -298,7 +298,7 @@ Imenu produces menus for accessing locations in documents, typically in the curr
       emms-info-asynchronously t
       emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
 (map! :leader
-      (:prefix ("a" . "EMMS audio player")
+      (:prefix ("e" . "EMMS audio player")
        :desc "Go to emms playlist"      "a" #'emms-playlist-mode-go
        :desc "Emms pause track"         "x" #'emms-pause
        :desc "Emms stop track"          "s" #'emms-stop

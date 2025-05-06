@@ -103,7 +103,7 @@
       emms-info-asynchronously t
       emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
 (map! :leader
-      (:prefix ("a" . "EMMS audio player")
+      (:prefix ("e" . "EMMS audio player")
        :desc "Go to emms playlist"      "a" #'emms-playlist-mode-go
        :desc "Emms pause track"         "x" #'emms-pause
        :desc "Emms stop track"          "s" #'emms-stop
