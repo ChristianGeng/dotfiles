@@ -92,3 +92,7 @@
 ;; python
 (package! lsp-pyright)
 (package! python-pytest)
+
+;; codeium
+(package! codeium
+  :recipe (:host github :repo "Exafunction/codeium.el"))
