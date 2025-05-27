@@ -1,1 +1,7 @@
+# git cannot ignore files
+# therefore this has to be run on every instance!
+# git config --global core.excludesFile ~/.config/git/ignore
 cgeng
+*.code-workspace
+scratch.py
+uv.lock
