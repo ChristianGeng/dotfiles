@@ -275,6 +275,9 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Capture to node"     "n" #'org-roam-capture
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
 
+(use-package! ox-gfm
+  :after org)
+
 (use-package! org-auto-tangle
   :defer t
   :hook (org-mode . org-auto-tangle-mode)

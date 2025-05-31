@@ -73,6 +73,7 @@
 (package! org-auto-tangle)
 (package! org-web-tools)
 (package! ox-gemini)
+(package! ox-gfm)
 (package! peep-dired)
 (package! password-store)
 (package! rainbow-mode)

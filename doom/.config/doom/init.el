@@ -160,7 +160,8 @@
        ;;ocaml             ; an objective camel
        (org
         +journal             ; enable org journal
-        +roam2               ; create a personal wiki 
+        +roam2               ; create a personal wiki
+        +gfm                 ; enable GitHub Flavored Markdown export
         +pretty              ; replace asterisks with pretty org bullets
         +publish)            ; create static websites with org
        php               ; perl's insecure younger brother
