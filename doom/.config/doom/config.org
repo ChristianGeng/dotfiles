@@ -44,6 +44,7 @@
 - [[#registers][REGISTERS]]
 - [[#shells][SHELLS]]
 - [[#start-page][START PAGE]]
+- [[#theming][THEMING]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
 - [[#other-file-stuff][Other file stuff]]
@@ -393,7 +394,6 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
 #+end_src
 
 #+RESULTS:
-
 
 * MINIMAP
 A minimap sidebar displaying a smaller version of the current buffer on either the left or right side. It highlights the currently shown region and updates its position automatically.  Be aware that this minimap program does not work in Org documents.  This is not unusual though because I have tried several minimap programs and none of them can handle Org.
@@ -798,6 +798,14 @@ Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided
 
 (add-hook 'start-mode-hook 'read-only-mode) ;; make start.org read-only; use 'SPC t r' to toggle off read-only.
 (provide 'start-mode)
+#+end_src
+
+* THEMING
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-henna)
+(map! :leader
+      :desc "Load new theme" "h t" #consult-theme)
 #+end_src
 
 * WINNER MODE

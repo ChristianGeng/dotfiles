@@ -366,6 +366,10 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (add-hook 'start-mode-hook 'read-only-mode) ;; make start.org read-only; use 'SPC t r' to toggle off read-only.
 (provide 'start-mode)
 
+(setq doom-theme 'doom-henna)
+(map! :leader
+      :desc "Load new theme" "h t" #consult-theme)
+
 (map! :leader
       (:prefix ("w" . "window")
        :desc "Winner redo" "<right>" #'winner-redo
