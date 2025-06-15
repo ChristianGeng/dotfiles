@@ -84,6 +84,12 @@
 (setq delete-by-moving-to-trash t
       trash-directory "~/.local/share/Trash/files/")
 
+(defun cg/enforce-semantic-line-breaks ()
+  "Enforce semantic line breaks in the current buffer."
+  (interactive)
+  (let ((fill-column 80)) ;; Set your desired fill column
+    (fill-region (point-min) (point-max))))
+
 (setq imenu-list-focus-after-activation t)
 
 (map! :leader

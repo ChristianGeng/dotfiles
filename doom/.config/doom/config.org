@@ -17,6 +17,8 @@
   - [[#keybindings-within-dired][Keybindings Within Dired]]
   - [[#keybindings-within-dired-with-peep-dired-mode-enabled][Keybindings Within Dired With Peep-Dired-Mode Enabled]]
   - [[#making-deleted-files-go-to-trash-can][Making deleted files go to trash can]]
+- [[#editing-functions][EDITING FUNCTIONS]]
+  - [[#semantic-line-breaks][Semantic Line Breaks]]
 - [[#imenu][IMENU]]
 - [[#emms][EMMS]]
 - [[#ivy][IVY]]
@@ -258,6 +260,24 @@ If peep-dired is enabled, you will get image previews as you go up/down with 'j'
 cd ~/
 ln -s ~/.local/share/Trash .
 #+end_example
+
+* EDITING FUNCTIONS
+
+TODO: Should be moved to =editing-defuns=!
+
+** Semantic Line Breaks
+
+Using =after-save= hooks is not really useful.
+
+#+begin_src emacs-lisp
+
+  (defun cg/enforce-semantic-line-breaks ()
+    "Enforce semantic line breaks in the current buffer."
+    (interactive)
+    (let ((fill-column 80)) ;; Set your desired fill column
+      (fill-region (point-min) (point-max))))
+
+#+end_src
 
 * IMENU
 Imenu produces menus for accessing locations in documents, typically in the current buffer. You can access the locations using an ordinary menu (menu bar or other) or using minibuffer completion, or you can install 'imenu-list' and have the imenu displayed as a vertical split that you can toggle show/hide.
