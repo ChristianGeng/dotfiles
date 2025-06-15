@@ -744,7 +744,7 @@ Emacs registers are compartments where you can save text, rectangles and positio
 | jump-to-register                 | /Jump to register/                 | SPC r j    |
 | list-registers                   | /List registers/                   | SPC r l    |
 | number-to-register               | /Number to register/               | SPC r n    |
-| counsel-register                 | /Interactively choose a register/  | SPC r r    |
+| consult-register                 | /Interactively choose a register/  | SPC r r    |
 | view-register                    | /View a register/                  | SPC r v    |
 | window-configuration-to-register | /Window configuration to register/ | SPC r w    |
 | increment-register               | /Increment register/               | SPC r +    |
@@ -759,7 +759,7 @@ Emacs registers are compartments where you can save text, rectangles and positio
        :desc "Jump to register" "j" #'jump-to-register
        :desc "List registers" "l" #'list-registers
        :desc "Number to register" "n" #'number-to-register
-       :desc "Interactively choose a register" "r" #'counsel-register
+       :desc "Interactively choose a register" "r" #'consult-register
        :desc "View a register" "v" #'view-register
        :desc "Window configuration to register" "w" #'window-configuration-to-register
        :desc "Increment register" "+" #'increment-register
