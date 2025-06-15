@@ -84,11 +84,47 @@
 (setq delete-by-moving-to-trash t
       trash-directory "~/.local/share/Trash/files/")
 
-(defun cg/enforce-semantic-line-breaks ()
-  "Enforce semantic line breaks in the current buffer."
+;; Core function: not interactive, works on any region
+(defun cg/semantic-fill-region (start end)
+  "Apply semantic fill to region from START to END."
+  (let ((fill-column 80))
+    (fill-region start end)))
+
+;; Interactive wrapper: acts on region if active, otherwise whole buffer
+(defun cg/semantic-fill-dwim ()
+  "Semantic fill: region if active, else whole buffer."
   (interactive)
-  (let ((fill-column 80)) ;; Set your desired fill column
-    (fill-region (point-min) (point-max))))
+  (if (use-region-p)
+      (cg/semantic-fill-region (region-beginning) (region-end))
+    (cg/semantic-fill-region (point-min) (point-max))))
+
+;; Explicitly for whole buffer
+(defun cg/semantic-fill-buffer ()
+  "Semantic fill for the entire buffer."
+  (interactive)
+  (cg/semantic-fill-region (point-min) (point-max)))
+
+;; Explicitly for region (errors if no region)
+(defun cg/semantic-fill-region-interactive (start end)
+  "Semantic fill for active region."
+  (interactive "r")
+  (cg/semantic-fill-region start end))
+
+(defun cg/naive-semantic-line-breaks-region (start end)
+  "Insert line breaks after sentence-ending punctuation followed by a capital letter."
+  (save-excursion
+    (goto-char start)
+    (while (re-search-forward "\\([\\.\\?!]\\)[ \t]+\\([A-Z]\\)" end t)
+      (replace-match (concat "\\1\n\\2")))))
+
+
+;; Interactive wrapper: region if active, else whole buffer
+(defun cg/naive-semantic-line-breaks-dwim ()
+  "Semantic line break: region if active, else whole buffer."
+  (interactive)
+  (if (use-region-p)
+      (cg/naive-semantic-line-breaks-region (region-beginning) (region-end))
+    (cg/naive-semantic-line-breaks-region (point-min) (point-max))))
 
 (setq imenu-list-focus-after-activation t)
 

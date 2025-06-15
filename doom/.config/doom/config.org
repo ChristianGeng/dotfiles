@@ -1,5 +1,5 @@
-#+TITLE: DT's Doom Emacs Config
-#+AUTHOR: Derek Taylor (DT)
+#+TITLE: Doom Emacs Config
+#+AUTHOR: Christian Geng, based on DT's configuration
 #+DESCRIPTION: DT's personal Doom Emacs config.
 #+STARTUP: showeverything
 
@@ -53,7 +53,13 @@
 
 * ABOUT THIS CONFIG
 This is my personal Doom Emacs config.
- Mainly absorbed from the configuration by [[https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom][distrotube]].
+ Used the configuration by Derek Taylor aka [[https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom][distrotube]] as a starter,
+with gradually evolving such that it fits my personal needs.
+
+I particular, these days Consult (with Vertico and Embark) is recommended,
+and I am gradually transitioning to it.
+ Unless you have a specific reason to stick with the older Ivy/Counsel system,
+ this seems to be the way to go in emacs right right now.
 
 * 0-DEFINITIONS
 
@@ -267,16 +273,67 @@ TODO: Should be moved to =editing-defuns=!
 
 ** Semantic Line Breaks
 
-Using =after-save= hooks is not really useful.
+Using =after-save= hooks is not really useful!
+
+
+*** Semantic fill region
+In 99% of the usecases only the =dwim= version will be required.
 
 #+begin_src emacs-lisp
+;; Core function: not interactive, works on any region
+(defun cg/semantic-fill-region (start end)
+  "Apply semantic fill to region from START to END."
+  (let ((fill-column 80))
+    (fill-region start end)))
 
-  (defun cg/enforce-semantic-line-breaks ()
-    "Enforce semantic line breaks in the current buffer."
-    (interactive)
-    (let ((fill-column 80)) ;; Set your desired fill column
-      (fill-region (point-min) (point-max))))
+;; Interactive wrapper: acts on region if active, otherwise whole buffer
+(defun cg/semantic-fill-dwim ()
+  "Semantic fill: region if active, else whole buffer."
+  (interactive)
+  (if (use-region-p)
+      (cg/semantic-fill-region (region-beginning) (region-end))
+    (cg/semantic-fill-region (point-min) (point-max))))
 
+;; Explicitly for whole buffer
+(defun cg/semantic-fill-buffer ()
+  "Semantic fill for the entire buffer."
+  (interactive)
+  (cg/semantic-fill-region (point-min) (point-max)))
+
+;; Explicitly for region (errors if no region)
+(defun cg/semantic-fill-region-interactive (start end)
+  "Semantic fill for active region."
+  (interactive "r")
+  (cg/semantic-fill-region start end))
+#+end_src
+
+
+*** Semantic Line breaks
+
+Test sentences:
+
+Dr. Smith went to Washington, D.C. in 2023. He met with Prof. Johnson; they discussed the project: "Semantic line breaks in Emacs." The meeting was productive! Afterwards, they visited www.example.com. Next, they had lunch at 12:30 p.m. and then returned to the lab.
+
+The experiment started at 9:00. The participants read the instructions carefully; they asked several questions. Data collection began promptly. Results were analyzed using Python. The findings were significant!
+
+The first sentence will not give such good result, the second does.
+
+#+begin_src emacs-lisp
+(defun cg/naive-semantic-line-breaks-region (start end)
+  "Insert line breaks after sentence-ending punctuation followed by a capital letter."
+  (save-excursion
+    (goto-char start)
+    (while (re-search-forward "\\([\\.\\?!]\\)[ \t]+\\([A-Z]\\)" end t)
+      (replace-match (concat "\\1\n\\2")))))
+
+
+;; Interactive wrapper: region if active, else whole buffer
+(defun cg/naive-semantic-line-breaks-dwim ()
+  "Semantic line break: region if active, else whole buffer."
+  (interactive)
+  (if (use-region-p)
+      (cg/naive-semantic-line-breaks-region (region-beginning) (region-end))
+    (cg/naive-semantic-line-breaks-region (point-min) (point-max))))
 #+end_src
 
 * IMENU
