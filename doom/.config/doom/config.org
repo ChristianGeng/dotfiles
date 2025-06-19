@@ -5,6 +5,7 @@
 
 * TABLE OF CONTENTS :toc:
 - [[#about-this-config][ABOUT THIS CONFIG]]
+- [[#vim-evil-cheatsheet][VIM/EVIL CHEATSHEET]]
 - [[#0-definitions][0-DEFINITIONS]]
   - [[#emacs-directories][Emacs Directories]]
   - [[#org-directory][Org-Directory]]
@@ -51,13 +52,16 @@
 - [[#other-file-stuff][Other file stuff]]
 
 * ABOUT THIS CONFIG
-This is my personal Doom Emacs config.
- Used the configuration by Derek Taylor aka [[https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/doom][distrotube]] as a starter,
-with gradually evolving such that it fits my personal needs.
+:PROPERTIES:
+:END:
 
-I particular, these days Consult (with Vertico and Embark) is recommended,
-and I am gradually transitioning to it.
- Unless you have a specific reason to stick with the older Ivy/Counsel system,
+This is my personal Doom Emacs configuration.
+
+* VIM/EVIL CHEATSHEET
+:PROPERTIES:
+:END:
+
+For a quick reference of Vim/Evil mode keybindings, see the [[file:./cheatsheet.org][cheatsheet.org]] file.
  this seems to be the way to go in emacs right right now.
 
 * 0-DEFINITIONS
