@@ -13,10 +13,9 @@
   - [[#global-auto-revert][Global Auto Revert]]
   - [[#keybindings-within-ibuffer-mode][Keybindings within ibuffer mode]]
 - [[#dired][DIRED]]
-  - [[#keybindings-to-open-dired][Keybindings To Open Dired]]
+  - [[#keybindings][Keybindings]]
   - [[#keybindings-within-dired][Keybindings Within Dired]]
-  - [[#keybindings-within-dired-with-peep-dired-mode-enabled][Keybindings Within Dired With Peep-Dired-Mode Enabled]]
-  - [[#making-deleted-files-go-to-trash-can][Making deleted files go to trash can]]
+  - [[#specify-whether-to-use-trash-can][Specify whether to use trash can]]
 - [[#editing-functions][EDITING FUNCTIONS]]
   - [[#semantic-line-breaks][Semantic Line Breaks]]
 - [[#imenu][IMENU]]
@@ -144,21 +143,27 @@ A buffer can get out of sync with respect to its visited file on disk if that fi
 #+end_src
 
 * DIRED
-Dired is the file manager within Emacs.  Below, I setup keybindings for image previews (peep-dired).  Doom Emacs does not use 'SPC d' for any of its keybindings, so I've chosen the format of 'SPC d' plus 'key'.
 
-** Keybindings To Open Dired
+Dired is the file manager within Emacs.
+I do not like ~SPC  d d~ bindings and have removed them
+as they collide with doom's ~dape~ menu that is under ~~SPC d~.
+~SPC o -~ already exists and also allows to access dired.
 
-| COMMAND    | DESCRIPTION                        | KEYBINDING |
-|------------+------------------------------------+------------|
-| dired      | /Open dired file manager/            | SPC d d    |
-| dired-jump | /Jump to current directory in dired/ | SPC d j    |
+~peep-dired~ opens too many windows side-by-side.
+I have also removed it.
+
+** Keybindings
+
+| COMMAND    | DESCRIPTION                                          | KEYBINDING |
+|------------+------------------------------------------------------+------------|
+| dired-jump | Jump to Dired buffer corresponding to current buffer | SPC  o -   |
+| dired      | /Open dired file manager/                              | C-x d      |
 
 ** Keybindings Within Dired
 *** Basic dired commands
 
 | COMMAND                | DESCRIPTION                                 | KEYBINDING |
 |------------------------+---------------------------------------------+------------|
-| dired-view-file        | /View file in dired/                          | SPC d v    |
 | dired-up-directory     | /Go up in directory tree/                     | h          |
 | dired-find-file        | /Go down in directory tree (or open if file)/ | l          |
 | dired-next-line        | /Move down to next line/                      | j          |
@@ -173,14 +178,19 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 | dired-diff             | /Compare file at point with another/          | =          |
 | dired-subtree-toggle   | /Toggle viewing subtree at point/             | TAB        |
 
+
 *** Dired commands using regex
 
-| COMMAND                 | DESCRIPTION                | KEYBINDING |
-|-------------------------+----------------------------+------------|
-| dired-mark-files-regexp | /Mark files using regex/     | % m        |
-| dired-do-copy-regexp    | /Copy files using regex/     | % C        |
-| dired-do-rename-regexp  | /Rename files using regex/   | % R        |
-| dired-mark-files-regexp | /Mark all files using regex/ | * %        |
+| COMMAND                      | DESCRIPTION                                      | KEYBINDING |
+|------------------------------+--------------------------------------------------+------------|
+| dired-do-shell-command       | Run shell command on marked files                | !          |
+| dired-do-async-shell-command | Run shell command asynchronously on marked files | &          |
+| dired-mark-files-regexp      | /Mark files using regex/                           | % m        |
+| dired-do-copy-regexp         | /Copy files using regex/                           | % C        |
+| dired-do-rename-regexp       | /Rename files using regex/                         | % R        |
+| dired-mark-files-regexp      | /Mark all files using regex/                       | * %        |
+
+- ~!~ on a marked file guesses what to do with the file: ~xdg-open~  is the guess. Not working with ~&~.
 
 *** File permissions and ownership
 
@@ -192,15 +202,6 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 | dired-do-rename | /Rename file or all marked files/  | R          |
 
 #+begin_src emacs-lisp
-(map! :leader
-      (:prefix ("d" . "dired")
-       :desc "Open dired" "d" #'dired
-       :desc "Dired jump to current" "j" #'dired-jump)
-      (:after dired
-       (:map dired-mode-map
-        :desc "Peep-dired image previews" "d p" #'peep-dired
-        :desc "Dired view file"           "d v" #'dired-view-file)))
-
 (evil-define-key 'normal dired-mode-map
   (kbd "M-RET") 'dired-display-file
   (kbd "h") 'dired-up-directory
@@ -232,32 +233,23 @@ Dired is the file manager within Emacs.  Below, I setup keybindings for image pr
 ;; (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 ;; With dired-open plugin, you can launch external programs for certain extensions
 ;; For example, I set all .png files to open in 'sxiv' and all .mp4 files to open in 'mpv'
+;; sudo apt install sxiv
+;; sudo apt install mpv
 (setq dired-open-extensions '(("gif" . "sxiv")
                               ("jpg" . "sxiv")
                               ("png" . "sxiv")
                               ("mkv" . "mpv")
                               ("mp4" . "mpv")))
+
+(setq dired-guess-shell-alist-user '(("\\.pdf\\'" "okular")))
 #+end_src
 
-** Keybindings Within Dired With Peep-Dired-Mode Enabled
-If peep-dired is enabled, you will get image previews as you go up/down with 'j' and 'k'
+** Specify whether to use trash can
 
-| COMMAND              | DESCRIPTION                              | KEYBINDING |
-|----------------------+------------------------------------------+------------|
-| peep-dired           | /Toggle previews within dired/             | SPC d p    |
-| peep-dired-next-file | /Move to next file in peep-dired-mode/     | j          |
-| peep-dired-prev-file | /Move to previous file in peep-dired-mode/ | k          |
+Set to ~t~ if trash can use is desired.
 
-#+BEGIN_SRC emacs-lisp
-(evil-define-key 'normal peep-dired-mode-map
-  (kbd "j") 'peep-dired-next-file
-  (kbd "k") 'peep-dired-prev-file)
-(add-hook 'peep-dired-hook 'evil-normalize-keymaps)
-#+END_SRC
-
-** Making deleted files go to trash can
 #+begin_src emacs-lisp
-(setq delete-by-moving-to-trash t
+(setq delete-by-moving-to-trash nil
       trash-directory "~/.local/share/Trash/files/")
 #+end_src
 
