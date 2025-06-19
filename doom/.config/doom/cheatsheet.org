@@ -20,65 +20,65 @@
 | %       | Jump to matching bracket |
 
 ** Editing
-| COMMAND | DESCRIPTION                     |
-|---------+---------------------------------|
-| i       | Insert before cursor            |
-| a       | Insert after cursor             |
-| I       | Insert at beginning of line     |
-| A       | Insert at end of line          |
-| o       | New line below                 |
-| O       | New line above                 |
-| x       | Delete character               |
-| dd      | Delete line                    |
-| yy      | Yank (copy) line               |
-| p       | Paste after cursor             |
-| P       | Paste before cursor            |
-| u       | Undo                          |
-| C-r     | Redo                          |
-| .       | Repeat last command            |
+| COMMAND | DESCRIPTION                 |
+|---------+-----------------------------|
+| i       | Insert before cursor        |
+| a       | Insert after cursor         |
+| I       | Insert at beginning of line |
+| A       | Insert at end of line       |
+| o       | New line below              |
+| O       | New line above              |
+| x       | Delete character            |
+| dd      | Delete line                 |
+| yy      | Yank (copy) line            |
+| p       | Paste after cursor          |
+| P       | Paste before cursor         |
+| u       | Undo                        |
+| C-r     | Redo                        |
+| .       | Repeat last command         |
 
 ** Visual Mode
-| COMMAND | DESCRIPTION                     |
-|---------+---------------------------------|
+| COMMAND | DESCRIPTION                    |
+|---------+--------------------------------|
 | v       | Enter visual mode              |
 | V       | Enter visual line mode         |
-| C-v     | Enter visual block mode       |
+| C-v     | Enter visual block mode        |
 | o       | Move to other end of selection |
 
 ** Search/Replace
-| COMMAND | DESCRIPTION                     |
-|---------+---------------------------------|
-| /pattern | Search forward                |
-| ?pattern | Search backward               |
-| n       | Next match                    |
-| N       | Previous match                |
+| COMMAND       | DESCRIPTION                  |
+|---------------+------------------------------|
+| /pattern      | Search forward               |
+| ?pattern      | Search backward              |
+| n             | Next match                   |
+| N             | Previous match               |
 | :%s/old/new/g | Replace all 'old' with 'new' |
 
 ** Windows and Buffers
-| COMMAND | DESCRIPTION                     |
-|---------+---------------------------------|
-| :e file | Open file                     |
-| :w      | Save file                     |
-| :q      | Quit                          |
-| :wq     | Save and quit                 |
-| :q!     | Quit without saving           |
-| :sp     | Split window horizontally     |
-| :vsp    | Split window vertically       |
-| C-w h/j/k/l | Move between windows       |
-| C-w c   | Close window                  |
+| COMMAND     | DESCRIPTION               |
+|-------------+---------------------------|
+| :e file     | Open file                 |
+| :w          | Save file                 |
+| :q          | Quit                      |
+| :wq         | Save and quit             |
+| :q!         | Quit without saving       |
+| :sp         | Split window horizontally |
+| :vsp        | Split window vertically   |
+| C-w h/j/k/l | Move between windows      |
+| C-w c       | Close window              |
 
 ** Doom Emacs Specific
-| COMMAND | DESCRIPTION                     |
-|---------+---------------------------------|
-| SPC f f | Find file                      |
-| SPC f r | Recent files                   |
-| SPC b b | Switch buffer                 |
-| SPC b k | Kill buffer                   |
-| SPC w / | Split window vertically       |
-| SPC w - | Split window horizontally     |
-| SPC 1-9 | Switch to window number 1-9  |
-| SPC h d h | Doom help                    |
-| SPC h d k | Show keybindings             |
+| COMMAND   | DESCRIPTION                 |
+|-----------+-----------------------------|
+| SPC f f   | Find file                   |
+| SPC f r   | Recent files                |
+| SPC b b   | Switch buffer               |
+| SPC b k   | Kill buffer                 |
+| SPC w /   | Split window vertically     |
+| SPC w -   | Split window horizontally   |
+| SPC 1-9   | Switch to window number 1-9 |
+| SPC h d h | Doom help                   |
+| SPC h d k | Show keybindings            |
 
 * Tips
 ** Relative Line Numbers
