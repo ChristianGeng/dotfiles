@@ -5,7 +5,7 @@
 
 * TABLE OF CONTENTS :toc:
 - [[#about-this-config][ABOUT THIS CONFIG]]
-- [[#vim-evil-cheatsheet][VIM/EVIL CHEATSHEET]]
+- [[#vimevil-cheatsheet][VIM/EVIL CHEATSHEET]]
 - [[#0-definitions][0-DEFINITIONS]]
   - [[#emacs-directories][Emacs Directories]]
   - [[#org-directory][Org-Directory]]
@@ -246,6 +246,7 @@ I have also removed it.
                               ("mp4" . "mpv")))
 
 (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "okular")))
+(setq dired-guess-shell-alist-user '(("\\.png\'" "sxiv")))
 #+end_src
 
 ** Specify whether to use trash can

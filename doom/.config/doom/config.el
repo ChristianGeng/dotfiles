@@ -70,6 +70,7 @@
                               ("mp4" . "mpv")))
 
 (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "okular")))
+(setq dired-guess-shell-alist-user '(("\\.png\'" "sxiv")))
 
 (setq delete-by-moving-to-trash nil
       trash-directory "~/.local/share/Trash/files/")
