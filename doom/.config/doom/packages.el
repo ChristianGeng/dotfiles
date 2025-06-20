@@ -97,3 +97,21 @@
 ;; codeium
 (package! codeium
   :recipe (:host github :repo "Exafunction/codeium.el"))
+
+;; GitHub Copilot - Real-time code completion
+(package! copilot
+  :recipe (:host github :repo "copilot-emacs/copilot.el"
+           :files ("*.el")))
+
+;; AiderMacs - AI pair programming integration
+(package! aidermacs
+  :recipe (:host github :repo "MatthewZMD/aidermacs"))
+
+;; GPTel - LLM chat client for Emacs
+(package! gptel)
+
+;; Optional: Enhanced markdown support for AI conversations
+(package! markdown-mode)
+
+;; Optional: For better diff viewing with AI changes
+(package! vdiff)
