@@ -68,7 +68,6 @@
 (package! evil-tutor)
 (package! exwm)
 (package! imenu-list)
-(package! ivy-posframe)
 (package! mw-thesaurus)
 (package! org-auto-tangle)
 (package! org-web-tools)
