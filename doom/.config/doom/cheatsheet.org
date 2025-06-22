@@ -5,19 +5,27 @@
 
 * Vim/Evil Mode Cheatsheet
 ** Basic Movement
-| COMMAND | DESCRIPTION               |
-|---------+---------------------------|
-| h j k l | Left, Down, Up, Right   |
-| w       | Next word                 |
-| b       | Previous word             |
-| e       | End of word              |
-| 0       | Start of line            |
-| ^       | First non-blank of line  |
-| $       | End of line              |
-| gg      | First line of file       |
-| G       | Last line of file        |
-| :<num>  | Go to line number        |
-| %       | Jump to matching bracket |
+| COMMAND | DESCRIPTION              | function                   |
+|---------+--------------------------+----------------------------|
+| h j k l | Left, Down, Up, Right    |                            |
+| w       | Next word                |                            |
+| b       | Previous word            |                            |
+| e       | End of word              |                            |
+| 0       | Start of line            |                            |
+| ^       | First non-blank of line  |                            |
+| $       | End of line              |                            |
+| gg      | First line of file       |                            |
+| G       | Last line of file        |                            |
+| :<num>  | Go to line number        |                            |
+| %       | Jump to matching bracket |                            |
+| C-f     | evil-scroll-page-down    |                            |
+| C-b     | evil-scroll-page-up      |                            |
+| zz      | Line to center of window | evil-scroll-line-to-center |
+| zb      | Line to bottom of window | evil-scroll-line-to-bottom |
+| zt      | Line to top of window    | evil-scroll-line-to-top    |
+
+- ~C-l C-l~ (recenter-top-bottom) can still be used but is identical to ~zt~
+
 
 ** Editing
 | COMMAND | DESCRIPTION                 |
