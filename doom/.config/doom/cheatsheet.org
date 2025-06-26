@@ -54,21 +54,21 @@
 | o       | Move to other end of selection |
 
 ** Search/Replace
-| COMMAND    ** Search
-| Command | Description                |
-|---------+----------------------------|
-| /pattern | Search forward           |
-| ?pattern | Search backward          |
-| n       | Next match                |
-| N       | Previous match           |
-| *       | Search word under cursor (forward) |
-| #       | Search word under cursor (backward) |
-| f<char> | Move to next <char> in line |
-| F<char> | Move to previous <char> in line |
-| t<char> | Move to before next <char> in line |
-| T<char> | Move to after previous <char> in line |
-| ;       | Repeat last f, F, t, or T |
-| ,       | Repeat last f, F, t, or T (reverse) |
+| COMMAND    ** Search |                                       |
+| Command              | Description                           |
+|----------------------+---------------------------------------|
+| /pattern             | Search forward                        |
+| ?pattern             | Search backward                       |
+| n                    | Next match                            |
+| N                    | Previous match                        |
+| *                    | Search word under cursor (forward)    |
+| #                    | Search word under cursor (backward)   |
+| f<char>              | Move to next <char> in line           |
+| F<char>              | Move to previous <char> in line       |
+| t<char>              | Move to before next <char> in line    |
+| T<char>              | Move to after previous <char> in line |
+| ;                    | Repeat last f, F, t, or T             |
+| ,                    | Repeat last f, F, t, or T (reverse)   |
 
 *** Navigating Word Occurrences
 - Press `*` in normal mode to search for the word under the cursor (forward), highlighting all matches in the file.
@@ -77,6 +77,16 @@
 - To clear highlights: use `:nohlsearch` or press `SPC s c` (Doom default).
 
 | :%s/old/new/g | Replace all 'old' with 'new' |
+
+** Project-wide Search & Replace (Doom Emacs)
+| COMMAND                         | DESCRIPTION                                             |
+|---------------------------------+---------------------------------------------------------|
+| SPC s p                         | Search in project (Consult ripgrep)                     |
+| C-c C-e                         | Edit results in writable buffer (wgrep)                 |
+| C-c C-c                         | Apply changes to all files (after editing wgrep buffer) |
+| SPC : projectile-replace        | Search and replace string in project (classic)          |
+| SPC : projectile-replace-regexp | Regexp search/replace in project                        |
+
 
 ** Windows and Buffers
 | COMMAND     | DESCRIPTION               |
