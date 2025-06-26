@@ -45,6 +45,43 @@
 | C-r     | Redo                        |
 | .       | Repeat last command         |
 
+** Insert Mode
+| Command | Description                |
+|---------+----------------------------|
+| i       | Insert before cursor       |
+| I       | Insert at beginning of line |
+| a       | Insert after cursor        |
+| A       | Insert at end of line      |
+| o       | New line below            |
+| O       | New line above            |
+| s       | Delete character and insert |
+| S       | Delete line and insert     |
+| C       | Change to end of line      |
+| cc      | Change entire line         |
+| r       | Replace character         |
+| R       | Replace mode              |
+| ESC     | Exit insert mode          |
+
+*** Modifiers ~i~ and ~o~
+| Command | Description                             |
+|---------+-----------------------------------------|
+| i       | Insert before cursor (current position) |
+| o       | Open new line below, start insert mode  |
+| O       | Open new line above, start insert mode  |
+
+*** Text Object Modifiers ~i~ and ~a~
+In Vim, the ~i~ in commands like ~viw~, ~ciw~, or ~yiw~ is a text object modifier that stands for "inner." The ~a~ stands for "around" (including delimiters/whitespace).
+
+| Modifier | Meaning      | Example Usage | Description                                      |
+|----------+--------------+---------------+--------------------------------------------------|
+| i        | inner        | viw, ci"      | Inside the object, excludes delimiters           |
+| a        | around/a     | daw, ca(      | Around the object, includes delimiters/whitespace|
+
+You can use similar patterns with other text objects:
+- ~vi"~: Select inside double quotes.
+- ~vi(~: Select inside parentheses.
+- ~vi[~: Select inside brackets.
+
 ** Visual Mode
 | COMMAND | DESCRIPTION                    |
 |---------+--------------------------------|
