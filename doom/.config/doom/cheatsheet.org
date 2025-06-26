@@ -54,12 +54,28 @@
 | o       | Move to other end of selection |
 
 ** Search/Replace
-| COMMAND       | DESCRIPTION                  |
-|---------------+------------------------------|
-| /pattern      | Search forward               |
-| ?pattern      | Search backward              |
-| n             | Next match                   |
-| N             | Previous match               |
+| COMMAND    ** Search
+| Command | Description                |
+|---------+----------------------------|
+| /pattern | Search forward           |
+| ?pattern | Search backward          |
+| n       | Next match                |
+| N       | Previous match           |
+| *       | Search word under cursor (forward) |
+| #       | Search word under cursor (backward) |
+| f<char> | Move to next <char> in line |
+| F<char> | Move to previous <char> in line |
+| t<char> | Move to before next <char> in line |
+| T<char> | Move to after previous <char> in line |
+| ;       | Repeat last f, F, t, or T |
+| ,       | Repeat last f, F, t, or T (reverse) |
+
+*** Navigating Word Occurrences
+- Press `*` in normal mode to search for the word under the cursor (forward), highlighting all matches in the file.
+- Press `#` to search backward for the word under the cursor.
+- Use `n` to jump to the next occurrence, and `N` to jump to the previous occurrence.
+- To clear highlights: use `:nohlsearch` or press `SPC s c` (Doom default).
+
 | :%s/old/new/g | Replace all 'old' with 'new' |
 
 ** Windows and Buffers
