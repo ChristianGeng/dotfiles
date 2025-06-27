@@ -42,6 +42,7 @@
 - [[#rainbow-mode][RAINBOW MODE]]
 - [[#registers][REGISTERS]]
 - [[#shells][SHELLS]]
+- [[#search][Search]]
 - [[#start-page][START PAGE]]
 - [[#theming][THEMING]]
 - [[#winner-mode][WINNER MODE]]
@@ -805,6 +806,34 @@ I am noch using ~fish~ as my shell as it is often not installed!
       :desc "Counsel eshell history" "e h" #'counsel-esh-history
       :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
 #+END_SRC
+
+* Search
+
+I liked the feature in helm that allowed me to
+have a word under cursor hightlighted
+that then would be the input to search functions like
+`helm-swoop`, `helm-find-file` etc.
+THis is is the first step in that direction for the `consult`
+system that I am using now. Not working for words marked
+with `*` yet.
+
+#+BEGIN_SRC emacs-lisp
+
+(defun my/consult-dwim-input (orig-fn &rest args)
+  "Advice to use region or symbol at point as initial input."
+  (let ((input (if (use-region-p)
+                   (buffer-substring-no-properties (region-beginning) (region-end))
+                 (thing-at-point 'symbol t))))
+    (apply orig-fn (append args (list input)))))
+
+ (advice-add 'consult-line :around #'my/consult-dwim-input)
+ (advice-add 'consult-ripgrep :around #'my/consult-dwim-input)
+
+(dolist (fn '(consult-line consult-ripgrep consult-grep consult-find))
+  (advice-add fn :around #'my/consult-dwim-input))
+#+END_SRC
+
+#+RESULTS:
 
 * START PAGE
 Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided to just set an custom start file as my "dashboard" since it allows me more customization options.  I have added to the 'start-mode-hook' the argument 'read-only-mode'.  This is to prevent accidental editing of the start file, and to prevent clashes with the 'start-mode' specific keybindings.  You can toggle on/off read-only-mode with 'SPC t r'.

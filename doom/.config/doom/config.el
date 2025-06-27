@@ -354,6 +354,19 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Counsel eshell history" "e h" #'counsel-esh-history
       :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
 
+(defun my/consult-dwim-input (orig-fn &rest args)
+  "Advice to use region or symbol at point as initial input."
+  (let ((input (if (use-region-p)
+                   (buffer-substring-no-properties (region-beginning) (region-end))
+                 (thing-at-point 'symbol t))))
+    (apply orig-fn (append args (list input)))))
+
+ (advice-add 'consult-line :around #'my/consult-dwim-input)
+ (advice-add 'consult-ripgrep :around #'my/consult-dwim-input)
+
+(dolist (fn '(consult-line consult-ripgrep consult-grep consult-find))
+  (advice-add fn :around #'my/consult-dwim-input))
+
 (setq initial-buffer-choice "~/.config/doom/start.org")
 
 (define-minor-mode start-mode
