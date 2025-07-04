@@ -355,11 +355,15 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
 
 (defun my/consult-dwim-input (orig-fn &rest args)
-  "Advice to use region or symbol at point as initial input."
-  (let ((input (if (use-region-p)
-                   (buffer-substring-no-properties (region-beginning) (region-end))
-                 (thing-at-point 'symbol t))))
-    (apply orig-fn (append args (list input)))))
+  "Advice to use region, Evil search word, or word at point as initial input."
+  (let* ((region (when (use-region-p)
+                   (buffer-substring-no-properties (region-beginning) (region-end))))
+         (evil-search (when (and (boundp 'evil-ex-search-pattern)
+                                 evil-ex-search-pattern)
+                        (car evil-ex-search-pattern)))
+         (word (thing-at-point 'word t))
+         (input (or region evil-search word)))
+    (apply orig-fn (append (butlast args) (list input)))))
 
  (advice-add 'consult-line :around #'my/consult-dwim-input)
  (advice-add 'consult-ripgrep :around #'my/consult-dwim-input)
