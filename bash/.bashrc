@@ -181,3 +181,8 @@ export EDITOR=emacsclient
 
 # ~/.pyenvrc
 # eval "$(pyenv virtualenv-init -)"
+#
+#
+if [ -f "$HOME/.cargo/env" ]; then
+   . "$HOME/.cargo/env"
+fi
