@@ -5,3 +5,5 @@ cgeng
 *.code-workspace
 scratch.py
 uv.lock
+prompt.md
+scratch.org
