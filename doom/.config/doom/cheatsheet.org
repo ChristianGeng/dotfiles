@@ -26,7 +26,6 @@
 
 - ~C-l C-l~ (recenter-top-bottom) can still be used but is identical to ~zt~
 
-
 ** Editing
 | COMMAND | DESCRIPTION                 |
 |---------+-----------------------------|
