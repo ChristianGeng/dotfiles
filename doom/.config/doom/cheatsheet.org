@@ -162,3 +162,27 @@ Doom uses [[https://github.com/emacs-evil/evil-collection][evil-collection]] to 
 
 ** Leader Key
 In Doom Emacs, the leader key is SPC (space) by default. This is used as a prefix for many commands.
+
+* Registers
+| Command         | Description                        |
+|-----------------+------------------------------------|
+| "<reg>y         | Yank to register                   |
+| "<reg>p         | Paste from register                |
+| :reg            | Show registers                     |
+| q<reg>...q      | Record macro to register           |
+| @<reg>          | Execute macro from register        |
+
+* Macros
+| Command | Description                               |
+|---------+-------------------------------------------|
+| qa      | Start recording macro in register a        |
+| q       | Stop recording macro                      |
+| @a      | Execute macro in register a               |
+| @@      | Repeat last macro                         |
+| qA      | Append to macro in register a             |
+| :reg    | List all registers (including macros)     |
+
+- To record a macro: press `q` followed by a register (e.g., `a`), perform your commands, then press `q` again to stop.
+- To run a macro: press `@` followed by the register (e.g., `@a`).
+- To repeat the last macro: press `@@`.
+- Macros are stored in registers and can be viewed with `:reg`.
