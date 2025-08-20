@@ -117,6 +117,59 @@
       (cg/naive-semantic-line-breaks-region (region-beginning) (region-end))
     (cg/naive-semantic-line-breaks-region (point-min) (point-max))))
 
+(defun cg/break-command-args-region (start end)
+  "Break shell command in region from START to END into multiple lines.
+Each command line option (starting with '-') and its argument(s) will go on
+their own line, prefixed with a backslash for shell line continuation.
+
+Non-option arguments appearing after the command are also split onto their
+own lines.
+
+Continuation lines are indented with 4 spaces.
+
+Example input:
+
+  python test_memory_conversation.py --worker-url http://localhost:8001 --scenario landmarks extraArg
+
+Example output:
+
+  python test_memory_conversation.py \\
+      --worker-url http://localhost:8001 \\
+      --scenario landmarks \\
+      extraArg
+
+If called interactively with no active region, operates on entire buffer."
+  (interactive "r")
+  (unless (use-region-p)
+    (setq start (point-min)
+          end (point-max)))
+  (save-excursion
+    (let* ((cmd-line (buffer-substring-no-properties start end))
+           (tokens (split-string cmd-line "[ \t\n]+" t))
+           (indent-str "    ")  ;; fixed 4 space indent
+           (inhibit-read-only t))
+      (delete-region start end)
+      (goto-char start)
+      ;; Insert the initial command (first token)
+      (when tokens
+        (insert (pop tokens)))
+      ;; Process all remaining tokens
+      (while tokens
+        (let ((tok (pop tokens)))
+          (if (or (string-prefix-p "-" tok) (string-prefix-p "--" tok))
+              ;; If option, insert backslash + newline + fixed indent + option
+              (insert (format " \\\n%s%s" indent-str tok))
+            ;; else argument: insert space + token
+            (insert (format " %s" tok))))))))
+
+;; DWIM interactive wrapper
+(defun cg/break-command-args-dwim ()
+  "Break command args in region if active, else entire buffer."
+  (interactive)
+  (if (use-region-p)
+      (cg/break-command-args-region (region-beginning) (region-end))
+    (cg/break-command-args-region (point-min) (point-max))))
+
 (setq imenu-list-focus-after-activation t)
 
 (map! :leader
