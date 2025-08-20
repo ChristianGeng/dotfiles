@@ -7,3 +7,5 @@ scratch.py
 uv.lock
 prompt.md
 scratch.org
+
+**/.claude/settings.local.json

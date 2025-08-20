@@ -1,0 +1,16 @@
+{
+    "notebook.lineNumbers": "on",
+    "editor.minimap.enabled": false,
+    "sourcery.token": "user_kVEM8_S_CHenQZlLNVKWe2EApGtfWmXGCnrx_p2TdD49H0mkuChd3apXRX8",
+    "sourcery.codeLens": true,
+    "windsurf.autocompleteSpeed": "fast",
+    "jupyter.askForKernelRestart": true,
+    "remote.autoForwardPortsSource": "hybrid",
+    "windsurf.autoExecutionPolicy": "turbo",
+    "windsurf.explainAndFixInCurrentConversation": true,
+    "windsurf.cascadeCommandsAllowList": [],
+    "makefile.configureOnOpen": true,
+    "windsurf.chatFontSize": "default",
+    "windsurf.rememberLastModelSelection": true,
+    "windsurf.openRecentConversation": true
+}
