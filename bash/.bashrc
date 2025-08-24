@@ -119,13 +119,19 @@ if [ -f ~/.pyenv ]; then
 fi
 
 # my private gpg encrypted secrets also tangled
-if [ -f ~/.bash_secrets ]; then
-    . ~/.bash_secrets
-fi
+# if [ -f ~/.bash_secrets ]; then
+#     . ~/.bash_secrets
+# fi
 
 if [ -f ~/.ansible_hooks ]; then
     . ~/.ansible_hooks
 fi
+
+# echo "Reading secrets from pass store"
+# if [ -f ~/.bash_secrets ]; then
+#     . ~/.bash_secrets
+# fi
+
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
