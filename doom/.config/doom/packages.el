@@ -114,3 +114,10 @@
 
 ;; Optional: For better diff viewing with AI changes
 (package! vdiff)
+
+;; ghub package has been split into vcs specific packages
+;; For gitlab I need this one:
+(package! glab)
+(package! gtea)
+(package! gogs)
+(package! buck)
