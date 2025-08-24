@@ -413,7 +413,7 @@ the imenu displayed as a vertical split that you can toggle show/hide.
 | COMMAND                 | DESCRIPTION                      | KEYBINDING |
 |-------------------------+----------------------------------+------------|
 | consult-imenu           | /Menu to jump to places in buffer/ | gO         |
-| consult-imenu-multi     | repects all buffers in project   | SPC s I    |
+| consult-imenu-multi     | respects all buffers in project  | SPC s I    |
 | imenu-list-smart-toggle | /Toggle imenu shown in a sidebar/  | SPC t i    |
 
 #+BEGIN_SRC emacs-lisp
@@ -948,7 +948,7 @@ Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided
 #+begin_src emacs-lisp
 (setq doom-theme 'doom-henna)
 (map! :leader
-      :desc "Load new theme" "h t" #consult-theme)
+      :desc "Load new theme" "h t" #'consult-theme)
 #+end_src
 
 * WINNER MODE
@@ -1026,22 +1026,22 @@ If multiple accounts per provider, add a short account label at the end (persona
 You can assign different recipients per subtree:
 Initialize per-subtree:
 
-#+begin_src bash
+#+begin_example
 pass init -p personal <YOUR_KEYID>
 pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
-#+end_src
+#+end_example
 
 *** Prerequisites (Linux)
-#+begin_src sh
+#+begin_example
 sudo apt install pass gnupg        # Debian/Ubuntu
-#+end_src
+#+end_example
 *** Find your GPG key ID (if you already have keys)
 The "key ID" is the identifier for your GPG key. List your keys with a long key
 id:
 
-#+begin_src sh
+#+begin_example
 gpg --list-keys --keyid-format LONG
-#+end_src
+#+end_example
 
 Look for a line like:
 
@@ -1052,30 +1052,30 @@ Look for a line like:
 
 If you have no keys yet, create one:
 
-#+begin_src sh
+#+begin_example
 gpg --full-generate-key
-#+end_src
+#+end_example
 *** Initialize pass
 
 Initialize the password store with your key (use the long key ID or your GPG
 email):
 
-#+begin_src sh
+#+begin_example
 pass init ABCDEF1234567890   # or: pass init your.email@example.com
-#+end_src
+#+end_example
 
 *** Manually store a key in pass
 
-#+begin_src sh
+#+begin_example
 pass insert -m code/mykey
 # paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
-#+end_src
+#+end_example
 
 Verify you can read it:
 
-#+begin_src sh
+#+begin_example
 pass show code/mykey
-#+end_src
+#+end_example
 
 *** Enable Emacs integration
 
@@ -1099,26 +1099,26 @@ Verify inside Emacs:
 
 Run these in a terminal. Replace the key ID if yours is different.
 
-#+begin_src sh
+#+begin_example
 gpg --edit-key ${GPG_KEY_ID}
 # at the gpg prompt:
 trust
 # choose: 5 (ultimate)
 # confirm: y
 save
-#+end_src
+#+end_example
 
 Initialize pass for your key (whole store):
 
-#+begin_src sh
+#+begin_example
 pass init ${GPG_KEY_ID}
-#+end_src
+#+end_example
 
 Optional: initialize only the "code/" subtree:
 
-#+begin_src sh
+#+begin_example
 pass init -p code ${GPG_KEY_ID}
-#+end_src
+#+end_example
 
 ** Idempotently insert keys into pass store
 
@@ -1463,19 +1463,31 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
 #+begin_src emacs-lisp
 (use-package! aidermacs
   :config
-  ;; Set up environment variables and hooks
-  (add-hook 'aidermacs-before-run-backend-hook
-            (lambda ()
-            (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-            (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-            (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-            (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))
+  ;; Initialize API keys immediately when aidermacs is loaded
+  (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+  (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+  (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+  (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")
+  
   ;; Customize aidermacs behavior
   (setq aidermacs-model "gpt-4o"  ; or "claude-3-5-sonnet-20241022"
         aidermacs-auto-commit nil  ; Don't auto-commit changes
         aidermacs-show-diffs t)    ; Always show diffs
 
-  )
+  ;; Also set up keys before any aidermacs command
+  (advice-add 'aidermacs-start :before
+              (lambda (&rest _)
+                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
+  
+  (advice-add 'aidermacs-send-prompt :before
+              (lambda (&rest _)
+                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))))
 #+end_src
 
 ** AI Rules system (Similar to .cursorrules)
@@ -1800,12 +1812,12 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
 (defun cg/ai-status-indicator ()
   "Show AI tools status in modeline."
   (concat
-   (when copilot-mode " ⚡")
+   (when (and (boundp 'copilot-mode) copilot-mode) " ⚡")
    (when (get-buffer "*aidermacs*") " 🤖")
-   (when gptel-mode " 💬")))
+   (when (and (boundp 'gptel-mode) gptel-mode) " 💬")))
 
 ;; Add to modeline (uncomment if desired)
-(add-to-list 'mode-line-misc-info '(:eval (cg/ai-status-indicator)))
+;; (add-to-list 'mode-line-misc-info '(:eval (cg/ai-status-indicator)))
 #+end_src
 
 ** Post-Setup Instructions

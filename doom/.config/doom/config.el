@@ -459,27 +459,9 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Find file at point"
       "f ." #'find-file-at-point)
 
-;; Pass/GPG setup instructions (commented out):
-;; pass init -p personal <YOUR_KEYID>
-;; pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
-;; sudo apt install pass gnupg        # Debian/Ubuntu
-;; gpg --list-keys --keyid-format LONG
-;; gpg --full-generate-key
-;; pass init ABCDEF1234567890   # or: pass init your.email@example.com
-;; pass insert -m code/mykey
-;; # paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
-;; pass show code/mykey
-;; (getenv "OPENAI_API_KEY")
-;; ;; or
-;; (password-store-get "code/openai_api_key")
-;; gpg --edit-key ${GPG_KEY_ID}
-;; # at the gpg prompt:
-;; trust
-;; # choose: 5 (ultimate)
-;; # confirm: y
-;; save
-;; pass init ${GPG_KEY_ID}
-;; pass init -p code ${GPG_KEY_ID}
+(getenv "OPENAI_API_KEY")
+;; or
+(password-store-get "code/openai_api_key")
 
 ;;; ========== pass bulk insert core (idempotent) ==========
 (defun cg/pass--ensure ()
