@@ -463,7 +463,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 ;; or
 (password-store-get "code/openai_api_key")
 
-;;; ========== pass bulk insert core (idempotent) ==========
+;;; ========== pass bulk insert core (idempotent) ===========
 (defun cg/pass--ensure ()
   (or (executable-find "pass")
       (user-error "pass(1) not found. Install and initialize pass + GPG")))
@@ -567,27 +567,7 @@ With FORCE, overwrite differing entries without prompting."
   "Specs for secrets. No secret values here.
 :pass = path in pass. :env = string or list of env var names to export.")
 
-(defun cg/pass--read-first-line (path)
-  (ignore-errors
-    (with-temp-buffer
-      (let ((status (call-process "pass" nil t nil "show" path)))
-        (when (and (integerp status) (= status 0))
-          (goto-char (point-min))
-          (buffer-substring-no-properties (point) (line-end-position)))))))
 
-(defun cg/export-env-from-pass (&optional only-missing)
-  "Set env vars in Emacs from pass using `cg/secret-specs'.
-With ONLY-MISSING (prefix arg), don't overwrite vars already set."
-  (interactive "P")
-  (dolist (cell cg/secret-specs)
-    (let* ((spec  (cdr cell))
-           (path  (plist-get spec :pass))
-           (envs  (let ((e (plist-get spec :env))) (if (listp e) e (list e))))
-           (value (cg/pass--read-first-line path)))
-      (when (and value (not (string-empty-p value)))
-        (dolist (name envs)
-          (when (or (not only-missing) (null (getenv name)))
-            (setenv name value)))))))
 
 (defun cg/write-pass-export-script (file)
   "Write a script exporting env vars by reading pass at shell init time."
@@ -643,83 +623,37 @@ With ONLY-MISSING (prefix arg), don't overwrite vars already set."
   ;;        :desc "Login" "l" #'copilot-login
   ;;        :desc "Diagnose" "d" #'copilot-diagnose)))
 
-;; Secrets helpers for AI tools
-(defun cg/get-secret-from-pass (path)
-  "Return first line of pass entry at PATH, or nil if unavailable."
-  (when (and path (fboundp 'password-store-get))
-    (ignore-errors (password-store-get path))))
-
-(defun cg/get-secret-from-auth (host)
-  "Return secret from auth-source for HOST, or nil if unavailable."
-  (when (and host (fboundp 'auth-source-pick-first-password))
-    (ignore-errors (auth-source-pick-first-password :host host))))
-
-(defun cg/set-env-from-secrets (env-name pass-path auth-host)
-  "Set ENV-NAME from pass PASS-PATH or auth-source AUTH-HOST if found.
-Falls back to existing ENV-NAME value. Returns the value set (or nil)."
-  (let* ((val (or (cg/get-secret-from-pass pass-path)
-                  (cg/get-secret-from-auth auth-host)
-                  (getenv env-name))))
-    (when (and val (> (length val) 0))
-      (setenv env-name val))
-    (getenv env-name)))
-
-(defun cg/init-api-key (env-name pass-path auth-host)
-  "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
-  (cg/set-env-from-secrets env-name pass-path auth-host))
-
-;; Secrets helpers for AI tools
-(defun cg/get-secret-from-pass (path)
-  "Return first line of pass entry at PATH, or nil if unavailable."
-  (when (and path (fboundp 'password-store-get))
-    (ignore-errors (password-store-get path))))
-
-(defun cg/get-secret-from-auth (host)
-  "Return secret from auth-source for HOST, or nil if unavailable."
-  (when (and host (fboundp 'auth-source-pick-first-password))
-    (ignore-errors (auth-source-pick-first-password :host host))))
-
-(defun cg/set-env-from-secrets (env-name pass-path auth-host)
-  "Set ENV-NAME from pass PASS-PATH or auth-source AUTH-HOST if found.
-Falls back to existing ENV-NAME value. Returns the value set (or nil)."
-  (let* ((val (or (cg/get-secret-from-pass pass-path)
-                  (cg/get-secret-from-auth auth-host)
-                  (getenv env-name))))
-    (when (and val (> (length val) 0))
-      (setenv env-name val))
-    (getenv env-name)))
-
-(defun cg/init-api-key (env-name pass-path auth-host)
-  "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
-  (cg/set-env-from-secrets env-name pass-path auth-host))
+;; Secret management functions are now loaded from ~/emacs-conf/defuns/cg-secrets.el
 
 (use-package! aidermacs
+  :defer t  ; Defer loading until actually needed
+  :init
+  ;; Set up environment variables early, but safely
+  (defun cg/ensure-secrets-loaded ()
+    "Ensure secret management functions are available and set environment variables."
+    (when (fboundp 'cg/set-env-from-secrets)
+      (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+      (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+      (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+      (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
+  
   :config
-  ;; Initialize API keys immediately when aidermacs is loaded
-  (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-  (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-  (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-  (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")
+  ;; Initialize API keys when aidermacs is actually loaded
+  (cg/ensure-secrets-loaded)
   
   ;; Customize aidermacs behavior
   (setq aidermacs-model "gpt-4o"  ; or "claude-3-5-sonnet-20241022"
         aidermacs-auto-commit nil  ; Don't auto-commit changes
         aidermacs-show-diffs t)    ; Always show diffs
 
-  ;; Also set up keys before any aidermacs command
+  ;; Set up keys before any aidermacs command (with safety check)
   (advice-add 'aidermacs-start :before
               (lambda (&rest _)
-                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
+                (cg/ensure-secrets-loaded)))
   
   (advice-add 'aidermacs-send-prompt :before
               (lambda (&rest _)
-                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))))
+                (cg/ensure-secrets-loaded))))
 
 (defvar cg/ai-global-rules
   "You are an expert software developer assistant. Follow these global rules:
@@ -940,53 +874,6 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
   (copilot-mode 'toggle)
   (message "AI tools toggled: Copilot %s"
            (if copilot-mode "ON" "OFF")))
-
-(map! :leader
-      (:prefix ("A" . "AI / LLM")
-       ;; Copilot subgroup
-       (:prefix ("c" . "Copilot")
-        :desc "Toggle Copilot" "t" #'copilot-mode
-        :desc "Accept completion" "a" #'copilot-accept-completion
-        :desc "Next completion" "n" #'copilot-next-completion
-        :desc "Previous completion" "p" #'copilot-previous-completion
-        :desc "Clear completion" "c" #'copilot-clear-overlay
-        :desc "Login" "l" #'copilot-login
-        :desc "Diagnose" "d" #'copilot-diagnose)
-       ;; Aider subgroup
-       (:prefix ("a" . "Aider")
-        :desc "Start Aider" "s" #'aidermacs-start
-        :desc "Stop Aider" "q" #'aidermacs-stop
-        :desc "Send region" "r" #'aidermacs-send-region
-        :desc "Send buffer" "b" #'aidermacs-send-buffer
-        :desc "Send prompt" "p" #'aidermacs-send-prompt
-        :desc "Show status" "S" #'aidermacs-status
-        :desc "Clear context" "c" #'aidermacs-clear-context
-        :desc "Add file" "f" #'aidermacs-add-file
-        :desc "Remove file" "R" #'aidermacs-remove-file)
-       ;; GPTel subgroup
-       (:prefix ("g" . "GPTel")
-        :desc "New Chat" "n" #'gptel)
-       ;; Actions subgroup
-       (:prefix ("x" . "AI Actions")
-        :desc "Code Review" "r" #'cg/ai-code-review
-        :desc "Explain Code" "e" #'cg/ai-explain-code
-        :desc "Generate Code" "g" #'cg/ai-generate-code
-        :desc "Fix Code" "f" #'cg/ai-fix-code
-        :desc "Optimize Code" "o" #'cg/ai-optimize-code
-        :desc "Add Tests" "t" #'cg/ai-add-tests
-        :desc "Add Documentation" "d" #'cg/ai-add-documentation
-        :desc "Refactor with Aider" "R" #'cg/ai-refactor-with-aider
-        :desc "Toggle All AI" "T" #'cg/toggle-all-ai-tools)
-       ;; Settings subgroup
-       (:prefix ("s" . "AI Settings/Rules")
-        :desc "Create .aiderrules" "r" #'cg/create-aiderrules-template
-        :desc "Reload Rules" "R" #'cg/load-project-ai-rules
-        :desc "Edit Global Rules" "g" (lambda () (interactive)
-                                        (with-current-buffer (get-buffer-create "*AI Global Rules*")
-                                          (erase-buffer)
-                                          (insert cg/ai-global-rules)
-                                          (markdown-mode)
-                                          (switch-to-buffer (current-buffer)))))))
 
 ;; Make completions faster
 (setq copilot-max-char -1)  ; No character limit for completions
