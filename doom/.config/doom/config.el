@@ -459,6 +459,9 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Find file at point"
       "f ." #'find-file-at-point)
 
+pass init -p personal <YOUR_KEYID>
+pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
+
 sudo apt install pass gnupg        # Debian/Ubuntu
 
 gpg --list-keys --keyid-format LONG

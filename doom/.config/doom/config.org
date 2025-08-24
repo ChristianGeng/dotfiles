@@ -53,6 +53,7 @@
   - [[#using-pass][Using Pass]]
   - [[#idempotently-insert-keys-into-pass-store][Idempotently insert keys into pass store]]
   - [[#pass-end-environment-variables-from-env][PASS end environment variables from ENV]]
+  - [[#migration-to-better-hierarchy][MIGRATION to better hierarchy]]
 - [[#ailmms][AI/LMMS]]
   - [[#github-copilot-configuration][Github Copilot Configuration]]
   - [[#aidermacs-configuration][AIdermacs Configuration]]
@@ -997,13 +998,41 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
 
 ** Using Pass
 
-
 Use Emacs's `password-store` integration to read secrets from your system
 password store (pass) instead of hardcoding keys.
 
 _What is `password-store-get`?__ It reads a secret from pass. Example:
 `(password-store-get "code/openai_api_key")` returns the value stored at that
 pass path.
+
+
+*** Pass Hierarchy Layout
+
+1. Use a context first approach:
+
+#+begin_example
+personal/api/anthropic/personal
+work/aud/api/anthropic/main
+personal/api/search/brave
+personal/library/munich/city
+work/aud/accounts/github/your-handle
+work/aud/cloud/aws/prod/billing
+#+end_example
+
+2. Lowercase paths, hyphen-separated, no spaces.
+
+Provider names canonical: anthropic, openai, xai, brave, pplx.
+If multiple accounts per provider, add a short account label at the end (personal, main, aud, test).
+
+**** GPG recipients and sharing
+
+You can assign different recipients per subtree:
+Initialize per-subtree:
+
+#+begin_src bash
+pass init -p personal <YOUR_KEYID>
+pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
+#+end_src
 
 *** Prerequisites (Linux)
 #+begin_src sh
@@ -1190,7 +1219,6 @@ With FORCE, overwrite differing entries without prompting."
     (cg/pass-upsert (car cell) (cdr cell) force)))
 #+end_src
 
-
 ** PASS end environment variables from ENV
 
 *** 1. Create a mapping
@@ -1215,7 +1243,6 @@ With FORCE, overwrite differing entries without prompting."
 
 #+RESULTS:
 : cg/secret-specs
-
 
 *** 2) Export to Emacs env from pass
 Idempotently set env vars in the current Emacs based on pass entries in ~cg/secret-specs~:
@@ -1267,8 +1294,66 @@ This writes a script that reads secrets from pass at shell startup (no plaintext
     (message "Wrote %s (mode 600). Add 'source %s' to your shell rc." file file)))
 #+end_src
 
-#+RESULTS:
-: cg/write-pass-export-script
+
+** MIGRATION to better hierarchy
+
+
+1. Modify Mapping between secrets and env vars, e.g.
+#+begin_example emacs-lisp
+(defvar cg/secret-specs
+  '(
+    (anthropic-personal
+     :pass "personal/api/anthropic/personal"
+     :env  ("ANTHROPIC_API_KEY"))
+    (anthropic-work-aud
+     :pass "work/aud/api/anthropic/main"
+     :env  ("ANTHROPIC_API_KEY_AUD"))
+    (xai-personal
+     :pass "personal/api/xai"
+     :env  ("XAI_API_KEY"))
+    (perplexity-personal
+     :pass "personal/api/search/perplexity"
+     :env  ("PPLX_API_KEY"))
+    (brave-personal
+     :pass "personal/api/search/brave"
+     :env  ("BRAVE_API_KEY"))
+  ))
+#+end_example
+
+
+2. Then migrate like this:
+
+#+begin_example
+Migration plan (safe, reversible)
+Backup the store (pass uses git by default):
+pass git status
+pass git branch restructure-$(date +%F)
+pass git commit -am "pre-restructure snapshot"
+Move entries to the new structure:
+pass mv code/anthropic_api_key_personal personal/api/anthropic/personal
+pass mv code/anthropic_api_key_aud work/aud/api/anthropic/main
+pass mv code/perplexity_api_key personal/api/search/perplexity
+pass mv code/xai_api_key personal/api/xai
+Remove the old “code/” subtree when empty: pass rm -rf code
+Optionally re-init subtrees with recipients:
+pass init -p personal YOUR_KEYID
+pass init -p work/aud YOUR_KEYID WORK_KEYID
+Update cg/secret-specs with new paths.
+Re-generate shell exports if you use them:
+M-x cg/write-pass-export-script → source it in .bashrc
+Optional: metadata lines in pass entries
+If you prefer to keep env names near the secrets, add key=value pairs on following lines in the pass entry:
+
+Example:
+Line 1: the secret
+Line 2+: env=ANTHROPIC_API_KEY
+You can later parse those to generate exports, but since you already have cg/secret-specs, keeping metadata in Emacs is simpler and VCS-friendly.
+When to use separate stores
+If you want hard isolation between personal and work:
+
+Use separate stores via PASSWORD_STORE_DIR (e.g., ~/.password-store-personal, ~/.password-store-work) and shell aliases/wrappers.
+For most workflows, subtree recipients (pass init -p) are sufficient.
+#+end_example
 
 
 * AI/LMMS
