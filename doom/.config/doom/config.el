@@ -407,7 +407,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Counsel eshell history" "e h" #'counsel-esh-history
       :desc "Vterm popup toggle"     "v t" #'+vterm/toggle)
 
-(defun my/consult-dwim-input (orig-fn &rest args)
+(defun cg/consult-dwim-input (orig-fn &rest args)
   "Advice to use region, Evil search word, or word at point as initial input."
   (let* ((region (when (use-region-p)
                    (buffer-substring-no-properties (region-beginning) (region-end))))
@@ -418,11 +418,11 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
          (input (or region evil-search word)))
     (apply orig-fn (append (butlast args) (list input)))))
 
- (advice-add 'consult-line :around #'my/consult-dwim-input)
- (advice-add 'consult-ripgrep :around #'my/consult-dwim-input)
+ (advice-add 'consult-line :around #'cg/consult-dwim-input)
+ (advice-add 'consult-ripgrep :around #'cg/consult-dwim-input)
 
 (dolist (fn '(consult-line consult-ripgrep consult-grep consult-find))
-  (advice-add fn :around #'my/consult-dwim-input))
+  (advice-add fn :around #'cg/consult-dwim-input))
 
 (setq initial-buffer-choice "~/.config/doom/start.org")
 
@@ -444,7 +444,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 
 (setq doom-theme 'doom-henna)
 (map! :leader
-      :desc "Load new theme" "h t" #consult-theme)
+      :desc "Load new theme" "h t" #'consult-theme)
 
 (map! :leader
       (:prefix ("w" . "window")
@@ -459,36 +459,27 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Find file at point"
       "f ." #'find-file-at-point)
 
-pass init -p personal <YOUR_KEYID>
-pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
-
-sudo apt install pass gnupg        # Debian/Ubuntu
-
-gpg --list-keys --keyid-format LONG
-
-gpg --full-generate-key
-
-pass init ABCDEF1234567890   # or: pass init your.email@example.com
-
-pass insert -m code/mykey
-# paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
-
-pass show code/mykey
-
-(getenv "OPENAI_API_KEY")
-;; or
-(password-store-get "code/openai_api_key")
-
-gpg --edit-key ${GPG_KEY_ID}
-# at the gpg prompt:
-trust
-# choose: 5 (ultimate)
-# confirm: y
-save
-
-pass init ${GPG_KEY_ID}
-
-pass init -p code ${GPG_KEY_ID}
+;; Pass/GPG setup instructions (commented out):
+;; pass init -p personal <YOUR_KEYID>
+;; pass init -p work/aud <YOUR_KEYID> <WORK_KEYID(S)>
+;; sudo apt install pass gnupg        # Debian/Ubuntu
+;; gpg --list-keys --keyid-format LONG
+;; gpg --full-generate-key
+;; pass init ABCDEF1234567890   # or: pass init your.email@example.com
+;; pass insert -m code/mykey
+;; # paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
+;; pass show code/mykey
+;; (getenv "OPENAI_API_KEY")
+;; ;; or
+;; (password-store-get "code/openai_api_key")
+;; gpg --edit-key ${GPG_KEY_ID}
+;; # at the gpg prompt:
+;; trust
+;; # choose: 5 (ultimate)
+;; # confirm: y
+;; save
+;; pass init ${GPG_KEY_ID}
+;; pass init -p code ${GPG_KEY_ID}
 
 ;;; ========== pass bulk insert core (idempotent) ==========
 (defun cg/pass--ensure ()
@@ -671,47 +662,59 @@ With ONLY-MISSING (prefix arg), don't overwrite vars already set."
   ;;        :desc "Diagnose" "d" #'copilot-diagnose)))
 
 ;; Secrets helpers for AI tools
-(defun my/get-secret-from-pass (path)
+(defun cg/get-secret-from-pass (path)
   "Return first line of pass entry at PATH, or nil if unavailable."
   (when (and path (fboundp 'password-store-get))
     (ignore-errors (password-store-get path))))
 
-(defun my/get-secret-from-auth (host)
+(defun cg/get-secret-from-auth (host)
   "Return secret from auth-source for HOST, or nil if unavailable."
   (when (and host (fboundp 'auth-source-pick-first-password))
     (ignore-errors (auth-source-pick-first-password :host host))))
 
-(defun my/set-env-from-secrets (env-name pass-path auth-host)
+(defun cg/set-env-from-secrets (env-name pass-path auth-host)
   "Set ENV-NAME from pass PASS-PATH or auth-source AUTH-HOST if found.
 Falls back to existing ENV-NAME value. Returns the value set (or nil)."
-  (let* ((val (or (my/get-secret-from-pass pass-path)
-                  (my/get-secret-from-auth auth-host)
+  (let* ((val (or (cg/get-secret-from-pass pass-path)
+                  (cg/get-secret-from-auth auth-host)
                   (getenv env-name))))
     (when (and val (> (length val) 0))
       (setenv env-name val))
     (getenv env-name)))
 
-(defun my/init-api-key (env-name pass-path auth-host)
+(defun cg/init-api-key (env-name pass-path auth-host)
   "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
-  (my/set-env-from-secrets env-name pass-path auth-host))
+  (cg/set-env-from-secrets env-name pass-path auth-host))
 
 (use-package! aidermacs
   :config
-  ;; Set up environment variables and hooks
-  (add-hook 'aidermacs-before-run-backend-hook
-            (lambda ()
-            (my/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-            (my/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-            (my/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-            (my/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))
+  ;; Initialize API keys immediately when aidermacs is loaded
+  (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+  (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+  (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+  (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")
+  
   ;; Customize aidermacs behavior
   (setq aidermacs-model "gpt-4o"  ; or "claude-3-5-sonnet-20241022"
         aidermacs-auto-commit nil  ; Don't auto-commit changes
         aidermacs-show-diffs t)    ; Always show diffs
 
-  )
+  ;; Also set up keys before any aidermacs command
+  (advice-add 'aidermacs-start :before
+              (lambda (&rest _)
+                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
+  
+  (advice-add 'aidermacs-send-prompt :before
+              (lambda (&rest _)
+                (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+                (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+                (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+                (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))))
 
-(defvar my/ai-global-rules
+(defvar cg/ai-global-rules
   "You are an expert software developer assistant. Follow these global rules:
 
 1. CODING STANDARDS:
@@ -747,25 +750,25 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
   "Global AI rules applied to all AI interactions.")
 
 
-(defvar my/ai-project-rules nil
+(defvar cg/ai-project-rules nil
   "Buffer to store project-specific AI rules loaded from .aiderrules file.")
-(defun my/load-project-ai-rules ()
+(defun cg/load-project-ai-rules ()
   "Load AI rules from .aiderrules file in project root."
   (let ((rules-file (expand-file-name ".aiderrules" (project-root (project-current)))))
     (when (file-exists-p rules-file)
-      (setq my/ai-project-rules
+      (setq cg/ai-project-rules
             (with-temp-buffer
               (insert-file-contents rules-file)
               (buffer-string)))
       (message "Loaded project AI rules from %s" rules-file))))
 
-(defun my/get-combined-ai-rules ()
+(defun cg/get-combined-ai-rules ()
   "Combine global and project-specific AI rules."
-  (concat my/ai-global-rules
-          (when my/ai-project-rules
-            (concat "\n\nPROJECT-SPECIFIC RULES:\n" my/ai-project-rules))))
+  (concat cg/ai-global-rules
+          (when cg/ai-project-rules
+            (concat "\n\nPROJECT-SPECIFIC RULES:\n" cg/ai-project-rules))))
 
-(defun my/create-aiderrules-template ()
+(defun cg/create-aiderrules-template ()
   "Create a template .aiderrules file in project root."
   (interactive)
   (let* ((project-root (project-root (project-current)))
@@ -813,17 +816,17 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
       (message "Created .aiderrules template in %s" project-root))))
 
 ;; Auto-load project rules when switching projects
-(add-hook 'project-switch-hook #'my/load-project-ai-rules)
+(add-hook 'project-switch-hook #'cg/load-project-ai-rules)
 
 ;; Load rules when opening files in a new project
 (add-hook 'find-file-hook
           (lambda ()
-            (when (and (project-current) (not my/ai-project-rules))
-              (my/load-project-ai-rules))))
+            (when (and (project-current) (not cg/ai-project-rules))
+              (cg/load-project-ai-rules))))
 
-(defun my/ai-send-with-rules (content prompt-type)
+(defun cg/ai-send-with-rules (content prompt-type)
   "Send content to AI with appropriate rules prepended."
-  (let ((full-prompt (concat (my/get-combined-ai-rules)
+  (let ((full-prompt (concat (cg/get-combined-ai-rules)
                            "\n\n=== TASK ===\n"
                            prompt-type
                            "\n\n=== CODE ===\n"
@@ -835,10 +838,10 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
       (goto-char (point-max))
       (gptel-send))))
 
-(defun my/ai-code-review ()
+(defun cg/ai-code-review ()
   "Send current buffer to GPTel for code review with rules."
   (interactive)
-  (my/ai-send-with-rules
+  (cg/ai-send-with-rules
    (buffer-string)
    "Please review this code for:
 - Code quality and best practices
@@ -847,34 +850,34 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
 - Security considerations
 - Adherence to the specified rules and conventions"))
 
-(defun my/ai-explain-code ()
+(defun cg/ai-explain-code ()
   "Explain selected code or function at point using GPTel with rules."
   (interactive)
   (let ((code (if (region-active-p)
                   (buffer-substring-no-properties (region-beginning) (region-end))
                 (thing-at-point 'defun t))))
     (when code
-      (my/ai-send-with-rules
+      (cg/ai-send-with-rules
        code
        "Please explain this code in detail, considering the project context and rules."))))
 
-(defun my/ai-refactor-with-aider ()
+(defun cg/ai-refactor-with-aider ()
   "Start aidermacs and suggest refactoring for current file with rules."
   (interactive)
-  (my/load-project-ai-rules)  ; Ensure rules are loaded
+  (cg/load-project-ai-rules)  ; Ensure rules are loaded
   (aidermacs-start)
   (sleep-for 2)  ; Wait for aider to start
-  (let ((prompt (concat (my/get-combined-ai-rules)
+  (let ((prompt (concat (cg/get-combined-ai-rules)
                        "\n\nPlease review and suggest refactoring improvements for "
                        (buffer-file-name)
                        ". Focus on code quality, maintainability, and adherence to the specified rules.")))
     (aidermacs-send-prompt prompt)))
 
-(defun my/ai-generate-code ()
+(defun cg/ai-generate-code ()
   "Generate code based on user prompt with project rules."
   (interactive)
   (let ((user-prompt (read-string "Describe what code you need: ")))
-    (my/ai-send-with-rules
+    (cg/ai-send-with-rules
      (format "Current file: %s\nContext: %s"
              (or (buffer-file-name) "New file")
              (if (region-active-p)
@@ -882,49 +885,49 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
                "No specific context"))
      (concat "Generate code based on this request: " user-prompt))))
 
-(defun my/ai-fix-code ()
+(defun cg/ai-fix-code ()
   "Fix code issues in current selection or buffer."
   (interactive)
   (let ((code (if (region-active-p)
                   (buffer-substring-no-properties (region-beginning) (region-end))
                 (buffer-string))))
-    (my/ai-send-with-rules
+    (cg/ai-send-with-rules
      code
      "Please identify and fix any issues in this code. Provide the corrected version with explanations.")))
 
-(defun my/ai-optimize-code ()
+(defun cg/ai-optimize-code ()
   "Optimize selected code or buffer for performance."
   (interactive)
   (let ((code (if (region-active-p)
                   (buffer-substring-no-properties (region-beginning) (region-end))
                 (buffer-string))))
-    (my/ai-send-with-rules
+    (cg/ai-send-with-rules
      code
      "Please optimize this code for better performance while maintaining readability and following the specified rules.")))
 
-(defun my/ai-add-tests ()
+(defun cg/ai-add-tests ()
   "Generate tests for current function or class."
   (interactive)
   (let ((code (if (region-active-p)
                   (buffer-substring-no-properties (region-beginning) (region-end))
                 (thing-at-point 'defun t))))
     (when code
-      (my/ai-send-with-rules
+      (cg/ai-send-with-rules
        code
        "Please generate comprehensive tests for this code. Include unit tests, edge cases, and error scenarios."))))
 
-(defun my/ai-add-documentation ()
+(defun cg/ai-add-documentation ()
   "Generate documentation for current function or class."
   (interactive)
   (let ((code (if (region-active-p)
                   (buffer-substring-no-properties (region-beginning) (region-end))
                 (thing-at-point 'defun t))))
     (when code
-      (my/ai-send-with-rules
+      (cg/ai-send-with-rules
        code
        "Please generate appropriate documentation for this code. Include docstrings, parameter descriptions, and usage examples."))))
 
-(defun my/toggle-all-ai-tools ()
+(defun cg/toggle-all-ai-tools ()
   "Toggle all AI tools on/off."
   (interactive)
   (copilot-mode 'toggle)
@@ -958,23 +961,23 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
         :desc "New Chat" "n" #'gptel)
        ;; Actions subgroup
        (:prefix ("x" . "AI Actions")
-        :desc "Code Review" "r" #'my/ai-code-review
-        :desc "Explain Code" "e" #'my/ai-explain-code
-        :desc "Generate Code" "g" #'my/ai-generate-code
-        :desc "Fix Code" "f" #'my/ai-fix-code
-        :desc "Optimize Code" "o" #'my/ai-optimize-code
-        :desc "Add Tests" "t" #'my/ai-add-tests
-        :desc "Add Documentation" "d" #'my/ai-add-documentation
-        :desc "Refactor with Aider" "R" #'my/ai-refactor-with-aider
-        :desc "Toggle All AI" "T" #'my/toggle-all-ai-tools)
+        :desc "Code Review" "r" #'cg/ai-code-review
+        :desc "Explain Code" "e" #'cg/ai-explain-code
+        :desc "Generate Code" "g" #'cg/ai-generate-code
+        :desc "Fix Code" "f" #'cg/ai-fix-code
+        :desc "Optimize Code" "o" #'cg/ai-optimize-code
+        :desc "Add Tests" "t" #'cg/ai-add-tests
+        :desc "Add Documentation" "d" #'cg/ai-add-documentation
+        :desc "Refactor with Aider" "R" #'cg/ai-refactor-with-aider
+        :desc "Toggle All AI" "T" #'cg/toggle-all-ai-tools)
        ;; Settings subgroup
        (:prefix ("s" . "AI Settings/Rules")
-        :desc "Create .aiderrules" "r" #'my/create-aiderrules-template
-        :desc "Reload Rules" "R" #'my/load-project-ai-rules
+        :desc "Create .aiderrules" "r" #'cg/create-aiderrules-template
+        :desc "Reload Rules" "R" #'cg/load-project-ai-rules
         :desc "Edit Global Rules" "g" (lambda () (interactive)
                                         (with-current-buffer (get-buffer-create "*AI Global Rules*")
                                           (erase-buffer)
-                                          (insert my/ai-global-rules)
+                                          (insert cg/ai-global-rules)
                                           (markdown-mode)
                                           (switch-to-buffer (current-buffer)))))))
 
@@ -1002,12 +1005,12 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
               (copilot-mode 1))))
 
 ;; Display AI status in modeline (optional)
-(defun my/ai-status-indicator ()
+(defun cg/ai-status-indicator ()
   "Show AI tools status in modeline."
   (concat
-   (when copilot-mode " ⚡")
+   (when (and (boundp 'copilot-mode) copilot-mode) " ⚡")
    (when (get-buffer "*aidermacs*") " 🤖")
-   (when gptel-mode " 💬")))
+   (when (and (boundp 'gptel-mode) gptel-mode) " 💬")))
 
 ;; Add to modeline (uncomment if desired)
-(add-to-list 'mode-line-misc-info '(:eval (my/ai-status-indicator)))
+;; (add-to-list 'mode-line-misc-info '(:eval (cg/ai-status-indicator)))
