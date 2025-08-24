@@ -475,10 +475,6 @@ pass insert -m code/mykey
 
 pass show code/mykey
 
-(add-hook 'aidermacs-before-run-backend-hook
-          (lambda ()
-            (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
-
 (getenv "OPENAI_API_KEY")
 ;; or
 (password-store-get "code/openai_api_key")
@@ -579,7 +575,7 @@ With FORCE, overwrite differing entries without prompting."
   (dolist (cell alist)
     (cg/pass-upsert (car cell) (cdr cell) force)))
 
-(defvar cg/secret-specs
+(setq cg/secret-specs
   '((anthropic-aud
      :pass "code/anthropic_api_key_aud"
      :env  ("ANTHROPIC_API_KEY"))     ; optionally also "ANTHROPIC_API_KEY"
@@ -591,7 +587,10 @@ With FORCE, overwrite differing entries without prompting."
      :env  ("XAI_API_KEY"))
     (perplexity
      :pass "code/perplexity_api_key"
-     :env  ("PPLX_API_KEY")))
+     :env  ("PPLX_API_KEY"))
+    (openai-personal
+     :pass "code/openai_api_key"
+     :env  "OPENAI_API_KEY"))
   "Specs for secrets. No secret values here.
 :pass = path in pass. :env = string or list of env var names to export.")
 
@@ -671,19 +670,40 @@ With ONLY-MISSING (prefix arg), don't overwrite vars already set."
   ;;        :desc "Login" "l" #'copilot-login
   ;;        :desc "Diagnose" "d" #'copilot-diagnose)))
 
+;; Secrets helpers for AI tools
+(defun my/get-secret-from-pass (path)
+  "Return first line of pass entry at PATH, or nil if unavailable."
+  (when (and path (fboundp 'password-store-get))
+    (ignore-errors (password-store-get path))))
+
+(defun my/get-secret-from-auth (host)
+  "Return secret from auth-source for HOST, or nil if unavailable."
+  (when (and host (fboundp 'auth-source-pick-first-password))
+    (ignore-errors (auth-source-pick-first-password :host host))))
+
+(defun my/set-env-from-secrets (env-name pass-path auth-host)
+  "Set ENV-NAME from pass PASS-PATH or auth-source AUTH-HOST if found.
+Falls back to existing ENV-NAME value. Returns the value set (or nil)."
+  (let* ((val (or (my/get-secret-from-pass pass-path)
+                  (my/get-secret-from-auth auth-host)
+                  (getenv env-name))))
+    (when (and val (> (length val) 0))
+      (setenv env-name val))
+    (getenv env-name)))
+
+(defun my/init-api-key (env-name pass-path auth-host)
+  "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
+  (my/set-env-from-secrets env-name pass-path auth-host))
+
 (use-package! aidermacs
   :config
   ;; Set up environment variables and hooks
   (add-hook 'aidermacs-before-run-backend-hook
             (lambda ()
-              ;; Prefer pass (password-store), then auth-source, then existing env var
-              (setenv "OPENAI_API_KEY"
-                      (or (when (fboundp 'password-store-get)
-                            (ignore-errors (password-store-get "code/openai_api_key")))
-                          (when (fboundp 'auth-source-pick-first-password)
-                            (ignore-errors (auth-source-pick-first-password :host "openai.com")))
-                          (getenv "OPENAI_API_KEY")))))
-
+            (my/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+            (my/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+            (my/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+            (my/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))
   ;; Customize aidermacs behavior
   (setq aidermacs-model "gpt-4o"  ; or "claude-3-5-sonnet-20241022"
         aidermacs-auto-commit nil  ; Don't auto-commit changes
