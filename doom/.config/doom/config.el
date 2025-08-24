@@ -459,6 +459,178 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Find file at point"
       "f ." #'find-file-at-point)
 
+sudo apt install pass gnupg        # Debian/Ubuntu
+
+gpg --list-keys --keyid-format LONG
+
+gpg --full-generate-key
+
+pass init ABCDEF1234567890   # or: pass init your.email@example.com
+
+pass insert -m code/mykey
+# paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
+
+pass show code/mykey
+
+(add-hook 'aidermacs-before-run-backend-hook
+          (lambda ()
+            (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
+
+(getenv "OPENAI_API_KEY")
+;; or
+(password-store-get "code/openai_api_key")
+
+gpg --edit-key ${GPG_KEY_ID}
+# at the gpg prompt:
+trust
+# choose: 5 (ultimate)
+# confirm: y
+save
+
+pass init ${GPG_KEY_ID}
+
+pass init -p code ${GPG_KEY_ID}
+
+;;; ========== pass bulk insert core (idempotent) ==========
+(defun cg/pass--ensure ()
+  (or (executable-find "pass")
+      (user-error "pass(1) not found. Install and initialize pass + GPG")))
+
+(defun cg/pass--existing-first-line (path)
+  "Return first line of existing pass entry PATH, or nil if missing/error."
+  (let (out)
+    (with-temp-buffer
+      (let ((status (call-process "pass" nil t nil "show" path)))
+        (when (and (integerp status) (= status 0))
+          (goto-char (point-min))
+          (when (re-search-forward "\\`\\([^\n\r]+\\)" nil t)
+            (setq out (match-string 1))))))
+    out))
+
+(defun cg/pass--insert (path secret &optional force)
+  "Insert SECRET at PATH via pass. If FORCE, overwrite."
+  (let ((pass (cg/pass--ensure)))
+    (with-temp-buffer
+      (insert secret "\n")
+      (let* ((args (append '("insert" "-m") (when force '("-f")) (list path)))
+             (status (apply #'call-process-region (point-min) (point-max)
+                            pass nil nil nil args)))
+        (unless (and (integerp status) (= status 0))
+          (user-error "pass insert failed (status %S) for %s" status path))))))
+
+(defun cg/pass-upsert (path secret &optional force)
+  "Idempotent insert: if PATH exists and equals SECRET, do nothing.
+If different, overwrite when FORCE non-nil; otherwise prompt."
+  (let ((existing (cg/pass--existing-first-line path)))
+    (cond
+     ((and existing (string= existing secret))
+      (message "pass: %s already set; skipping" path))
+     ((and existing (not force))
+      (when (y-or-n-p (format "pass: %s exists and differs. Overwrite? " path))
+        (cg/pass--insert path secret t)
+        (message "pass: %s updated" path)))
+     (t
+      (cg/pass--insert path secret force)
+      (message "pass: %s inserted" path)))))
+
+;;; ========== bulk from encrypted file ==========
+(defun cg/pass-bulk-insert-from-file (file &optional force symbol)
+  "Load FILE (e.g. ~/.config/doom/my-secrets.el.gpg) and upsert all entries.
+FILE must define an alist variable. SYMBOL (default: cg/private-pass-secrets)
+is the variable name to read. With FORCE, overwrite without prompting."
+  (interactive
+   (list (read-file-name "Secrets file: " "~/.config/doom/" nil t nil
+                         (lambda (f) (string-match-p "\\.el\\(\\.gpg\\)?\\'" f)))
+         current-prefix-arg
+         (intern (completing-read "Var symbol: "
+                                  '(cg/private-pass-secrets cg/api-keys)
+                                  nil t nil nil "cg/private-pass-secrets"))))
+  (let ((sym (or symbol 'cg/private-pass-secrets)))
+    (unless (file-readable-p file)
+      (user-error "Secrets file not readable: %s" file))
+    (load file nil t)
+    (unless (boundp sym)
+      (user-error "Variable %s not defined in %s" sym file))
+    (cg/pass-bulk-insert-from-var (symbol-value sym) force)))
+
+;;; ========== bulk from variable (defvar cg/api-keys ...) ==========
+(defun cg/pass-bulk-insert-from-var (alist &optional force)
+  "Upsert all (PATH . SECRET) pairs from ALIST into pass.
+With FORCE, overwrite differing entries without prompting."
+  (interactive
+   (list (let* ((sym (intern (completing-read "Var symbol: "
+                                              obarray
+                                              (lambda (s)
+                                                (and (boundp s)
+                                                     (listp (symbol-value s))))
+                                              t nil nil "cg/api-keys"))))
+           (symbol-value sym))
+         current-prefix-arg))
+  (unless (and (listp alist)
+               (cl-every (lambda (x)
+                           (and (consp x)
+                                (stringp (car x))
+                                (stringp (cdr x))))
+                         alist))
+    (user-error "Expected an alist of (PATH . SECRET) strings"))
+  (dolist (cell alist)
+    (cg/pass-upsert (car cell) (cdr cell) force)))
+
+(defvar cg/secret-specs
+  '((anthropic-aud
+     :pass "code/anthropic_api_key_aud"
+     :env  ("ANTHROPIC_API_KEY"))     ; optionally also "ANTHROPIC_API_KEY"
+    (anthropic-personal
+     :pass "code/anthropic_api_key_personal"
+     :env  ("ANTHROPIC_API_KEY_PERSONAL"))
+    (xai
+     :pass "code/xai_api_key"
+     :env  ("XAI_API_KEY"))
+    (perplexity
+     :pass "code/perplexity_api_key"
+     :env  ("PPLX_API_KEY")))
+  "Specs for secrets. No secret values here.
+:pass = path in pass. :env = string or list of env var names to export.")
+
+(defun cg/pass--read-first-line (path)
+  (ignore-errors
+    (with-temp-buffer
+      (let ((status (call-process "pass" nil t nil "show" path)))
+        (when (and (integerp status) (= status 0))
+          (goto-char (point-min))
+          (buffer-substring-no-properties (point) (line-end-position)))))))
+
+(defun cg/export-env-from-pass (&optional only-missing)
+  "Set env vars in Emacs from pass using `cg/secret-specs'.
+With ONLY-MISSING (prefix arg), don't overwrite vars already set."
+  (interactive "P")
+  (dolist (cell cg/secret-specs)
+    (let* ((spec  (cdr cell))
+           (path  (plist-get spec :pass))
+           (envs  (let ((e (plist-get spec :env))) (if (listp e) e (list e))))
+           (value (cg/pass--read-first-line path)))
+      (when (and value (not (string-empty-p value)))
+        (dolist (name envs)
+          (when (or (not only-missing) (null (getenv name)))
+            (setenv name value)))))))
+
+(defun cg/write-pass-export-script (file)
+  "Write a script exporting env vars by reading pass at shell init time."
+  (interactive "FWrite export script: ")
+  (let ((lines (list "#!/usr/bin/env bash"
+                     "set -euo pipefail" "")))
+    (dolist (cell cg/secret-specs)
+      (let* ((spec (cdr cell))
+             (path (plist-get spec :pass))
+             (envs (let ((e (plist-get spec :env))) (if (listp e) e (list e)))))
+        (dolist (name envs)
+          (push (format "export %s=\"$(pass show %s | head -n1)\"" name path)
+                lines))))
+    (with-temp-file file
+      (insert (mapconcat #'identity (nreverse lines) "\n")))
+    (set-file-modes file #o600)
+    (message "Wrote %s (mode 600). Add 'source %s' to your shell rc." file file)))
+
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
@@ -515,34 +687,6 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
         aidermacs-show-diffs t)    ; Always show diffs
 
   )
-
-sudo apt install pass gnupg        # Debian/Ubuntu
-# or
-sudo dnf install pass gnupg2       # Fedora
-
-gpg --list-keys --keyid-format LONG
-
-gpg --full-generate-key
-
-pass init ABCDEF1234567890   # or: pass init your.email@example.com
-
-pass insert -m code/openai_api_key
-# paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
-
-pass show code/openai_api_key
-
-(add-hook 'aidermacs-before-run-backend-hook
-          (lambda ()
-            (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
-
-(getenv "OPENAI_API_KEY")
-;; or
-(password-store-get "code/openai_api_key")
-
-machine openai.com login openai api-key YOUR_KEY
-
-(setenv "OPENAI_API_KEY"
-        (auth-source-pick-first-password :host "openai.com"))
 
 (defvar my/ai-global-rules
   "You are an expert software developer assistant. Follow these global rules:

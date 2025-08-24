@@ -49,6 +49,10 @@
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
 - [[#other-file-stuff][Other file stuff]]
+- [[#pass---manage-secrets-using-the-default-unix-password-manager][PASS - Manage Secrets using the default unix password manager]]
+  - [[#using-pass][Using Pass]]
+  - [[#idempotently-insert-keys-into-pass-store][Idempotently insert keys into pass store]]
+  - [[#pass-end-environment-variables-from-env][PASS end environment variables from ENV]]
 - [[#ailmms][AI/LMMS]]
   - [[#github-copilot-configuration][Github Copilot Configuration]]
   - [[#aidermacs-configuration][AIdermacs Configuration]]
@@ -989,6 +993,282 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
       :desc "Find file at point"
       "f ." #'find-file-at-point)
 #+end_src
+* PASS - Manage Secrets using the default unix password manager
+
+** Using Pass
+
+
+Use Emacs's `password-store` integration to read secrets from your system
+password store (pass) instead of hardcoding keys.
+
+_What is `password-store-get`?__ It reads a secret from pass. Example:
+`(password-store-get "code/openai_api_key")` returns the value stored at that
+pass path.
+
+*** Prerequisites (Linux)
+#+begin_src sh
+sudo apt install pass gnupg        # Debian/Ubuntu
+#+end_src
+*** Find your GPG key ID (if you already have keys)
+The "key ID" is the identifier for your GPG key. List your keys with a long key
+id:
+
+#+begin_src sh
+gpg --list-keys --keyid-format LONG
+#+end_src
+
+Look for a line like:
+
+  pub   rsa4096/ABCDEF1234567890 2024-01-01 [SC]
+
+- __Key ID__: the part after the slash (`ABCDEF1234567890`). You can also use your
+  key's email (UID) instead of the ID in the next steps.
+
+If you have no keys yet, create one:
+
+#+begin_src sh
+gpg --full-generate-key
+#+end_src
+*** Initialize pass
+
+Initialize the password store with your key (use the long key ID or your GPG
+email):
+
+#+begin_src sh
+pass init ABCDEF1234567890   # or: pass init your.email@example.com
+#+end_src
+
+*** Manually store a key in pass
+
+#+begin_src sh
+pass insert -m code/mykey
+# paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
+#+end_src
+
+Verify you can read it:
+
+#+begin_src sh
+pass show code/mykey
+#+end_src
+
+*** Enable Emacs integration
+
+- Doom module (recommended): enable `:tools pass` in `~/.config/doom/init.el`,
+  then run `doom sync` and restart Emacs.
+- Or install the `password-store` package yourself if not using the Doom module.
+
+*** Use it in your config
+
+Replace the environment line in the Aider hook with `password-store-get`:
+
+#+begin_src emacs-lisp
+(add-hook 'aidermacs-before-run-backend-hook
+          (lambda ()
+            (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
+#+end_src
+
+Verify inside Emacs:
+
+#+begin_src emacs-lisp
+(getenv "OPENAI_API_KEY")
+;; or
+(password-store-get "code/openai_api_key")
+#+end_src
+
+*** Quick setup cheat sheet (trust + init + insert + show)
+
+Run these in a terminal. Replace the key ID if yours is different.
+
+#+begin_src sh
+gpg --edit-key ${GPG_KEY_ID}
+# at the gpg prompt:
+trust
+# choose: 5 (ultimate)
+# confirm: y
+save
+#+end_src
+
+Initialize pass for your key (whole store):
+
+#+begin_src sh
+pass init ${GPG_KEY_ID}
+#+end_src
+
+Optional: initialize only the "code/" subtree:
+
+#+begin_src sh
+pass init -p code ${GPG_KEY_ID}
+#+end_src
+
+** Idempotently insert keys into pass store
+
+#+begin_src emacs-lisp
+
+;;; ========== pass bulk insert core (idempotent) ==========
+(defun cg/pass--ensure ()
+  (or (executable-find "pass")
+      (user-error "pass(1) not found. Install and initialize pass + GPG")))
+
+(defun cg/pass--existing-first-line (path)
+  "Return first line of existing pass entry PATH, or nil if missing/error."
+  (let (out)
+    (with-temp-buffer
+      (let ((status (call-process "pass" nil t nil "show" path)))
+        (when (and (integerp status) (= status 0))
+          (goto-char (point-min))
+          (when (re-search-forward "\\`\\([^\n\r]+\\)" nil t)
+            (setq out (match-string 1))))))
+    out))
+
+(defun cg/pass--insert (path secret &optional force)
+  "Insert SECRET at PATH via pass. If FORCE, overwrite."
+  (let ((pass (cg/pass--ensure)))
+    (with-temp-buffer
+      (insert secret "\n")
+      (let* ((args (append '("insert" "-m") (when force '("-f")) (list path)))
+             (status (apply #'call-process-region (point-min) (point-max)
+                            pass nil nil nil args)))
+        (unless (and (integerp status) (= status 0))
+          (user-error "pass insert failed (status %S) for %s" status path))))))
+
+(defun cg/pass-upsert (path secret &optional force)
+  "Idempotent insert: if PATH exists and equals SECRET, do nothing.
+If different, overwrite when FORCE non-nil; otherwise prompt."
+  (let ((existing (cg/pass--existing-first-line path)))
+    (cond
+     ((and existing (string= existing secret))
+      (message "pass: %s already set; skipping" path))
+     ((and existing (not force))
+      (when (y-or-n-p (format "pass: %s exists and differs. Overwrite? " path))
+        (cg/pass--insert path secret t)
+        (message "pass: %s updated" path)))
+     (t
+      (cg/pass--insert path secret force)
+      (message "pass: %s inserted" path)))))
+
+;;; ========== bulk from encrypted file ==========
+(defun cg/pass-bulk-insert-from-file (file &optional force symbol)
+  "Load FILE (e.g. ~/.config/doom/my-secrets.el.gpg) and upsert all entries.
+FILE must define an alist variable. SYMBOL (default: cg/private-pass-secrets)
+is the variable name to read. With FORCE, overwrite without prompting."
+  (interactive
+   (list (read-file-name "Secrets file: " "~/.config/doom/" nil t nil
+                         (lambda (f) (string-match-p "\\.el\\(\\.gpg\\)?\\'" f)))
+         current-prefix-arg
+         (intern (completing-read "Var symbol: "
+                                  '(cg/private-pass-secrets cg/api-keys)
+                                  nil t nil nil "cg/private-pass-secrets"))))
+  (let ((sym (or symbol 'cg/private-pass-secrets)))
+    (unless (file-readable-p file)
+      (user-error "Secrets file not readable: %s" file))
+    (load file nil t)
+    (unless (boundp sym)
+      (user-error "Variable %s not defined in %s" sym file))
+    (cg/pass-bulk-insert-from-var (symbol-value sym) force)))
+
+;;; ========== bulk from variable (defvar cg/api-keys ...) ==========
+(defun cg/pass-bulk-insert-from-var (alist &optional force)
+  "Upsert all (PATH . SECRET) pairs from ALIST into pass.
+With FORCE, overwrite differing entries without prompting."
+  (interactive
+   (list (let* ((sym (intern (completing-read "Var symbol: "
+                                              obarray
+                                              (lambda (s)
+                                                (and (boundp s)
+                                                     (listp (symbol-value s))))
+                                              t nil nil "cg/api-keys"))))
+           (symbol-value sym))
+         current-prefix-arg))
+  (unless (and (listp alist)
+               (cl-every (lambda (x)
+                           (and (consp x)
+                                (stringp (car x))
+                                (stringp (cdr x))))
+                         alist))
+    (user-error "Expected an alist of (PATH . SECRET) strings"))
+  (dolist (cell alist)
+    (cg/pass-upsert (car cell) (cdr cell) force)))
+#+end_src
+
+
+** PASS end environment variables from ENV
+
+*** 1. Create a mapping
+
+#+begin_src emacs-lisp
+(defvar cg/secret-specs
+  '((anthropic-aud
+     :pass "code/anthropic_api_key_aud"
+     :env  ("ANTHROPIC_API_KEY"))     ; optionally also "ANTHROPIC_API_KEY"
+    (anthropic-personal
+     :pass "code/anthropic_api_key_personal"
+     :env  ("ANTHROPIC_API_KEY_PERSONAL"))
+    (xai
+     :pass "code/xai_api_key"
+     :env  ("XAI_API_KEY"))
+    (perplexity
+     :pass "code/perplexity_api_key"
+     :env  ("PPLX_API_KEY")))
+  "Specs for secrets. No secret values here.
+:pass = path in pass. :env = string or list of env var names to export.")
+#+end_src
+
+#+RESULTS:
+: cg/secret-specs
+
+
+*** 2) Export to Emacs env from pass
+Idempotently set env vars in the current Emacs based on pass entries in ~cg/secret-specs~:
+#+begin_src emacs-lisp
+(defun cg/pass--read-first-line (path)
+  (ignore-errors
+    (with-temp-buffer
+      (let ((status (call-process "pass" nil t nil "show" path)))
+        (when (and (integerp status) (= status 0))
+          (goto-char (point-min))
+          (buffer-substring-no-properties (point) (line-end-position)))))))
+
+(defun cg/export-env-from-pass (&optional only-missing)
+  "Set env vars in Emacs from pass using `cg/secret-specs'.
+With ONLY-MISSING (prefix arg), don't overwrite vars already set."
+  (interactive "P")
+  (dolist (cell cg/secret-specs)
+    (let* ((spec  (cdr cell))
+           (path  (plist-get spec :pass))
+           (envs  (let ((e (plist-get spec :env))) (if (listp e) e (list e))))
+           (value (cg/pass--read-first-line path)))
+      (when (and value (not (string-empty-p value)))
+        (dolist (name envs)
+          (when (or (not only-missing) (null (getenv name)))
+            (setenv name value)))))))
+#+end_src
+
+#+RESULTS:
+: cg/export-env-from-pass
+
+*** 3. Generate a shell snippet for .bashrc (safe, via pass at runtime)
+This writes a script that reads secrets from pass at shell startup (no plaintext secrets on disk):
+#+begin_src emacs-lisp
+(defun cg/write-pass-export-script (file)
+  "Write a script exporting env vars by reading pass at shell init time."
+  (interactive "FWrite export script: ")
+  (let ((lines (list "#!/usr/bin/env bash"
+                     "set -euo pipefail" "")))
+    (dolist (cell cg/secret-specs)
+      (let* ((spec (cdr cell))
+             (path (plist-get spec :pass))
+             (envs (let ((e (plist-get spec :env))) (if (listp e) e (list e)))))
+        (dolist (name envs)
+          (push (format "export %s=\"$(pass show %s | head -n1)\"" name path)
+                lines))))
+    (with-temp-file file
+      (insert (mapconcat #'identity (nreverse lines) "\n")))
+    (set-file-modes file #o600)
+    (message "Wrote %s (mode 600). Add 'source %s' to your shell rc." file file)))
+#+end_src
+
+#+RESULTS:
+: cg/write-pass-export-script
 
 
 * AI/LMMS
@@ -1083,99 +1363,6 @@ uv tool update-shell
         aidermacs-show-diffs t)    ; Always show diffs
 
   )
-#+end_src
-
-** Securely loading API keys with pass (password-store)
-
-Use Emacs's `password-store` integration to read secrets from your system password store (pass) instead of hardcoding keys.
-
-- __What is `password-store-get`?__ It reads a secret from pass. Example: `(password-store-get "code/openai_api_key")` returns the value stored at that pass path.
-
-*** Prerequisites (Linux)
-
-#+begin_src sh
-sudo apt install pass gnupg        # Debian/Ubuntu
-# or
-sudo dnf install pass gnupg2       # Fedora
-#+end_src
-
-*** Find your GPG key ID (if you already have keys)
-
-The "key ID" is the identifier for your GPG key. List your keys with a long key id:
-
-#+begin_src sh
-gpg --list-keys --keyid-format LONG
-#+end_src
-
-Look for a line like:
-
-  pub   rsa4096/ABCDEF1234567890 2024-01-01 [SC]
-
-- __Key ID__: the part after the slash (`ABCDEF1234567890`). You can also use your key's email (UID) instead of the ID in the next steps.
-
-If you have no keys yet, create one:
-
-#+begin_src sh
-gpg --full-generate-key
-#+end_src
-
-*** Initialize pass
-
-Initialize the password store with your key (use the long key ID or your GPG email):
-
-#+begin_src sh
-pass init ABCDEF1234567890   # or: pass init your.email@example.com
-#+end_src
-
-*** Store your OpenAI API key in pass
-
-#+begin_src sh
-pass insert -m code/openai_api_key
-# paste your key, then press Enter, then Ctrl-D (or Enter twice) to finish
-#+end_src
-
-Verify you can read it:
-
-#+begin_src sh
-pass show code/openai_api_key
-#+end_src
-
-*** Enable Emacs integration
-
-- Doom module (recommended): enable `:tools pass` in `~/.config/doom/init.el`, then run `doom sync` and restart Emacs.
-- Or install the `password-store` package yourself if not using the Doom module.
-
-*** Use it in your config
-
-Replace the environment line in the Aider hook with `password-store-get`:
-
-#+begin_src emacs-lisp
-(add-hook 'aidermacs-before-run-backend-hook
-          (lambda ()
-            (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
-#+end_src
-
-Verify inside Emacs:
-
-#+begin_src emacs-lisp
-(getenv "OPENAI_API_KEY")
-;; or
-(password-store-get "code/openai_api_key")
-#+end_src
-
-*** Alternative: auth-source (~/.authinfo.gpg)
-
-Store your key in an encrypted authinfo file:
-
-#+begin_src text
-machine openai.com login openai api-key YOUR_KEY
-#+end_src
-
-Then in Emacs:
-
-#+begin_src emacs-lisp
-(setenv "OPENAI_API_KEY"
-        (auth-source-pick-first-password :host "openai.com"))
 #+end_src
 
 ** AI Rules system (Similar to .cursorrules)
