@@ -418,10 +418,8 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
          (input (or region evil-search word)))
     (apply orig-fn (append (butlast args) (list input)))))
 
- (advice-add 'consult-line :around #'cg/consult-dwim-input)
- (advice-add 'consult-ripgrep :around #'cg/consult-dwim-input)
-
-(dolist (fn '(consult-line consult-ripgrep consult-grep consult-find))
+;; Only apply advice to specific functions, not consult-line which affects SPC s b
+(dolist (fn '(consult-ripgrep consult-grep consult-find))
   (advice-add fn :around #'cg/consult-dwim-input))
 
 (setq initial-buffer-choice "~/.config/doom/start.org")

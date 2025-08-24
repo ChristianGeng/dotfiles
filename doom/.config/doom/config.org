@@ -915,8 +915,6 @@ Limitations:
   (advice-add fn :around #'cg/consult-dwim-input))
 #+END_SRC
 
-#+RESULTS:
-
 * START PAGE
 Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided
 to just set an custom start file as my "dashboard" since it allows me more
