@@ -668,6 +668,31 @@ Falls back to existing ENV-NAME value. Returns the value set (or nil)."
   "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
   (cg/set-env-from-secrets env-name pass-path auth-host))
 
+;; Secrets helpers for AI tools
+(defun cg/get-secret-from-pass (path)
+  "Return first line of pass entry at PATH, or nil if unavailable."
+  (when (and path (fboundp 'password-store-get))
+    (ignore-errors (password-store-get path))))
+
+(defun cg/get-secret-from-auth (host)
+  "Return secret from auth-source for HOST, or nil if unavailable."
+  (when (and host (fboundp 'auth-source-pick-first-password))
+    (ignore-errors (auth-source-pick-first-password :host host))))
+
+(defun cg/set-env-from-secrets (env-name pass-path auth-host)
+  "Set ENV-NAME from pass PASS-PATH or auth-source AUTH-HOST if found.
+Falls back to existing ENV-NAME value. Returns the value set (or nil)."
+  (let* ((val (or (cg/get-secret-from-pass pass-path)
+                  (cg/get-secret-from-auth auth-host)
+                  (getenv env-name))))
+    (when (and val (> (length val) 0))
+      (setenv env-name val))
+    (getenv env-name)))
+
+(defun cg/init-api-key (env-name pass-path auth-host)
+  "Initialize ENV-NAME using PASS-PATH or AUTH-HOST (compat wrapper)."
+  (cg/set-env-from-secrets env-name pass-path auth-host))
+
 (use-package! aidermacs
   :config
   ;; Initialize API keys immediately when aidermacs is loaded
