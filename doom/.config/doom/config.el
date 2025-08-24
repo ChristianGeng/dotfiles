@@ -562,8 +562,7 @@ With FORCE, overwrite differing entries without prompting."
     (openai-personal
      :pass "code/openai_api_key"
      :env  "OPENAI_API_KEY"))
-  "Specs for secrets. No secret values here.
-:pass = path in pass. :env = string or list of env var names to export.")
+  )
 
 
 
@@ -611,15 +610,15 @@ With FORCE, overwrite differing entries without prompting."
   (add-hook 'emacs-lisp-mode-hook 'copilot-mode)
 
   ;; Custom keybindings for copilot control
-  ;; (map! :leader
-  ;;       (:prefix ("c" . "copilot")
-  ;;        :desc "Toggle Copilot" "t" #'copilot-mode
-  ;;        :desc "Accept completion" "a" #'copilot-accept-completion
-  ;;        :desc "Next completion" "n" #'copilot-next-completion
-  ;;        :desc "Previous completion" "p" #'copilot-previous-completion
-  ;;        :desc "Clear completion" "c" #'copilot-clear-overlay
-  ;;        :desc "Login" "l" #'copilot-login
-  ;;        :desc "Diagnose" "d" #'copilot-diagnose)))
+  (map! :leader
+        (:prefix ("c" . "copilot")
+         :desc "Toggle Copilot" "t" #'copilot-mode
+         :desc "Accept completion" "a" #'copilot-accept-completion
+         :desc "Next completion" "n" #'copilot-next-completion
+         :desc "Previous completion" "p" #'copilot-previous-completion
+         :desc "Clear completion" "c" #'copilot-clear-overlay
+         :desc "Login" "l" #'copilot-login
+         :desc "Diagnose" "d" #'copilot-diagnose)))
 
 ;; Secret management functions are now loaded from ~/emacs-conf/defuns/cg-secrets.el
 
@@ -872,6 +871,54 @@ With FORCE, overwrite differing entries without prompting."
   (copilot-mode 'toggle)
   (message "AI tools toggled: Copilot %s"
            (if copilot-mode "ON" "OFF")))
+
+(map! :leader
+      (:prefix ("A" . "AI / LLM")
+       ;; Copilot subgroup
+       (:prefix ("c" . "Copilot")
+        :desc "Toggle Copilot" "t" #'copilot-mode
+        :desc "Accept completion" "a" #'copilot-accept-completion
+        :desc "Next completion" "n" #'copilot-next-completion
+        :desc "Previous completion" "p" #'copilot-previous-completion
+        :desc "Clear completion" "c" #'copilot-clear-overlay
+        :desc "Login" "l" #'copilot-login
+        :desc "Diagnose" "d" #'copilot-diagnose)
+       ;; Aider subgroup
+       (:prefix ("a" . "Aider")
+        :desc "aider" "a" #'aidermacs-transient-menu
+        :desc "Start Aider" "s" #'aidermacs-start
+        :desc "Stop Aider" "q" #'aidermacs-stop
+        :desc "Send region" "r" #'aidermacs-send-region
+        :desc "Send buffer" "b" #'aidermacs-send-buffer
+        :desc "Send prompt" "p" #'aidermacs-send-prompt
+        :desc "Show status" "S" #'aidermacs-status
+        :desc "Clear context" "c" #'aidermacs-clear-context
+        :desc "Add file" "f" #'aidermacs-add-file
+        :desc "Remove file" "R" #'aidermacs-remove-file)
+       ;; GPTel subgroup
+       (:prefix ("g" . "GPTel")
+        :desc "New Chat" "n" #'gptel)
+       ;; Actions subgroup
+       (:prefix ("x" . "AI Actions")
+        :desc "Code Review" "r" #'cg/ai-code-review
+        :desc "Explain Code" "e" #'cg/ai-explain-code
+        :desc "Generate Code" "g" #'cg/ai-generate-code
+        :desc "Fix Code" "f" #'cg/ai-fix-code
+        :desc "Optimize Code" "o" #'cg/ai-optimize-code
+        :desc "Add Tests" "t" #'cg/ai-add-tests
+        :desc "Add Documentation" "d" #'cg/ai-add-documentation
+        :desc "Refactor with Aider" "R" #'cg/ai-refactor-with-aider
+        :desc "Toggle All AI" "T" #'cg/toggle-all-ai-tools)
+       ;; Settings subgroup
+       (:prefix ("s" . "AI Settings/Rules")
+        :desc "Create .aiderrules" "r" #'cg/create-aiderrules-template
+        :desc "Reload Rules" "R" #'cg/load-project-ai-rules
+        :desc "Edit Global Rules" "g" (lambda () (interactive)
+                                        (with-current-buffer (get-buffer-create "*AI Global Rules*")
+                                          (erase-buffer)
+                                          (insert cg/ai-global-rules)
+                                          (markdown-mode)
+                                          (switch-to-buffer (current-buffer)))))))
 
 ;; Make completions faster
 (setq copilot-max-char -1)  ; No character limit for completions
