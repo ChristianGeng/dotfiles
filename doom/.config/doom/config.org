@@ -45,6 +45,7 @@
 - [[#search][Search]]
 - [[#start-page][START PAGE]]
 - [[#theming][THEMING]]
+- [[#treesitter][Treesitter]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
 - [[#other-file-stuff][Other file stuff]]
@@ -950,6 +951,16 @@ on/off read-only-mode with 'SPC t r'.
 (map! :leader
       :desc "Load new theme" "h t" #'consult-theme)
 #+end_src
+* Treesitter
+
+I have installed the *treesitter* language grammar manually using =treesitter-install-language-grammar=.
+Allegedly this will do it automaticalls:
+
+#+begin_src emacs-lisp
+(after! treesit
+  (unless (treesit-language-available-p 'python)
+    (treesit-install-language-grammar 'python)))
+#+end_src
 
 * WINNER MODE
 Winner mode has been included with GNU Emacs since version 20.  This is a global minor mode and, when activated, it allows you to “undo” (and “redo”) changes in the window configuration with the key commands 'SCP w <left>' and 'SPC w <right>'.
@@ -1707,8 +1718,8 @@ https://github.com/Aider-AI/aider
        ;; Aider subgroup
        (:prefix ("a" . "Aider")
         :desc "aider" "a" #'aidermacs-transient-menu
-        :desc "Start Aider" "s" #'aidermacs-start
-        :desc "Stop Aider" "q" #'aidermacs-stop
+        :desc "Start Aider" "s" #'aidermacs-run
+        :desc "Stop Aider" "q" #'aidermacs-exit
         :desc "Send region" "r" #'aidermacs-send-region
         :desc "Send buffer" "b" #'aidermacs-send-buffer
         :desc "Send prompt" "p" #'aidermacs-send-prompt

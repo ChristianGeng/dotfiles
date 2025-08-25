@@ -444,6 +444,10 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (map! :leader
       :desc "Load new theme" "h t" #'consult-theme)
 
+(after! treesit
+  (unless (treesit-language-available-p 'python)
+    (treesit-install-language-grammar 'python)))
+
 (map! :leader
       (:prefix ("w" . "window")
        :desc "Winner redo" "<right>" #'winner-redo
@@ -886,8 +890,8 @@ With FORCE, overwrite differing entries without prompting."
        ;; Aider subgroup
        (:prefix ("a" . "Aider")
         :desc "aider" "a" #'aidermacs-transient-menu
-        :desc "Start Aider" "s" #'aidermacs-start
-        :desc "Stop Aider" "q" #'aidermacs-stop
+        :desc "Start Aider" "s" #'aidermacs-run
+        :desc "Stop Aider" "q" #'aidermacs-exit
         :desc "Send region" "r" #'aidermacs-send-region
         :desc "Send buffer" "b" #'aidermacs-send-buffer
         :desc "Send prompt" "p" #'aidermacs-send-prompt
