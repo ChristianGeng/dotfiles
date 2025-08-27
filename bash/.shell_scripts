@@ -1,1688 +1,1704 @@
-#!/bin/bash
- # run " . shell_scripts" to add the functions defined in this library
- # use cglibdoc to show a list of available functions
- # SEE ALSO:  bsfl
- # CGeng $10-Nov-2013$
- # TODO: Enforce the google shell script style guide
- # https://google.github.io/styleguide/shell.xml#Naming_Conventions
+     #!/bin/bash
+     # run " . shell_scripts" to add the functions defined in this library
+     # use cglibdoc to show a list of available functions
+     # SEE ALSO:  bsfl
+     # CGeng $10-Nov-2013$
+     # TODO: Enforce the google shell script style guide
+     # https://google.github.io/styleguide/shell.xml#Naming_Conventions
 
- cglibdoc()
- {
-     helptext="\n
-    # functions available in cglib : \n
-    # \n
-    # :: DOC :: \n
-    # cglibdoc()                - Display this help \n
-    # \n
-    # :: SEARCH ::  \n
-    # findbydate         - does what it says \n
-    # findlargefiles     - does what it says \n
-    # \n
-    # :: STRING and file TOOLS ::  \n
-    # rmdoubleEmptyLines - remove double empty lines  \n
-    # deblank()          - remove all white space from string \n
-    # deblankleading()   - trim leading white space from string \n
-    # uptimel ()         - uptime
-    #
-    # deblanktrailing()  - trim trailing white space from string \n
-    # int2str0()         - int2str0(int1,int2): converts int1 to string with int2 trailing blanks \n
-    # lc()               - convert to lower case \n
-    # getext()           - return extension , usage: mpath=`getpath PATHNAME` \n
-    # getpath()           - return path  \n
-    # getbase()          - return basename \n
-    # fileparts          - obsolete (multiple return args not working!)  \n
-    # datetoday ()       - get the current date as dd-month-yyyy \n
-    # \n
-    # :: Summaries :: \n
-    # compi              - summary information about this computer
-    # \n
-    # :: FILESYSTEM UTILS :: \n
-    # freeram()          - clean up RAM
-    # fsinfo()           - info about filesystem
-    #
-    # :: SOUND MP3 ::  \n
-    # mp4toaudio()       - TODO extract sound from mp4 videos  \\
-    # wavtomp3()         - convert waves to mp3 using standard settings \n
-    # mp3towav()         - does the oppositte \n
-    # aiff2wav()         - convert wav to aiff using sox
-    # extractmp4audio()  - extract audio from mp4 (youtube stuff) and save to wave file \n
-    # installyoutubedl() - install the most up to date version of youtube-dl to /usr/local/bin\n
-    # ytpl2mp3           - convert a youtube playlist to a series of mp3 files \n
-    # \n
-    # :: CONTROL FLOW ::  \n
-    # Pause()            - wait for input to continue \n
-    # \n
-    # :: PUBLISHING - LaTeX, pdf, gs, etc.  ::  \n
-    # wcLaTeX()          - word count of .tex file using detex \n
-    # wcpdf()            - word count of .pdf file using pdftotext and wc \n
-    # cleanLaTeXdir()    - recursively remove all LaTeX-related files from a directory  \n
-    # croppdfinplace     - crop pdfs to bounding box  \n
-    # pdftograyscale     - make copy of a pdf in grayscale  (filename handling and looping not finished) \n
-    # im2slide           - convert image names to slide ready for LaTeX-beamer inclusion\n
-    # shrinkpdf          - shrink a pdf, useful to email large scans\n
-    # \n
-    # :: SCANNING WITH SANE (Linux only) ::  \n
-    # scan2pdf           - batch scanning and pdf conversion  \n
-    # :: MISC ::  \n
-    # \n
-    #
-    # exesudo            - execute as sudo
-    # treed              - alternative zum Unix tree -d \n
-    # addmyVGA           - add Samsung external display in proper resolution (OBSOLETE)\n
-    # fileparts(STUB!)   - split filename in <PATH><BASENAME><EXT> - I am not using it: passing output args is too tedious in bash \n
-    # setmonitor         - laptop screen anmachen\n
-    # writedatedbackup   - \n
-    # repairpdf          - \n
-    # iminfo             - image info using identify\n
-    # generategoodpasswd - ssl password\n
-    # lstoday            - list files modified today\n
-    # tpoff              - track pad off\n
-    # tpon               - track pad on\n
-    # shavingtime        - Rasieren wenn man keinen Spiegel hat :-)    - \n
-    # spiegel            - das Gleiche     - \n
-    # ecl                - file an emacsclient senden - \n
-    "
-     echo -e $helptext
+     cglibdoc()
+     {
+         helptext="\n
+        # functions available in cglib : \n
+        # \n
+        # :: DOC :: \n
+        # cglibdoc()                - Display this help \n
+        # \n
+        # :: SEARCH ::  \n
+        # findbydate         - does what it says \n
+        # findlargefiles     - does what it says \n
+        # \n
+        # :: STRING and file TOOLS ::  \n
+        # rmdoubleEmptyLines - remove double empty lines  \n
+        # deblank()          - remove all white space from string \n
+        # deblankleading()   - trim leading white space from string \n
+        # uptimel ()         - uptime
+        #
+        # deblanktrailing()  - trim trailing white space from string \n
+        # int2str0()         - int2str0(int1,int2): converts int1 to string with int2 trailing blanks \n
+        # lc()               - convert to lower case \n
+        # getext()           - return extension , usage: mpath=`getpath PATHNAME` \n
+        # getpath()           - return path  \n
+        # getbase()          - return basename \n
+        # fileparts          - obsolete (multiple return args not working!)  \n
+        # datetoday ()       - get the current date as dd-month-yyyy \n
+        # \n
+        # :: Summaries :: \n
+        # compi              - summary information about this computer
+        # \n
+        # :: FILESYSTEM UTILS :: \n
+        # freeram()          - clean up RAM
+        # fsinfo()           - info about filesystem
+        #
+        # :: SOUND MP3 ::  \n
+        # mp4toaudio()       - TODO extract sound from mp4 videos  \\
+        # wavtomp3()         - convert waves to mp3 using standard settings \n
+        # mp3towav()         - does the oppositte \n
+        # aiff2wav()         - convert wav to aiff using sox
+        # extractmp4audio()  - extract audio from mp4 (youtube stuff) and save to wave file \n
+        # installyoutubedl() - install the most up to date version of youtube-dl to /usr/local/bin\n
+        # ytpl2mp3           - convert a youtube playlist to a series of mp3 files \n
+        # \n
+        # :: CONTROL FLOW ::  \n
+        # Pause()            - wait for input to continue \n
+        # \n
+        # :: PUBLISHING - LaTeX, pdf, gs, etc.  ::  \n
+        # wcLaTeX()          - word count of .tex file using detex \n
+        # wcpdf()            - word count of .pdf file using pdftotext and wc \n
+        # cleanLaTeXdir()    - recursively remove all LaTeX-related files from a directory  \n
+        # croppdfinplace     - crop pdfs to bounding box  \n
+        # pdftograyscale     - make copy of a pdf in grayscale  (filename handling and looping not finished) \n
+        # im2slide           - convert image names to slide ready for LaTeX-beamer inclusion\n
+        # shrinkpdf          - shrink a pdf, useful to email large scans\n
+        # \n
+        # :: SCANNING WITH SANE (Linux only) ::  \n
+        # scan2pdf           - batch scanning and pdf conversion  \n
+        # :: MISC ::  \n
+        # \n
+        #
+        # exesudo            - execute as sudo
+        # treed              - alternative zum Unix tree -d \n
+        # addmyVGA           - add Samsung external display in proper resolution (OBSOLETE)\n
+        # fileparts(STUB!)   - split filename in <PATH><BASENAME><EXT> - I am not using it: passing output args is too tedious in bash \n
+        # setmonitor         - laptop screen anmachen\n
+        # writedatedbackup   - \n
+        # repairpdf          - \n
+        # iminfo             - image info using identify\n
+        # generategoodpasswd - ssl password\n
+        # lstoday            - list files modified today\n
+        # tpoff              - track pad off\n
+        # tpon               - track pad on\n
+        # shavingtime        - Rasieren wenn man keinen Spiegel hat :-)    - \n
+        # spiegel            - das Gleiche     - \n
+        # ecl                - file an emacsclient senden - \n
+        "
+         echo -e $helptext
 
- }
-
-
- function wttrin() {
-     curl wttr.in/${1}
- }
-
- function ssh_hosts() {
-     # List ssh hosts in your config
-     cat ~/.ssh/config | grep -e "^Host" | sed   's/Host //' | sort | uniq
- }
+     }
 
 
+     function wttrin() {
+         curl wttr.in/${1}
+     }
 
- function clear_local_gradle_directories() {
+     function ssh_hosts() {
+         # List ssh hosts in your config
+         cat ~/.ssh/config | grep -e "^Host" | sed   's/Host //' | sort | uniq
+     }
 
-     DATA_ROOT=~/code/data_management_using_gradle
 
-     for path in $DATA_ROOT/*; do
-         [ -d "${path}" ] || continue # if not a directory, skip
-         dirname="$(basename "${path}")"
-         echo "will process ${dirname}"
+
+     function clear_local_gradle_directories() {
+
+         DATA_ROOT=~/code/data_management_using_gradle
+
+         for path in $DATA_ROOT/*; do
+             [ -d "${path}" ] || continue # if not a directory, skip
+             dirname="$(basename "${path}")"
+             echo "will process ${dirname}"
+             (
+                 cd $DATA_ROOT/${dirname}
+                 ./gradlew clean
+                 rm -vr .gradle/
+             )
+             echo "sleeping for 10secs"
+             sleep 10
+         done
+     }
+
+
+     function removefinalnewline() {
+         perl -pi -e 'chomp if eof'  $1
+     }
+
+     function removefilesinfileslist() {
+         # Usage: removefilesinfileslist <filelist.txt>
+         xargs rm < $1
+     }
+     # export DJANGO_SETTINGS_MODULE=app.settings
+
+     # find dependencies of elf libs
+     function libdeps(){
+         scanelf --needed --nobanner /usr/sbin/nginx \
+             | awk '{ gsub(/,/, "\n", $2); print "" $2 }'  \
+             | sed 's/so.*/so/' \
+             | xargs dpkg -S  \
+             | sed 's/:.*$//g' \
+             | sort \
+             | uniq \
+             | xargs sudo apt-get -y install
+     }
+
+     # ---- docker tools
+
+     function docker_stop_all_containers() {
+         docker stop $(docker ps -a -q)
+     }
+
+     function docker_remove_all_containers() {
+         docker rm $(docker ps -a -q)
+     }
+
+     function docker_remove_all_images() {
+         docker rmi $(docker images -a -q)
+     }
+
+     function docker_remove_all_unused_volues() {
+         yes | docker volume prune
+     }
+
+
+     function docker_reset_container_dev() {
+         docker stop $(docker ps -a -q)
+         docker rm $(docker ps -a -q)
+         yes  | docker system prune
+     }
+
+     function check_video_files() {
+         # ffmpeg -v error -i ${1}  --f null - >error.log 2>&1
+         ffmpeg -v error -i ${1} -f null - 2>error.log
+     }
+
+
+     # get some random images to directory "images"
+     function get_sample_images() {
+         mkdir images
          (
-             cd $DATA_ROOT/${dirname}
-             ./gradlew clean
-             rm -vr .gradle/
+             cd images
+             for i in {100..130}; do  curl  https://picsum.photos/id/$i/400/400.jpg -o  $i.jpg; done
          )
-         echo "sleeping for 10secs"
-         sleep 10
-     done
- }
+     }
 
 
- function removefinalnewline() {
-     perl -pi -e 'chomp if eof'  $1
- }
+     function dated_backup() {
+         # bakup $1 to same file
+         local mpath=`getpath $1`
+         local mbase=`getbase $1`
+         local mext=`getext $1`
+         OLDNAME=$1
+         date_now=$(datetimenow)
+         local NEWNAME=${mpath}${mbase}'-'${mext}'_'${date_now}
+         echo $OLDNAME"  ->  "$NEWNAME
+         cp $OLDNAME $NEWNAME
 
- function removefilesinfileslist() {
-     # Usage: removefilesinfileslist <filelist.txt>
-     xargs rm < $1
- }
- # export DJANGO_SETTINGS_MODULE=app.settings
-
- # find dependencies of elf libs
- function libdeps(){
-     scanelf --needed --nobanner /usr/sbin/nginx \
-         | awk '{ gsub(/,/, "\n", $2); print "" $2 }'  \
-         | sed 's/so.*/so/' \
-         | xargs dpkg -S  \
-         | sed 's/:.*$//g' \
-         | sort \
-         | uniq \
-         | xargs sudo apt-get -y install
- }
-
- # ---- docker tools
-
- function docker_stop_all_containers() {
-     docker stop $(docker ps -a -q)
- }
-
- function docker_remove_all_containers() {
-     docker rm $(docker ps -a -q)
- }
-
- function docker_remove_all_images() {
-     docker rmi $(docker images -a -q)
- }
-
- function docker_remove_all_unused_volues() {
-     yes | docker volume prune
- }
+     }
 
 
- function docker_reset_container_dev() {
-     docker stop $(docker ps -a -q)
-     docker rm $(docker ps -a -q)
-     yes  | docker system prune
- }
-
- function check_video_files() {
-     # ffmpeg -v error -i ${1}  --f null - >error.log 2>&1
-     ffmpeg -v error -i ${1} -f null - 2>error.log
- }
+     # kill all emacs processes
+     function killemall(){
+         kill $(ps wax  | grep $USER | grep -v sshd | grep -v emacs |  awk '{print $1}')
+     }
 
 
- # get some random images to directory "images"
- function get_sample_images() {
-     mkdir images
-     (
-         cd images
-         for i in {100..130}; do  curl  https://picsum.photos/id/$i/400/400.jpg -o  $i.jpg; done
-     )
- }
+     function list_interfaces() {
+         # """list the names of network interfaces"""
+         ifconfig | grep ^[^\ ]  |  awk -F :  '{print $1}'
+     }
 
-
- function dated_backup() {
-     # bakup $1 to same file
-     local mpath=`getpath $1`
-     local mbase=`getbase $1`
-     local mext=`getext $1`
-     OLDNAME=$1
-     date_now=$(datetimenow)
-     local NEWNAME=${mpath}${mbase}'-'${mext}'_'${date_now}
-     echo $OLDNAME"  ->  "$NEWNAME
-     cp $OLDNAME $NEWNAME
-
- }
-
-
- # kill all emacs processes
- function killemall(){
-     kill $(ps wax  | grep $USER | grep -v sshd | grep -v emacs |  awk '{print $1}')
- }
-
-
- function list_interfaces() {
-     # """list the names of network interfaces"""
-     ifconfig | grep ^[^\ ]  |  awk -F :  '{print $1}'
- }
-
- function compare_dirs(){
-     diff <(find $1 -type f -exec md5sum {} + | sort -k 2 | cut -f1 -d" ") <(find $2 -type f -exec md5sum {} + | sort -k 2 | cut -f1 -d" ")
- }
+     function compare_dirs(){
+         diff <(find $1 -type f -exec md5sum {} + | sort -k 2 | cut -f1 -d" ") <(find $2 -type f -exec md5sum {} + | sort -k 2 | cut -f1 -d" ")
+     }
 
 
 
- ################################################################
- # see https://stackoverflow.com/questions/296536/how-to-urlencode-data-for-curl-command
- # urlencode data for curl command
- # see https://github.com/sfinktah/bash/blob/master/rawurlencode.inc.sh
- ################################################################
- function rawurlencode() {
-     local string="${1}"
-     local strlen=${#string}
-     local encoded=""
-     local pos c o
+     ################################################################
+     # see https://stackoverflow.com/questions/296536/how-to-urlencode-data-for-curl-command
+     # urlencode data for curl command
+     # see https://github.com/sfinktah/bash/blob/master/rawurlencode.inc.sh
+     ################################################################
+     function rawurlencode() {
+         local string="${1}"
+         local strlen=${#string}
+         local encoded=""
+         local pos c o
 
-     for (( pos=0 ; pos<strlen ; pos++ )); do
-         c=${string:$pos:1}
-         case "$c" in
-             [-_.~a-zA-Z0-9] ) o="${c}" ;;
-             * )               printf -v o '%%%02x' "'$c"
+         for (( pos=0 ; pos<strlen ; pos++ )); do
+             c=${string:$pos:1}
+             case "$c" in
+                 [-_.~a-zA-Z0-9] ) o="${c}" ;;
+                 * )               printf -v o '%%%02x' "'$c"
+             esac
+             encoded+="${o}"
+         done
+         echo "${encoded}"    # You can either set a return variable (FASTER)
+         REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
+     }
+
+
+
+     #######################################
+     # shell version
+     # GLOBALS:
+     #   NONE
+     # ARGUMENTS:
+     #   NONE
+     # OUTPUTS:
+     #   Write shell version to stdout
+     # RETURN:
+     #   0 if print succeeds, non-zero on error.
+     #
+     #######################################
+     function shell_version() {
+         shellversion=$(echo ${0} | awk -F/ '{print $NF}')
+         echo $shellversion
+         return 0
+     }
+
+
+     function rst2org() {
+
+         [[ $# -eq 0 ]] && { echo "Usage: rst2org <file.rst> or <*.rst>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}".org"E
+             echo "will create file "${out}
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f rst -t org -o "${out}" "${i}"   &>/dev/null  && echo "done." || echo "failed."; }
+         done
+
+     }
+
+
+     function md2org() {
+         # pandoc -f markdown -t org -o ${f}.org ${f};
+
+         [[ $# -eq 0 ]] && { echo "Usage: md2org <file.md> or <*.md>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}".org"
+             echo "will create file "${out}
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f markdown -t org -o "${out}" "${i}"   &>/dev/null  && echo "done." || echo "failed."; }
+         done
+
+     }
+
+     nohup_dated(){
+         # Usage Example:
+         # nohup_dated ./gradlew publish &
+         # TODO: Check whether the ampersand can go into shell function!
+         local thedate=$(iso_8601_date)
+         local nohup_fname_out="nohup-out-"${thedate}".out"
+         local nohup_fname_err="nohup-err-"${thedate}".err"
+         echo "nohup output redirected to "${nohup_fname_out}" and " ${nohup_fname_err}"!"
+         nohup ${@} > $nohup_fname_out 2> $nohup_fname_err
+     }
+
+     monitordesktop(){
+
+         EXTERNALSCREEN="HDMI-A-0"
+         xrandr --auto
+         xrandr --output  ${EXTERNALSCREEN} --primary  --right-of eDP-1-0
+     }
+
+     monitorexternaloff(){
+         EXTERNALSCREEN="HDMI-A-0"
+         xrandr --output  $EXTERNALSCREEN --off
+     }
+
+     function lstgz(){
+         tar -ztvf   ${1}
+     }
+
+
+     function set-brightness(){
+         # set screen brightness to a value between 1 and 100
+         case $1 in
+             ''|*[!0-9]*) echo "expecting integer input between 0 and 100%"  && exit 1;;
+             *) echo "Setting brightness to "${1}"%"  ;;
          esac
-         encoded+="${o}"
-     done
-     echo "${encoded}"    # You can either set a return variable (FASTER)
-     REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
- }
 
+         if   [ "$1" -gt "100" ] || [ "$1" -lt "1" ]; then
+             echo "Bad value - value must lie between 0 and 100%"
+             return 1
+         fi
 
+         # TARGET="acpi_video0"
+         TARGET="intel_backlight"
+         TARGET="amdgpu_bl0"
+         cd /sys/class/backlight/$TARGET
+         MAX="$(cat max_brightness)"
+         CURRENT=$(cat brightness)
 
- #######################################
- # shell version
- # GLOBALS:
- #   NONE
- # ARGUMENTS:
- #   NONE
- # OUTPUTS:
- #   Write shell version to stdout
- # RETURN:
- #   0 if print succeeds, non-zero on error.
- #
- #######################################
- function shell_version() {
-     shellversion=$(echo ${0} | awk -F/ '{print $NF}')
-     echo $shellversion
-     return 0
- }
+         # The `/1` at the end forced bc to cast the result
+         # to an integer, even if $1 is a float (which it
+         # should be)
+         LOGIC="$(echo "($1 * ${MAX})/100" | bc)"
+         outfile="brightness"
+         CMD="sudo echo "${LOGIC}" >  brightness"
+         sudo bash -c "$CMD"
+     }
 
 
- function rst2org() {
+     function setbrightness-old(){
+         """ values slightly larger than 1 make it good for dark emacs modes
+            """
+         display=$(xrandr | grep " connected" | cut -f1 -d " ")
+         xrandr --output $display --brightness ${1}
+     }
 
-     [[ $# -eq 0 ]] && { echo "Usage: rst2org <file.rst> or <*.rst>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}".org"E
-         echo "will create file "${out}
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f rst -t org -o "${out}" "${i}"   &>/dev/null  && echo "done." || echo "failed."; }
-     done
+     rmfailedMavendl(){
+         find ~/.m2  -name "*.lastUpdated" -exec grep -q "Could not transfer" {} \; -print -exec rm {} \;
+     }
 
- }
 
 
- function md2org() {
-     # pandoc -f markdown -t org -o ${f}.org ${f};
+     function lock {
+         gnome-screensaver-command -l
+     }
 
-     [[ $# -eq 0 ]] && { echo "Usage: md2org <file.md> or <*.md>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}".org"
-         echo "will create file "${out}
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f markdown -t org -o "${out}" "${i}"   &>/dev/null  && echo "done." || echo "failed."; }
-     done
 
- }
+     function pythonpath(){
+         python -c "import sys; from pprint import pprint as pr;  pr(sys.path)"
+     }
 
- nohup_dated(){
-     # Usage Example:
-     # nohup_dated ./gradlew publish &
-     # TODO: Check whether the ampersand can go into shell function!
-     local thedate=$(iso_8601_date)
-     local nohup_fname_out="nohup-out-"${thedate}".out"
-     local nohup_fname_err="nohup-err-"${thedate}".err"
-     echo "nohup output redirected to "${nohup_fname_out}" and " ${nohup_fname_err}"!"
-     nohup ${@} > $nohup_fname_out 2> $nohup_fname_err
- }
+     function python_profile(){
+         python -m cProfile ${1}
+     }
 
- monitordesktop(){
+     function pyclean() {
 
-     EXTERNALSCREEN="HDMI-A-0"
-     xrandr --auto
-     xrandr --output  ${EXTERNALSCREEN} --primary  --right-of eDP-1-0
- }
-
- monitorexternaloff(){
-     EXTERNALSCREEN="HDMI-A-0"
-     xrandr --output  $EXTERNALSCREEN --off
- }
-
- function lstgz(){
-     tar -ztvf   ${1}
- }
-
-
- function set-brightness(){
-     # set screen brightness to a value between 1 and 100
-     case $1 in
-         ''|*[!0-9]*) echo "expecting integer input between 0 and 100%"  && exit 1;;
-         *) echo "Setting brightness to "${1}"%"  ;;
-     esac
-
-     if   [ "$1" -gt "100" ] || [ "$1" -lt "1" ]; then
-         echo "Bad value - value must lie between 0 and 100%"
-         return 1
-     fi
-
-     # TARGET="acpi_video0"
-     TARGET="intel_backlight"
-     TARGET="amdgpu_bl0"
-     cd /sys/class/backlight/$TARGET
-     MAX="$(cat max_brightness)"
-     CURRENT=$(cat brightness)
-
-     # The `/1` at the end forced bc to cast the result
-     # to an integer, even if $1 is a float (which it
-     # should be)
-     LOGIC="$(echo "($1 * ${MAX})/100" | bc)"
-     outfile="brightness"
-     CMD="sudo echo "${LOGIC}" >  brightness"
-     sudo bash -c "$CMD"
- }
-
-
- function setbrightness-old(){
-     """ values slightly larger than 1 make it good for dark emacs modes
-        """
-     display=$(xrandr | grep " connected" | cut -f1 -d " ")
-     xrandr --output $display --brightness ${1}
- }
-
- rmfailedMavendl(){
-     find ~/.m2  -name "*.lastUpdated" -exec grep -q "Could not transfer" {} \; -print -exec rm {} \;
- }
-
-
-
- function lock {
-     gnome-screensaver-command -l
- }
-
-
- function pythonpath(){
-     python -c "import sys; from pprint import pprint as pr;  pr(sys.path)"
- }
-
- function python_profile(){
-     python -m cProfile ${1}
- }
-
- function pyclean() {
-
-     if [ $# -eq 0 ]
-     then
-         echo "No arguments supplied, using current wd"
-         clean_dir=$PWD
-     else
-         clean_dir=$1
-     fi
-
-     echo "running clean in "${clean_dir}
-
-     find . -type f -name "*.py[co]" -delete
-     find . -type d -name "__pycache__" -delete
-     find . -iname ".ipynb_checkpoints"  -exec rm -r "{}" \;
- }
-
-
- #hcitool scan
- #bluez-test-audio  --help
- #bluez-test-audio connect OnTourXTB
- #bluez-test-audio connect 00:04:2B:00:1C:7A
-
-
- tonull=" &>/dev/null"
-
-
- function ipdb(){
-     ipython -c -i --simple-prompt "%run -d $@"
- }
-
-
-
- countfiles()
- {
-     find $1 -type f | wc -l
- }
-
-
- screenLockOff()
- {
-     # http://xmodulo.com/control-screen-lock-settings-linux-desktop.html
-     dconf write /org/gnome/desktop/screensaver/lock-enabled false
- }
-
- # ue()
- # {
- # emacs23 -q --no-site-file --no-splash --no-window-system  -l ~/.ue $1
- # }
-
-
- # recursively remove all LaTeX-related files from a directory
- # TODO implement dry-run option
- # explanations: -type f to restrict the matches to files-only;
- #  -iregex ooption for  case-insensitive search
- #  -regextype posix-extended: use posix-extended type, see http://www.gnu.org/software/findutils/manual/html_mono/find.html#posix_002degrep-regular-expression-syntax
- cleanLaTeXdir()
- {
-
-     # local delexpr='.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml|synctex.gz)$'
-     # now indluding also glossary-specific files: acn|acr|alg|gls|glsdefs|idx|ilg|ind|ist|not|ntn|xdy
-     local delexpr='.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml|synctex.gz|acn|acr|alg|gls|glsdefs|idx|ilg|ind|ist|not|ntn|xdy)$'
-
-
-     echo "will delete ..."
-     find $1  -type f -regextype posix-extended   -iregex ${delexpr}
-     find $1  -type f -regextype posix-extended   -iregex ${delexpr} | xargs  rm
-     #    find $1  -type f -regextype posix-extended   -iregex ${delexpr}
-
-     # -n, --dry-run
-     #if  [ $# -gt "1" ]; then
-     #	echo "will do it"
-     #    if [ $# -eq "0" ]; then
-     #	echo "usage"
-     #	echo "'cleanLaTeXdir INDIR': simulate deletion of LaTeX-related files in INDIR and subdirectories"
-     #	echo "'cleanLaTeXdir INDIR ': simulate deletion of LaTeX-related files in INDIR and subdirectories"
-
-     #    elif [ $# -eq "1" ]; then
-     #        echo "only simulating ... "
-     #	echo "will remove:"
-     #        find $1  -type f -regextype posix-extended   -iregex '.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml)$'
-     #    fi
- }
-
-
-
-
- battery(){
-     upower -i $(upower -e | grep 'BAT') | grep -E "state|to\ full|percentage"
- }
-
-
- shavingtime()
- {
-     # -fs: full screen
-     mplayer -fs -tv driver=v4l2:device=/dev/video0 -fps 25 tv://
- }
-
-
- snapshot()
- {
-
-     #see http://askubuntu.com/questions/102755/how-do-i-use-ffmpeg-to-take-pictures-with-my-web-camera
-     local camdevice="/dev/v4l/by-id/usb-Generic_Lenovo_EasyCamera_200901010001-video-index0"
-     local outfile="/tmp/shot.jpeg"
-     echo "snapshot is in "$outfile
-     fswebcam -r 640x480 --jpeg 85 -D 2   ${outfile}
-     # kein Licht :     mplayer tv:// -tv driver=v4l2:device=/dev/video0:width=1600:height=1200:outfmt=rgb24 -frames 3 -vo jpeg
-     #ffmpeg -f video4linux2 -i ${camdevice} -vframes 1 ${outfile}
-     display ${outfile}
- }
-
-
-
-
- spiegel()
- {
-     mplayer -tv driver=v4l2:device=/dev/video0 -fps 25 tv://
- }
-
-
- screendump() {
-     ffmpeg -video_size 1920x1080 -framerate 24  -f x11grab -i :0.0+0,0 -f alsa -ac 2 -i hw:1 output.mkv
- }
-
- # http:/a/askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line/131022#131022
- hibernate()
- {
-     pmi action hibernate
- }
-
- suspend()
- {
-     pmi action suspend
- }
-
- optimizeMySQL()
- {
-     if [ -z "$1" ] ; then
-         echo
-         echo "ERROR: root password Parameter missing."
-         exit
-     fi
-     MYSQL_USER=root
-     MYSQL_PASS=$1
-     MYSQL_CONN="-u${MYSQL_USER} -p${MYSQL_PASS}"
-     TBLLIST=""
-     COMMA=""
-     SQL="SELECT CONCAT(table_schema,'.',table_name) FROM information_schema.tables WHERE"
-     SQL="${SQL} table_schema NOT IN ('information_schema','mysql','performance_schema')"
-     for DBTB in `mysql ${MYSQL_CONN} -ANe"${SQL}"`
-     do
-         echo OPTIMIZE TABLE "${DBTB};"
-         SQL="OPTIMIZE TABLE ${DBTB};"
-         mysql ${MYSQL_CONN} -ANe"${SQL}"
-     done
- }
-
-
- shrinkpdf()
- {   # Usage : shrinkpdf <filename>.pdf; will output to <filename>-shrunk.pdf
-     # shrink pdf using gs
-     # Quality level settings are
-     # /screen," the lowest resolution and lowest file size, but fine for viewing on a screen;
-     # /ebook, " a mid-point in resolution and file size;
-     # "/printer" and
-     # /prepress," high-quality settings used for printing PDFs.
-     # Read more : http://www.ehow.com/how_6823473_reduce-pdf-file-size-linux.html
-     # other options
-     #~ gs	-q -dNOPAUSE -dBATCH -dSAFER \
-         #~ -sDEVICE=pdfwrite \
-         #~ -dCompatibilityLevel=1.4 \
-         #~ -dPDFSETTINGS=/prepress \
-         #~ -dEmbedAllFonts=true \
-         #~ -dSubsetFonts=true \
-         #~ -dColorImageDownsampleType=/Bicubic \
-         #~ -dColorImageResolution=72 \
-         #~ -dGrayImageDownsampleType=/Bicubic \
-         #~ -dGrayImageResolution=72 \
-         #~ -dMonoImageDownsampleType=/Bicubic \
-         #~ -dMonoImageResolution=72 \
-         # http://stackoverflow.com/questions/2670809/how-to-get-ghostscript-to-use-embedded-fonts-in-pdf
-     # bw http://unix.stackexchange.com/questions/93959/how-to-convert-a-color-pdf-to-black-white
-     #echo $1
-
-     # -sColorConversionStrategy=Gray \
-         # -dProcessColorModel=/DeviceGray \
-
-
-     local mpath=`getpath $1`
-     local mbase=`getbase $1`
-     local mext=`getext $1`
-     local out=${mpath}${mbase}'-shrunk.'${mext}
-     echo 'writing to '${out}
-
-     gs -dNOPAUSE -dBATCH \
-        -sDEVICE=pdfwrite \
-        -sColorConversionStrategy=/Mono \
-        -sColorConversionStrategyForImages=/Mono \
-        -dSubsetFonts=true\
-        -dEmbedAllFonts=true \
-        -dCompressFonts=true \
-        -dSubsetFonts=true \
-        -dCompatibilityLevel=1.4 \
-        -dPDFSETTINGS=/ebook\
-        -sOutputFile=${out} \
-        $1 #&>/dev/null
-
-     echo -n 'before conversion: '
-     du -mah ${1}
-     echo -n 'after conversion: '
-     du -mah ${out}
- }
-
-
-
-
- scan2bw()
- {
-     # schwarz weiss scan
-     #echo "scan2bw ist gut fuer manuell nachzubearbeitende Zeugnisse"
-     #echo "will scan to files called out%d.pnm"
-
-     #erode: http://www.imagemagick.org/discourse-server/viewtopic.php?t=18707
-     # example: convert salo-juni.pdf  -morphology thicken '3x1:1,0,1' test.pdf
-
-     docname="document-bw.pdf"
-     #rm -f out*.pnm
-     scanimage --batch=out%d.pnm --progress  \
-               --batch-start=11 --batch-prompt --resolution=300 --mode Gray
-     convert out*.pnm  -morphology thicken '3x1:1,0,1'    ${docname}
- }
-
-
- scanbwfiles(){
-     if [ $# -ne "1" ]; then
-         echo "usage: scanbwfiles <target>"
-         return 1
-     fi
-
-     local mbase=`getbase $1`
-
-     scan2bw
-
-     shrinkpdf document-bw.pdf &>/dev/null
-
-     mv -iv document-bw-shrunk.pdf ${mbase}".pdf"
-     rm out* -f
-     rm document* -f
-     echo -n 'file size: '
-     du -mah ${mbase}".pdf"
-
-
- }
-
-
-
- scan2pdf()
- {
-     # document batch scanner
-     # see also: shrinkpdf, da man den output bestimmt noch shrinken muss
-     #--mode Lineart|Gray|Color [Gray]
-     # Scan Images
-     #scanimage --device=epson:/dev/sg1 --batch=out%d.pnm \
-         #	--batch-start=11 --wait-for-button --resolution=180
-     # A4: Das hier-x 210 -y 297
-
-     #-resolution 600
-     # lineart
-     # SCANCOMMAND="scanimage --batch=out%d.pnm --progress  \
-         #    --batch-start=11 --batch-prompt --resolution=360 --mode lineart"
-
-
-     docname="document.pdf"
-     docname="document.pdf"
-     shrink=true
-     # Default ist --mode Gray Alternatives Lineart|Gray|Color
-     SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300"
-     # scanimage --help --mode Lineart
-     # Lineart ist nicht schlect mich hochgezogenen Kontrast:
-     SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300 --mode Lineart --contrast 100"
-     SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300 --mode Gray"
-
-     if [ $# -eq "0" ]; then
-         echo "scanning using default scan command "$SCANCOMMAND
-         echo "scanning to default file called  "${docname}
-         # return 1
-     fi
-
-     if [ $# -gt "0" ]; then
-         echo "GETS REIN HIER?"
-         SCANCOMMAND=$SCANCOMMAND
-         docname=$1
-         echo "scanning to "$docname
-         echo "scanning using "$SCANCOMMAND
-         # return 1
-     fi
-
-     if [ $# -eq "2" ]; then
-         # docname=$2
-         docname=$1
-         SCANCOMMAND=$2
-         echo "scanning using "$SCANCOMMAND
-         echo "scanning to "$docname
-         # return 1
-     fi
-
-     if [ $# -gt "2" ]; then
-         echo "usage: scan2pdf [target] [scanCommand]"
-         return 1
-     fi
-
-     rm -f out*.pnm
-
-     eval $SCANCOMMAND
-
-
-     convert out*.pnm     ${docname}
-
-     rm -f out*.pnm
-
-     local mpath=`getpath $docname`
-     local mbase=`getbase $docname`
-     local mext=`getext $docname`
-     local out=${mpath}${mbase}'-shrunk.'${mext}
-
-     if [ "$shrink" = true ] ; then
-         echo "usage shrinkflag is true so it will be shrunk"
-         shrinkpdf $docname
-         mv -v $out $docname
-     else
-         echo "shrinkflag is not set to true"
-     fi
-
-
-     # # ggf letztest Bild loeschen (brauchmernet, CG)
-     # #ls out*.pnm | sort | tail -1 | xargs rm
-
-     # # Create TIFFs
-     # echo "Creating TIFF images..."
-     # ls out*.pnm | while read p; do echo $p; q=`echo $p |
-     #  sed 's/out\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p |
-     # 	pnmrotate -noantialias -0 | pnmtotiff -lzw > $q; done
-
-
-     # # echo "Creating TIFF images..."
-     # # ls out*.pnm | while read p; do echo $p; q=`echo $p |
-     # #  sed 's/out\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p |
-     # # 	pnmrotate -noantialias -90 | pnmtotiff -lzw > $q; done
-
-     # # Create one big TIFF
-     # echo "Combining TIFF images..."
-     # tiffcp -c lzw tiff* document.tif
-
-     # # Create PDF
-     # echo "Creating PDF document..."
-     # tiff2pdf -z document.tif -o document.pdf -p A4 \
-         # 	-a "Christian Geng" \
-         # 	-t "Titel leer" -s "http://christiangeng.de" \
-         # 	-k 'Affiliation'
-
-     # #echo "Optimizing PDF..."
-     # #pdfopt document.pdf document_opt.pdf
-
-     # echo "Cleaning up..."
-     #rm *.pnm
-     #rm tiff*.tif
-     #rm document.tif
-     #rm document.pdf
- }
-
-
-
- function findlargefiles()
- {
-     # Usage example:
-     # findlargefiles /home/christian/
-     # todo: second arg file size
-     find ${1} -type f -size +50000k -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
- }
-
-
-
- function findlargefiles()
- # One time off: Using awk to generate pascal helpfile
- #
- {
-     awk -F\n '{print a  "writeLn("   "'\''"  $0  "'\''"   ");" } ' helpfile.txt   > helpfile.inc
- }
-
-
- fsinfo()
- {
-     echo "DEVICE DIRECTORY FS-TYPE" > tmp; mount | cut -d" " -f1,3,5 | \
-         sort >> tmp; cat tmp | column -t | sed -e "1s/.*/`tput smso`&`tput
-    rmso`/"
-     mount | column -t
- }
-
- function exesudo ()
- {
-     # EXESUDO
-     # Purpose:
-     # Execute a function with sudo
-     # Params:
-     # $1:   string: name of the function to be executed with sudo
-     # Usage:
-     # exesudo "funcname" followed by any param
-     # Created 01 September 2012              Last Modified 02 September 2012
-     # from http://stackoverflow.com/questions/9448920/how-can-i-execute-a-bash-function-using-sudo
-     # I use underscores to remember it's been passed
-     local _funcname_="$1"
-
-     local params=( "$@" )               ## array containing all params passed here
-     local tmpfile="/dev/shm/$RANDOM"    ## temporary file
-     local filecontent                   ## content of the temporary file
-     local regex                         ## regular expression
-     local func                          ## function source
-     #
-     # Shift the first param (which is the name of the function)
-     unset params[0]              ## remove first element
-     # params=( "${params[@]}" )     ## repack array
-     content="#!/bin/bash\n\n"
-     content="${content}params=(\n"
-     regex="\s+"
-     for param in "${params[@]}"
-     do
-         if [[ "$param" =~ $regex ]]
+         if [ $# -eq 0 ]
          then
-             content="${content}\t\"${param}\"\n"
+             echo "No arguments supplied, using current wd"
+             clean_dir=$PWD
          else
-             content="${content}\t${param}\n"
+             clean_dir=$1
          fi
-     done
 
-     content="$content)\n"
-     echo -e "$content" > "$tmpfile"
+         echo "running clean in "${clean_dir}
 
-     echo "#$( type "$_funcname_" )" >> "$tmpfile"
-     echo -e "\n$_funcname_ \"\${params[@]}\"\n" >> "$tmpfile"
-     sudo bash "$tmpfile"
-     rm "$tmpfile"
- }
-
- function freeram(){
-     #http://ruturaj.net/freeing-up-ram-memory-in-linux/
-     # Flush file system buffers by executing
-     sync;
-     # free page cache
-     echo 1 > /proc/sys/vm/drop_caches;
-     # free dentries and inodes
-     echo 2 > /proc/sys/vm/drop_caches
-     # free page cache, dentries and inodes
-     echo 3 > /proc/sys/vm/drop_caches
- }
+         find . -type f -name "*.py[co]" -delete
+         find . -type d -name "__pycache__" -delete
+         find . -iname ".ipynb_checkpoints"  -exec rm -r "{}" \;
+     }
 
 
- function compi()
- {
-     nproc=`cat  /proc/cpuinfo | grep processor | wc  -l`
-     echo "ncores : "${nproc}
-     modelname=`cat  /proc/cpuinfo | grep "model name" | head -n 1`
-     echo ${modelname}" "
-     echo "RAM free:"
-     free
-     echo "graphics card:"
-     lspci -v | perl -ne '/VGA/../^$/ and /VGA|Kern/ and print'
- }
-
- function gitrepoinfo()
- {
-     git log --graph --decorate --oneline
-     git st
-     git branch
- }
-
- function ecl()
- {
-     emacsclient -a emacs --no-wait $1
- }
-
- tpoff()
- {
-     # http://www.knetfeder.de/linux/index.php?id=168
-     # Turn trackpad off
-     # xinput list
-     # trackpad off:
-     # xinput set-prop 17  "Device Enabled" 0
-     # die ID aendert sich nach dem Neustart!
-     # Alternative die NICHT TUT:
-     #synclient touchpadoff=1
-     # get touchpad:
-     # select text after id= and cut out first field
-     # this one works under bash
-     #tp=`xinput list | grep Touchpad | sed s/^.*id=// | cut -f 1`
-     #  this one works under zsh - not tested under bash
-     tp=$(xinput list | grep Touchpad | sed 's/^.*id=//' | sed 's/\s.*//')
-     xinput set-prop ${tp}  "Device Enabled" 0
- }
-
- tpon()
- {
-     # http://www.knetfeder.de/linux/index.php?id=168
-     # Turn trackpad off
-     # xinput list
-     # trackpad off:
-     # xinput set-prop 17  "Device Enabled" 0
-     # die ID aendert sich nach dem Neustart!
-     # Alternative die NICHT TUT:
-     #synclient touchpadoff=1
-     # get touchpad:
-     # select text after id= and cut out first field
-     #tp=`xinput list | grep Touchpad | sed s/^.*id=// | cut -f 1`
-     #  this one works under zsh - not tested under bash
-     tp=$(xinput list | grep Touchpad | sed 's/^.*id=//' | sed 's/\s.*//')
-     xinput set-prop ${tp}  "Device Enabled" 1
- }
+     #hcitool scan
+     #bluez-test-audio  --help
+     #bluez-test-audio connect OnTourXTB
+     #bluez-test-audio connect 00:04:2B:00:1C:7A
 
 
- markdownhtmlfixUmlaute()
- # Umlaute im Stream mit sed ersetzen
- # Untested
- {
-     sed -i -e 's/ä/\&auml;/g' \
-         -e 's/ü/\&uuml;/g' \
-         -e 's/ö/\&ouml;/g' $1
- }
-
- function generategoodpasswd()
- {
-
-     if [ $# -eq 0 ]
-     then
-         echo "setting password length to 63"
-         PWDLEN=63
-     else
-         PWDLEN=$1
-     fi
-
-     #http://askubuntu.com/questions/243071/generating-wpa-wpa2-key-in-linux-bash
-     # makepasswd --chars=63
-     openssl rand -base64 $PWDLEN
-     # p3FcnvWIdIJh2YrtiPTj
- }
+     tonull=" &>/dev/null"
 
 
- function todefy()
- {
-     scp -P 2222 -r  $1  root@192.168.0.101:/mnt/sdcard/mp3/
- }
-
- function iminfo()
- {
-     identify -verbose $1
- }
-
- function repairpdf()
- {
-     #geht oft nicht ....
-     gs \
-         -o repaired.pdf \
-         -sDEVICE=pdfwrite \
-         -dPDFSETTINGS=/prepress \
-         ${1}
- }
-
- function writedatedbackup()
- {   # stub: write backup with current date before the extension
-     local thedate=$(datetoday)
-     local mpath=`getpath $1`
-     local mbase=`getbase $1`
-     local mext=`getext $1`
-     local out=${mpath}${mbase}${thedate}'.'${mext}
-     echo $out
-     cp -v $1 $out
- }
+     function ipdb(){
+         ipython -c -i --simple-prompt "%run -d $@"
+     }
 
 
- function iso_8601_date(){
-     date '+%Y-%m-%0dT%H:%M:%S'
- }
 
- function datetoday()
- {
-     # print the current date as e.g. 14-Nov-2014case
-     date '+%0d-%b-%Y' #  deutsches Datum
- }
-
- function datetimenow() {
-     date '+%0d-%b-%Y-%H:%M:%S'
- }
-
- function installyoutubedl()
- {
-     sudo apt-get remove -y youtube-dl
-     sudo wget https://yt-dl.org/latest/youtube-dl -O /usr/local/bin/youtube-dl
-     sudo chmod a+x /usr/local/bin/youtube-dl
- }
-
- function ytpl2mp3()
- {
-     # DEFUNCT! New versions of youtube-dl come with other syntax!
-     #/usr/local/bin/youtube-dl  -k --max-quality FORMAT --extract-audio --audio-format mp3 ${1}
-     youtube-dl --verbose  -k --max-quality FORMAT --extract-audio --audio-format mp3 ${1}
- }
-
- function findbydate()
- #
- # recursiv Dateibaunm durchsuchen und dann nach Datum sortieren
- # s. http://superuser.com/questions/416308/how-to-list-files-recursively-and-sort-them-by-modification-time
- # Usage Example:
- # findbydate /D/Dropbox/hausarbeiten
- {
-     #find $1 -exec ls -dl '{}' \; | sort -k 6,7 Fehler mit subdirectories
-     # tut das?:
-     find . -type f -exec stat --format '%Y :%y %n' {} \; | sort -nr | cut -d: -f2-
-     #find $1 -type f -printf '%T+\t%p\n' | sed 's/\.[[:digit:]]\{10\}//' | sort -n
-     #find $1 -type f -printf '%T+\t%p\n' | cut --complement -c 20-30 | sort -n
-     #find $1 -type f -printf '%T+\t%p\n' | sort -n
-
- }
+     countfiles()
+     {
+         find $1 -type f | wc -l
+     }
 
 
- function uptimel()
- {
-     # uptimel - show just the system uptime, days, hours, and minutes
-     # einfach besser leserlich als das system commando upt
-     # identisch mit uptime
-     # TODO: write output string before echoing!
+     screenLockOff()
+     {
+         # http://xmodulo.com/control-screen-lock-settings-linux-desktop.html
+         dconf write /org/gnome/desktop/screensaver/lock-enabled false
+     }
 
-     upSeconds=`cat /proc/uptime`;
-     upSeconds=${upSeconds%%.*};
-     #let upSeconds="$(cat /proc/uptime) && echo ${temp%%.*})"
-     let secs=$((${upSeconds}%60))
-     let mins=$((${upSeconds}/60%60))
-     let hours=$((${upSeconds}/3600%24))
-     let days=$((${upSeconds}/86400))
-     if [ "${days}" -ne "0" ]
-     then
-         echo -n  "${days}d"
-     fi
-     echo  "${hours}h${mins}m"
- }
+     # ue()
+     # {
+     # emacs23 -q --no-site-file --no-splash --no-window-system  -l ~/.ue $1
+     # }
 
- function treel()
- {
-     #  Displays Structure of Directory Hierarchy
-     #  This tiny script uses "ls", "grep", and "sed"
-     #  in a single command to show the nesting of
-     #  sub-directories.  The setup command for PATH
-     #  works with the Bash shell (the Mac OS X default).
+
+     # recursively remove all LaTeX-related files from a directory
+     # TODO implement dry-run option
+     # explanations: -type f to restrict the matches to files-only;
+     #  -iregex ooption for  case-insensitive search
+     #  -regextype posix-extended: use posix-extended type, see http://www.gnu.org/software/findutils/manual/html_mono/find.html#posix_002degrep-regular-expression-syntax
+     cleanLaTeXdir()
+     {
+
+         # local delexpr='.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml|synctex.gz)$'
+         # now indluding also glossary-specific files: acn|acr|alg|gls|glsdefs|idx|ilg|ind|ist|not|ntn|xdy
+         local delexpr='.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml|synctex.gz|acn|acr|alg|gls|glsdefs|idx|ilg|ind|ist|not|ntn|xdy)$'
+
+
+         echo "will delete ..."
+         find $1  -type f -regextype posix-extended   -iregex ${delexpr}
+         find $1  -type f -regextype posix-extended   -iregex ${delexpr} | xargs  rm
+         #    find $1  -type f -regextype posix-extended   -iregex ${delexpr}
+
+         # -n, --dry-run
+         #if  [ $# -gt "1" ]; then
+         #	echo "will do it"
+         #    if [ $# -eq "0" ]; then
+         #	echo "usage"
+         #	echo "'cleanLaTeXdir INDIR': simulate deletion of LaTeX-related files in INDIR and subdirectories"
+         #	echo "'cleanLaTeXdir INDIR ': simulate deletion of LaTeX-related files in INDIR and subdirectories"
+
+         #    elif [ $# -eq "1" ]; then
+         #        echo "only simulating ... "
+         #	echo "will remove:"
+         #        find $1  -type f -regextype posix-extended   -iregex '.*\.(aux|blg|dvi|bbl|log|pfg|nav|out|snm|toc|bcf|run.xml)$'
+         #    fi
+     }
+
+
+
+
+     battery(){
+         upower -i $(upower -e | grep 'BAT') | grep -E "state|to\ full|percentage"
+     }
+
+
+     shavingtime()
+     {
+         # -fs: full screen
+         mplayer -fs -tv driver=v4l2:device=/dev/video0 -fps 25 tv://
+     }
+
+
+     snapshot()
+     {
+
+         #see http://askubuntu.com/questions/102755/how-do-i-use-ffmpeg-to-take-pictures-with-my-web-camera
+         local camdevice="/dev/v4l/by-id/usb-Generic_Lenovo_EasyCamera_200901010001-video-index0"
+         local outfile="/tmp/shot.jpeg"
+         echo "snapshot is in "$outfile
+         fswebcam -r 640x480 --jpeg 85 -D 2   ${outfile}
+         # kein Licht :     mplayer tv:// -tv driver=v4l2:device=/dev/video0:width=1600:height=1200:outfmt=rgb24 -frames 3 -vo jpeg
+         #ffmpeg -f video4linux2 -i ${camdevice} -vframes 1 ${outfile}
+         display ${outfile}
+     }
+
+
+
+
+     spiegel()
+     {
+         mplayer -tv driver=v4l2:device=/dev/video0 -fps 25 tv://
+     }
+
+
+     screendump() {
+         ffmpeg -video_size 1920x1080 -framerate 24  -f x11grab -i :0.0+0,0 -f alsa -ac 2 -i hw:1 output.mkv
+     }
+
+     # http:/a/askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line/131022#131022
+     hibernate()
+     {
+         pmi action hibernate
+     }
+
+     suspend()
+     {
+         pmi action suspend
+     }
+
+     optimizeMySQL()
+     {
+         if [ -z "$1" ] ; then
+             echo
+             echo "ERROR: root password Parameter missing."
+             exit
+         fi
+         MYSQL_USER=root
+         MYSQL_PASS=$1
+         MYSQL_CONN="-u${MYSQL_USER} -p${MYSQL_PASS}"
+         TBLLIST=""
+         COMMA=""
+         SQL="SELECT CONCAT(table_schema,'.',table_name) FROM information_schema.tables WHERE"
+         SQL="${SQL} table_schema NOT IN ('information_schema','mysql','performance_schema')"
+         for DBTB in `mysql ${MYSQL_CONN} -ANe"${SQL}"`
+         do
+             echo OPTIMIZE TABLE "${DBTB};"
+             SQL="OPTIMIZE TABLE ${DBTB};"
+             mysql ${MYSQL_CONN} -ANe"${SQL}"
+         done
+     }
+
+
+     shrinkpdf()
+     {   # Usage : shrinkpdf <filename>.pdf; will output to <filename>-shrunk.pdf
+         # shrink pdf using gs
+         # Quality level settings are
+         # /screen," the lowest resolution and lowest file size, but fine for viewing on a screen;
+         # /ebook, " a mid-point in resolution and file size;
+         # "/printer" and
+         # /prepress," high-quality settings used for printing PDFs.
+         # Read more : http://www.ehow.com/how_6823473_reduce-pdf-file-size-linux.html
+         # other options
+         #~ gs	-q -dNOPAUSE -dBATCH -dSAFER \
+             #~ -sDEVICE=pdfwrite \
+             #~ -dCompatibilityLevel=1.4 \
+             #~ -dPDFSETTINGS=/prepress \
+             #~ -dEmbedAllFonts=true \
+             #~ -dSubsetFonts=true \
+             #~ -dColorImageDownsampleType=/Bicubic \
+             #~ -dColorImageResolution=72 \
+             #~ -dGrayImageDownsampleType=/Bicubic \
+             #~ -dGrayImageResolution=72 \
+             #~ -dMonoImageDownsampleType=/Bicubic \
+             #~ -dMonoImageResolution=72 \
+             # http://stackoverflow.com/questions/2670809/how-to-get-ghostscript-to-use-embedded-fonts-in-pdf
+         # bw http://unix.stackexchange.com/questions/93959/how-to-convert-a-color-pdf-to-black-white
+         #echo $1
+
+         # -sColorConversionStrategy=Gray \
+             # -dProcessColorModel=/DeviceGray \
+
+
+         local mpath=`getpath $1`
+         local mbase=`getbase $1`
+         local mext=`getext $1`
+         local out=${mpath}${mbase}'-shrunk.'${mext}
+         echo 'writing to '${out}
+
+         gs -dNOPAUSE -dBATCH \
+            -sDEVICE=pdfwrite \
+            -sColorConversionStrategy=/Mono \
+            -sColorConversionStrategyForImages=/Mono \
+            -dSubsetFonts=true\
+            -dEmbedAllFonts=true \
+            -dCompressFonts=true \
+            -dSubsetFonts=true \
+            -dCompatibilityLevel=1.4 \
+            -dPDFSETTINGS=/ebook\
+            -sOutputFile=${out} \
+            $1 #&>/dev/null
+
+         echo -n 'before conversion: '
+         du -mah ${1}
+         echo -n 'after conversion: '
+         du -mah ${out}
+     }
+
+
+
+
+     scan2bw()
+     {
+         # schwarz weiss scan
+         #echo "scan2bw ist gut fuer manuell nachzubearbeitende Zeugnisse"
+         #echo "will scan to files called out%d.pnm"
+
+         #erode: http://www.imagemagick.org/discourse-server/viewtopic.php?t=18707
+         # example: convert salo-juni.pdf  -morphology thicken '3x1:1,0,1' test.pdf
+
+         docname="document-bw.pdf"
+         #rm -f out*.pnm
+         scanimage --batch=out%d.pnm --progress  \
+                   --batch-start=11 --batch-prompt --resolution=300 --mode Gray
+         convert out*.pnm  -morphology thicken '3x1:1,0,1'    ${docname}
+     }
+
+
+     scanbwfiles(){
+         if [ $# -ne "1" ]; then
+             echo "usage: scanbwfiles <target>"
+             return 1
+         fi
+
+         local mbase=`getbase $1`
+
+         scan2bw
+
+         shrinkpdf document-bw.pdf &>/dev/null
+
+         mv -iv document-bw-shrunk.pdf ${mbase}".pdf"
+         rm out* -f
+         rm document* -f
+         echo -n 'file size: '
+         du -mah ${mbase}".pdf"
+
+
+     }
+
+
+
+     scan2pdf()
+     {
+         # document batch scanner
+         # see also: shrinkpdf, da man den output bestimmt noch shrinken muss
+         #--mode Lineart|Gray|Color [Gray]
+         # Scan Images
+         #scanimage --device=epson:/dev/sg1 --batch=out%d.pnm \
+             #	--batch-start=11 --wait-for-button --resolution=180
+         # A4: Das hier-x 210 -y 297
+
+         #-resolution 600
+         # lineart
+         # SCANCOMMAND="scanimage --batch=out%d.pnm --progress  \
+             #    --batch-start=11 --batch-prompt --resolution=360 --mode lineart"
+
+
+         docname="document.pdf"
+         docname="document.pdf"
+         shrink=true
+         # Default ist --mode Gray Alternatives Lineart|Gray|Color
+         SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300"
+         # scanimage --help --mode Lineart
+         # Lineart ist nicht schlect mich hochgezogenen Kontrast:
+         SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300 --mode Lineart --contrast 100"
+         SCANCOMMAND="scanimage --batch=out%d.pnm --progress  --batch-start=1 --batch-prompt --resolution=300 --mode Gray"
+
+         if [ $# -eq "0" ]; then
+             echo "scanning using default scan command "$SCANCOMMAND
+             echo "scanning to default file called  "${docname}
+             # return 1
+         fi
+
+         if [ $# -gt "0" ]; then
+             echo "GETS REIN HIER?"
+             SCANCOMMAND=$SCANCOMMAND
+             docname=$1
+             echo "scanning to "$docname
+             echo "scanning using "$SCANCOMMAND
+             # return 1
+         fi
+
+         if [ $# -eq "2" ]; then
+             # docname=$2
+             docname=$1
+             SCANCOMMAND=$2
+             echo "scanning using "$SCANCOMMAND
+             echo "scanning to "$docname
+             # return 1
+         fi
+
+         if [ $# -gt "2" ]; then
+             echo "usage: scan2pdf [target] [scanCommand]"
+             return 1
+         fi
+
+         rm -f out*.pnm
+
+         eval $SCANCOMMAND
+
+
+         convert out*.pnm     ${docname}
+
+         rm -f out*.pnm
+
+         local mpath=`getpath $docname`
+         local mbase=`getbase $docname`
+         local mext=`getext $docname`
+         local out=${mpath}${mbase}'-shrunk.'${mext}
+
+         if [ "$shrink" = true ] ; then
+             echo "usage shrinkflag is true so it will be shrunk"
+             shrinkpdf $docname
+             mv -v $out $docname
+         else
+             echo "shrinkflag is not set to true"
+         fi
+
+
+         # # ggf letztest Bild loeschen (brauchmernet, CG)
+         # #ls out*.pnm | sort | tail -1 | xargs rm
+
+         # # Create TIFFs
+         # echo "Creating TIFF images..."
+         # ls out*.pnm | while read p; do echo $p; q=`echo $p |
+         #  sed 's/out\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p |
+         # 	pnmrotate -noantialias -0 | pnmtotiff -lzw > $q; done
+
+
+         # # echo "Creating TIFF images..."
+         # # ls out*.pnm | while read p; do echo $p; q=`echo $p |
+         # #  sed 's/out\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p |
+         # # 	pnmrotate -noantialias -90 | pnmtotiff -lzw > $q; done
+
+         # # Create one big TIFF
+         # echo "Combining TIFF images..."
+         # tiffcp -c lzw tiff* document.tif
+
+         # # Create PDF
+         # echo "Creating PDF document..."
+         # tiff2pdf -z document.tif -o document.pdf -p A4 \
+             # 	-a "Christian Geng" \
+             # 	-t "Titel leer" -s "http://christiangeng.de" \
+             # 	-k 'Affiliation'
+
+         # #echo "Optimizing PDF..."
+         # #pdfopt document.pdf document_opt.pdf
+
+         # echo "Cleaning up..."
+         #rm *.pnm
+         #rm tiff*.tif
+         #rm document.tif
+         #rm document.pdf
+     }
+
+
+
+     function findlargefiles()
+     {
+         # Usage example:
+         # findlargefiles /home/christian/
+         # todo: second arg file size
+         find ${1} -type f -size +50000k -exec ls -lh {} \; | awk '{ print $9 ": " $5 }'
+     }
+
+
+
+     function findlargefiles()
+     # One time off: Using awk to generate pascal helpfile
      #
-     #  Usage:
-     #     $ tree [directory]
+     {
+         awk -F\n '{print a  "writeLn("   "'\''"  $0  "'\''"   ");" } ' helpfile.txt   > helpfile.inc
+     }
+
+
+     fsinfo()
+     {
+         echo "DEVICE DIRECTORY FS-TYPE" > tmp; mount | cut -d" " -f1,3,5 | \
+             sort >> tmp; cat tmp | column -t | sed -e "1s/.*/`tput smso`&`tput
+        rmso`/"
+         mount | column -t
+     }
+
+     function exesudo ()
+     {
+         # EXESUDO
+         # Purpose:
+         # Execute a function with sudo
+         # Params:
+         # $1:   string: name of the function to be executed with sudo
+         # Usage:
+         # exesudo "funcname" followed by any param
+         # Created 01 September 2012              Last Modified 02 September 2012
+         # from http://stackoverflow.com/questions/9448920/how-can-i-execute-a-bash-function-using-sudo
+         # I use underscores to remember it's been passed
+         local _funcname_="$1"
+
+         local params=( "$@" )               ## array containing all params passed here
+         local tmpfile="/dev/shm/$RANDOM"    ## temporary file
+         local filecontent                   ## content of the temporary file
+         local regex                         ## regular expression
+         local func                          ## function source
+         #
+         # Shift the first param (which is the name of the function)
+         unset params[0]              ## remove first element
+         # params=( "${params[@]}" )     ## repack array
+         content="#!/bin/bash\n\n"
+         content="${content}params=(\n"
+         regex="\s+"
+         for param in "${params[@]}"
+         do
+             if [[ "$param" =~ $regex ]]
+             then
+                 content="${content}\t\"${param}\"\n"
+             else
+                 content="${content}\t${param}\n"
+             fi
+         done
+
+         content="$content)\n"
+         echo -e "$content" > "$tmpfile"
+
+         echo "#$( type "$_funcname_" )" >> "$tmpfile"
+         echo -e "\n$_funcname_ \"\${params[@]}\"\n" >> "$tmpfile"
+         sudo bash "$tmpfile"
+         rm "$tmpfile"
+     }
+
+     function freeram(){
+         #http://ruturaj.net/freeing-up-ram-memory-in-linux/
+         # Flush file system buffers by executing
+         sync;
+         # free page cache
+         echo 1 > /proc/sys/vm/drop_caches;
+         # free dentries and inodes
+         echo 2 > /proc/sys/vm/drop_caches
+         # free page cache, dentries and inodes
+         echo 3 > /proc/sys/vm/drop_caches
+     }
+
+
+     function compi()
+     {
+         nproc=`cat  /proc/cpuinfo | grep processor | wc  -l`
+         echo "ncores : "${nproc}
+         modelname=`cat  /proc/cpuinfo | grep "model name" | head -n 1`
+         echo ${modelname}" "
+         echo "RAM free:"
+         free
+         echo "graphics card:"
+         lspci -v | perl -ne '/VGA/../^$/ and /VGA|Kern/ and print'
+     }
+
+     function gitrepoinfo()
+     {
+         git log --graph --decorate --oneline
+         git st
+         git branch
+     }
+
+     function ecl()
+     {
+         emacsclient -a emacs --no-wait $1
+     }
+
+     tpoff()
+     {
+         # http://www.knetfeder.de/linux/index.php?id=168
+         # Turn trackpad off
+         # xinput list
+         # trackpad off:
+         # xinput set-prop 17  "Device Enabled" 0
+         # die ID aendert sich nach dem Neustart!
+         # Alternative die NICHT TUT:
+         #synclient touchpadoff=1
+         # get touchpad:
+         # select text after id= and cut out first field
+         # this one works under bash
+         #tp=`xinput list | grep Touchpad | sed s/^.*id=// | cut -f 1`
+         #  this one works under zsh - not tested under bash
+         tp=$(xinput list | grep Touchpad | sed 's/^.*id=//' | sed 's/\s.*//')
+         xinput set-prop ${tp}  "Device Enabled" 0
+     }
+
+     tpon()
+     {
+         # http://www.knetfeder.de/linux/index.php?id=168
+         # Turn trackpad off
+         # xinput list
+         # trackpad off:
+         # xinput set-prop 17  "Device Enabled" 0
+         # die ID aendert sich nach dem Neustart!
+         # Alternative die NICHT TUT:
+         #synclient touchpadoff=1
+         # get touchpad:
+         # select text after id= and cut out first field
+         #tp=`xinput list | grep Touchpad | sed s/^.*id=// | cut -f 1`
+         #  this one works under zsh - not tested under bash
+         tp=$(xinput list | grep Touchpad | sed 's/^.*id=//' | sed 's/\s.*//')
+         xinput set-prop ${tp}  "Device Enabled" 1
+     }
+
+
+     markdownhtmlfixUmlaute()
+     # Umlaute im Stream mit sed ersetzen
+     # Untested
+     {
+         sed -i -e 's/ä/\&auml;/g' \
+             -e 's/ü/\&uuml;/g' \
+             -e 's/ö/\&ouml;/g' $1
+     }
+
+     function generategoodpasswd()
+     {
+
+         if [ $# -eq 0 ]
+         then
+             echo "setting password length to 63"
+             PWDLEN=63
+         else
+             PWDLEN=$1
+         fi
+
+         #http://askubuntu.com/questions/243071/generating-wpa-wpa2-key-in-linux-bash
+         # makepasswd --chars=63
+         openssl rand -base64 $PWDLEN
+         # p3FcnvWIdIJh2YrtiPTj
+     }
+
+
+     function todefy()
+     {
+         scp -P 2222 -r  $1  root@192.168.0.101:/mnt/sdcard/mp3/
+     }
+
+     function iminfo()
+     {
+         identify -verbose $1
+     }
+
+     function repairpdf()
+     {
+         #geht oft nicht ....
+         gs \
+             -o repaired.pdf \
+             -sDEVICE=pdfwrite \
+             -dPDFSETTINGS=/prepress \
+             ${1}
+     }
+
+     function writedatedbackup()
+     {   # stub: write backup with current date before the extension
+         local thedate=$(datetoday)
+         local mpath=`getpath $1`
+         local mbase=`getbase $1`
+         local mext=`getext $1`
+         local out=${mpath}${mbase}${thedate}'.'${mext}
+         echo $out
+         cp -v $1 $out
+     }
+
+
+     function iso_8601_date(){
+         date '+%Y-%m-%0dT%H:%M:%S'
+     }
+
+     function datetoday()
+     {
+         # print the current date as e.g. 14-Nov-2014case
+         date '+%0d-%b-%Y' #  deutsches Datum
+     }
+
+     function datetimenow() {
+         date '+%0d-%b-%Y-%H:%M:%S'
+     }
+
+     function installyoutubedl()
+     {
+         sudo apt-get remove -y youtube-dl
+         sudo wget https://yt-dl.org/latest/youtube-dl -O /usr/local/bin/youtube-dl
+         sudo chmod a+x /usr/local/bin/youtube-dl
+     }
+
+     function ytpl2mp3()
+     {
+         # DEFUNCT! New versions of youtube-dl come with other syntax!
+         #/usr/local/bin/youtube-dl  -k --max-quality FORMAT --extract-audio --audio-format mp3 ${1}
+         youtube-dl --verbose  -k --max-quality FORMAT --extract-audio --audio-format mp3 ${1}
+     }
+
+     function findbydate()
      #
-     #  Examples:
-     #     $ tree
-     #     $ tree /etc/opt
-     #     $ tree ..
-     #  Public Domain Software -- Free to Use as You Like
-     #  http://www.centerkey.com/tree  -  By Dem Pilafian
-
-     echo
-     if [ "$1" != "" ]  #if parameter exists, use as base folder
-     then cd "$1"
-     fi
-     pwd
-     ls -R | grep ":$" |   \
-         sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
-     # 1st sed: remove colons
-     # 2nd sed: replace higher level folder names with dashes
-     # 3rd sed: indent graph three spaces
-     # 4th sed: replace first dash with a vertical bar
-     if [ `ls -F -1 | grep "/" | wc -l` = 0 ]   # check if no folders
-     then echo "   -> no sub-directories"
-     fi
-     echo
-     #exit
- }
-
- function wcpdf()
- {
-     #vielleicht wcpdf und  wcLaTeX in eine einzige Funktion?
-     pdftotext ${1} - | wc -w
- }
-
-
- function wcLaTeX()
- {
-     detex  ${1}  | wc -w
-     # perl version:
-     # removeCommentfromTeXsource.pl Aker.tex | cat -s | sed s'/\\.*//'  |  less
-     # removeCommentfromTeXsource.pl Aker.tex | cat -s | sed s'/\\.*//'  |  fold -s -w 70  | less
-     # dvi basierte Loesung:
-     # http://tex.stackexchange.com/questions/57320/is-there-a-program-similar-to-detex-for-windows
-     #catdvi -e 1 -U file.dvi | sed -re "s/\[U\+2022\]/*/g" \
-         #  | sed -re "s/([^^[:space:]])\s+/\1 /g" > file.txt
-
- }
-
- # add external Samsung display with proper resoulution
- # cvt: Damit kann man modelines generieren
- function addmyVGA()
- {
-     xrandr --newmode  "1920x1080_60.00"  173.00  1920 2048 2248 2576  1080 1083 1088 1120 -hsync +vsync
-     xrandr --addmode VGA1 1920x1080_60.00
-     xrandr --output VGA1 --mode 1920x1080_60.00
- }
-
- #utf-16tounicode()
- #{
- #iconv  -f utf-16  -t ascii ${1} -o  ${1}
- #}
-
- function removeumlaute()
- {
-     #Umlaute raus, selbst pipen
-     local mpath=`getpath ${i}`
-     local mbase=`getbase ${i}`
-     local mext=`getext ${i}`
-     local tmpfile="/tmp/ohneUmlaut.txt"
-     sed "s/\ä/ae/g"   ${1}  \
-         |  	sed "s/\ü/ue/g"  \
-         |  	sed "s/\ö/oe/g" >  ${tmpfile}
-     mv -v  ${tmpfile} ${1}
- }
-
-
- function im2slide()
- {
-
-     [[ $# -eq 0 ]] && { echo "Usage: image2slide  <filename.img> or im2slide <*.img>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".wav"
-         [[ -f "$i" ]] && {
-             echo  "\begin{frame}";
-             echo  "\frametitle{}";
-             echo -n "\includegraphics[keepaspectratio,width=.5\textwidth]{"
-             echo    ${mpath}${mbase}"}"
-             echo  "\end{frame}"
-             echo  ""
-         }
-     done
- }
-
-
- # sed -e "s/\s\{3,\}/  /g" inputFile will substitute every sequence of at least 3 whitespaces with two spaces.
- function rmLatexComments()
- # remove Comments from LaTeX files
- # see also: removeCommentfromTeXsource.pl
- # Unklar im Moment ob die Perl-Version besser ist
- # laenger auf jeden Fall
- {
-     cat $1 | sed "/^\%/d"
- }
-
- function rmdoubleEmptyLines()
- {
-     cat -s $1
- }
-
- function tag2fileName()
- {
-     #cd "/media/win-d/mp3/medeski, martin & wood/unvisible"
-     #mp3info  01\ Titel\ 2.mp3
-
-     [[ $# -eq 0 ]] && { echo "Usage: tag2fileName  <file> or tag2fileName <*.mp3>"; }
-     for i in "$@"; do
-         local mystring=`mp3info  "${i}"  | grep Title`
-         local mext=`getext ${i}`
-         mext=`deblank "${mext}"`
-         local trackno=`echo $mystring | sed  's/.* Track://' | awk '{ print $(NF - 1) }'`
-         trackno=`int2str0 ${trackno} 2`
-         trackno=`deblank  ${trackno}`
-         local trackname=`echo $mystring | sed  's/Title: //' | sed 's/Track:.*//'`
-         trackname=`deblanktrailing "${trackname}"`
-
-         local out=`echo  ${trackno}"."${trackname}"."${mext}`
-         #out=`echo ${out} | sed 's/ /-/g'`
-
-         echo ${i}" -> "${out}
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; echo  "${i}"   "${out}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
- function int2str0()
- {
-     #for a in [0-9]*.mp3; do
-     #    #mv $a `printf %04d.%s ${a%.*} ${a##*.}`
-     #oname=`printf %04d.%s ${$1%.*} ${a##*.}`
-     #echo  `printf %04d%s ${1}`
-     echo  `printf %0${2}d%s ${1}`
-     #echo $oname
-     #done
- }
-
- # from http://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-bash-variable
- # this will delete ALL spaces
- # Usage Example: trackname=`deblank "${trackname}"`
- #
- function deblank(){
-     echo $1 | tr -d ' '
- }
-
-
- # this will delete TRAILING whitespaces
- # Usage Example: trackname=`deblank "${trackname}"`
- #
- function deblanktrailing()
- {
-     echo ${1} | sed 's/ *$//g'
- }
-
-
- # this will delete LEADING whitespaces
- # Usage Example: trackname=`deblank "${trackname}"`
- #
- function deblankleading()
- {
-     echo ${1} | sed 's/^ *//g'
- }
-
-
-
-
- # convert to lower case. requires bash v4 or higher
- # based on a post in stackoverflow
- # http://stackoverflow.com/questions/2264428/converting-string-to-lower-case-in-bash-shell-scripting
- lc(){
-     #    echo ""
-     for i in "$@"; do
-         echo -n  ${i,,}" "
-     done
-     echo ""
- }
-
- extractmp4audio()
- {
-
-     [[ $# -eq 0 ]] && { echo "Usage: extractmp4audio  <file.mp4> or extractmp4audio <*.mp4>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".wav"
-         echo -n "outfile"
-         echo $out
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; ffmpeg -i  "${i}"  -f wav -ab 192000 -vn  s "${out}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
-     #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- }
-
-
- function adoc2md() {
-     asciidoc -b docbook ${1}.adoc
-     pandoc -f docbook -t markdown_strict ${1}.xml ${1}.adoc -o ${1}.md
- }
-
-
- function org2md(){
-     # $1 must have an extension
-     # Usage:
-     # org2rst infile.org
-
-     # local mbase=`getbase $1`".rst"
-     # echo "basename is "$mbase
-     # pandoc -f org -t rst -o ${mbase} ${1};
-
-     [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".md"
-         echo -n "outfile "
-         echo $out
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
-     #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- }
-
-
-
-
- function md2adoc(){
-     # $1 must have an extension
-     # Usage:
-     # org2adoc infile.org
-
-     # local mbase=`getbase $1`".rst"
-     # echo "basename is "$mbase
-     # pandoc -f org -t rst -o ${mbase} ${1};
-
-     [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".adoc"
-         echo -n "outfile "
-         echo $out
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f asciidoc -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
-     #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- }
-
-
- function org2md(){
-     # $1 must have an extension
-     # Usage:
-     # org2md infile.org
-
-     # local mbase=`getbase $1`".rst"
-     # echo "basename is "$mbase
-     # pandoc -f org -t rst -o ${mbase} ${1};
-
-     [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".md"
-         echo -n "outfile "
-         echo $out
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
-     #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- }
-
-
- function org2rst(){
-     # $1 must have an extension
-     # Usage:
-     # org2rst infile.org
-
-     # local mbase=`getbase $1`".rst"
-     # echo "basename is "$mbase
-     # pandoc -f org -t rst -o ${mbase} ${1};
-
-     [[ $# -eq 0 ]] && { echo "Usage Examples: org2rst  <file.org> or org2rst <*.org>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".rst"
-         echo -n "outfile"
-         echo $out
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t rst  -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
-     #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- }
-
-
-
-
-
- # croppdfinplace
- function croppdfinplace()
- {
-     [[ $# -eq 0 ]] && { echo "Usage: croppdfinplace <file.pdf> or croppdfinplace <*.pdf>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local pdfcropIn=${mpath}${mbase}"-in."${mext}
-         cp  "${i}" "${pdfcropIn}";
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pdfcrop  "$pdfcropIn" "${i}" &>/dev/null  && echo "done." || echo "failed."; }
-         rm "${pdfcropIn}";
-     done
- }
-
- function aiff2wav()
- {
-     [[ $# -eq 0 ]] && { echo "Usage: aiff2wav  <file.aiff> or aiff2wav <*.aiff>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local mext=`getext ${i}`
-         local out=${mpath}${mbase}".wav"
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; sox  "${i}" "${out}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
- function pdf2grayscale()
- # http://superuser.com/questions/104656/convert-a-pdf-to-greyscale-on-the-command-line-in-floss
- # problem of this approach:
- # http://superuser.com/questions/200378/converting-a-pdf-to-black-white-with-ghostscript
- {
-     [[ $# -eq 0 ]] && { echo "Usage: pdf2grayscale <file.pdf> or <*.pdf>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}"-grayscale.pdf"
-         echo "will create file "${out}
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; gs \
-                                                              -o "${out}"  \
-                                                              -sDEVICE=pdfwrite \
-                                                              -dPDFSETTINGS=/prepress \
-                                                              -sColorConversionStrategy=Gray \
-                                                              -sColorConversionStrategyForImages=Gray \
-                                                              -sProcessColorModel=DeviceGray \
-                                                              -dCompatibilityLevel=1.4 \
-                                                              "${i}" &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
-
- # extract audio from youtube-dl mp4-files using ffmpeg
- # ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
- function mp4toaudio(){
-     [[ $# -eq 0 ]] && { echo "Usage: mp4toaudio <file.mp4> or <*.mp4>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}".wav"
-         echo "will create file"${out}
-         echo "ffmpeg -i  "$i" " -f wav -ab 192000 -vn " "${out}""
-         #echo $evalstring
-         [[ -f "$i" ]] && { echo -n "Processing "${i}"..."; ffmpeg -i  "${i}" " -f wav -ab 192000 -vn " "${out}"  &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
-
- # wav to mp3 conversion
- # lame -V0 -h -b 160  "$i" "${out}"
- function wavtomp3(){
-     [[ $# -eq 0 ]] && { echo "Usage: wavtomp3 <file.mp3> or <*.mp3>"; }
-     for i in "$@"; do
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}".mp3"
-         echo "will create file"${out}
-         #lame -V0 -h -b 160 --vbr-new $name.wav $name.mp3
-         #lame -V0 -h -b 160 --vbr-new 10L.wav 10L.mp3
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; lame -V0 -h -b 160  "$i" "${out}"  &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
- # convert wav file (or a whole dir to wave)
- # usage: . cglib; mp3wav mp3file
- function mp3towav(){
-     [[ $# -eq 0 ]] && { echo "Usage: mp3towav mp3file"; }
-     for i in "$@"
-     do
-         # create .wav file name
-         #local out="${i%/*}.wav"
-         local mpath=`getpath ${i}`
-         local mbase=`getbase ${i}`
-         local out=${mpath}${mbase}".wav"
-         echo "will create file"${out}
-         [[ -f "$i" ]] && { echo -n "Processing ${i}..."; mpg123 -w "${out}" "$i" &>/dev/null  && echo "done." || echo "failed."; }
-     done
- }
-
-
- # wait for input to continue
- # Usage: Pause
- function Pause()
- {
-     local key=""
-     echo -n Hit any key to continue....
-     stty -icanon
-     key=`dd count=1 2>/dev/null`
-     stty icanon
- }
-
-
- # cannot handle multiple extensions like filename.tar.bz2
- # Multi-return args, Usage example (not usable from script!!):
- # ret="$(fileparts FILENAME)"
- # IFS="|"
- # set -- $ret
- # fullpath="$1"
- # outdir="$2"
- # fname="$3"
- # ext="$4"
- # To complicated, so it has been spread out to several routines
- function fileparts()
- {
-     for fullpath in "$@"
-     do
-         local filename="${fullpath##*/}"                      # Strip longest match of */ from start
-         local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
-         local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
-         local ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
-         if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
-             base=".$ext"
-             ext=""
+     # recursiv Dateibaunm durchsuchen und dann nach Datum sortieren
+     # s. http://superuser.com/questions/416308/how-to-list-files-recursively-and-sort-them-by-modification-time
+     # Usage Example:
+     # findbydate /D/Dropbox/hausarbeiten
+     {
+         #find $1 -exec ls -dl '{}' \; | sort -k 6,7 Fehler mit subdirectories
+         # tut das?:
+         find . -type f -exec stat --format '%Y :%y %n' {} \; | sort -nr | cut -d: -f2-
+         #find $1 -type f -printf '%T+\t%p\n' | sed 's/\.[[:digit:]]\{10\}//' | sort -n
+         #find $1 -type f -printf '%T+\t%p\n' | cut --complement -c 20-30 | sort -n
+         #find $1 -type f -printf '%T+\t%p\n' | sort -n
+
+     }
+
+
+     function uptimel()
+     {
+         # uptimel - show just the system uptime, days, hours, and minutes
+         # einfach besser leserlich als das system commando upt
+         # identisch mit uptime
+         # TODO: write output string before echoing!
+
+         upSeconds=`cat /proc/uptime`;
+         upSeconds=${upSeconds%%.*};
+         #let upSeconds="$(cat /proc/uptime) && echo ${temp%%.*})"
+         let secs=$((${upSeconds}%60))
+         let mins=$((${upSeconds}/60%60))
+         let hours=$((${upSeconds}/3600%24))
+         let days=$((${upSeconds}/86400))
+         if [ "${days}" -ne "0" ]
+         then
+             echo -n  "${days}d"
          fi
+         echo  "${hours}h${mins}m"
+     }
 
-         # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
-         echo "$fullpath|$dir|$base|$ext"
-     done
- }
+     function treel()
+     {
+         #  Displays Structure of Directory Hierarchy
+         #  This tiny script uses "ls", "grep", and "sed"
+         #  in a single command to show the nesting of
+         #  sub-directories.  The setup command for PATH
+         #  works with the Bash shell (the Mac OS X default).
+         #
+         #  Usage:
+         #     $ tree [directory]
+         #
+         #  Examples:
+         #     $ tree
+         #     $ tree /etc/opt
+         #     $ tree ..
+         #  Public Domain Software -- Free to Use as You Like
+         #  http://www.centerkey.com/tree  -  By Dem Pilafian
 
-
-
-
- function getext()
- {
-     for fullpath in "$@"
-     do
-         local filename="${fullpath##*/}"                      # Strip longest match of */ from start
-         local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
-         local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
-         local ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
-         if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
-             base=".$ext"
-             ext=""
+         echo
+         if [ "$1" != "" ]  #if parameter exists, use as base folder
+         then cd "$1"
          fi
-         #echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
-         #echo "$fullpath|$dir|$base|$ext"
-         echo  $ext
-     done
- }
-
-
- # extract pathname from filename
- function getpath()
- {
-     for fullpath in "$@"
-     do
-         local filename="${fullpath##*/}"                      # Strip longest match of */ from start
-         local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
-         local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
-         ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
-         if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
-             base=".$ext"
-             ext=""
+         pwd
+         ls -R | grep ":$" |   \
+             sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'
+         # 1st sed: remove colons
+         # 2nd sed: replace higher level folder names with dashes
+         # 3rd sed: indent graph three spaces
+         # 4th sed: replace first dash with a vertical bar
+         if [ `ls -F -1 | grep "/" | wc -l` = 0 ]   # check if no folders
+         then echo "   -> no sub-directories"
          fi
+         echo
+         #exit
+     }
 
-         # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
-         #echo "$fullpath|$dir|$base|$ext"
-         echo $dir
-     done
- }
+     function wcpdf()
+     {
+         #vielleicht wcpdf und  wcLaTeX in eine einzige Funktion?
+         pdftotext ${1} - | wc -w
+     }
+
+
+     function wcLaTeX()
+     {
+         detex  ${1}  | wc -w
+         # perl version:
+         # removeCommentfromTeXsource.pl Aker.tex | cat -s | sed s'/\\.*//'  |  less
+         # removeCommentfromTeXsource.pl Aker.tex | cat -s | sed s'/\\.*//'  |  fold -s -w 70  | less
+         # dvi basierte Loesung:
+         # http://tex.stackexchange.com/questions/57320/is-there-a-program-similar-to-detex-for-windows
+         #catdvi -e 1 -U file.dvi | sed -re "s/\[U\+2022\]/*/g" \
+             #  | sed -re "s/([^^[:space:]])\s+/\1 /g" > file.txt
+
+     }
+
+     # add external Samsung display with proper resoulution
+     # cvt: Damit kann man modelines generieren
+     function addmyVGA()
+     {
+         xrandr --newmode  "1920x1080_60.00"  173.00  1920 2048 2248 2576  1080 1083 1088 1120 -hsync +vsync
+         xrandr --addmode VGA1 1920x1080_60.00
+         xrandr --output VGA1 --mode 1920x1080_60.00
+     }
+
+     #utf-16tounicode()
+     #{
+     #iconv  -f utf-16  -t ascii ${1} -o  ${1}
+     #}
+
+     function removeumlaute()
+     {
+         #Umlaute raus, selbst pipen
+         local mpath=`getpath ${i}`
+         local mbase=`getbase ${i}`
+         local mext=`getext ${i}`
+         local tmpfile="/tmp/ohneUmlaut.txt"
+         sed "s/\ä/ae/g"   ${1}  \
+             |  	sed "s/\ü/ue/g"  \
+             |  	sed "s/\ö/oe/g" >  ${tmpfile}
+         mv -v  ${tmpfile} ${1}
+     }
+
+
+     function im2slide()
+     {
+
+         [[ $# -eq 0 ]] && { echo "Usage: image2slide  <filename.img> or im2slide <*.img>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".wav"
+             [[ -f "$i" ]] && {
+                 echo  "\begin{frame}";
+                 echo  "\frametitle{}";
+                 echo -n "\includegraphics[keepaspectratio,width=.5\textwidth]{"
+                 echo    ${mpath}${mbase}"}"
+                 echo  "\end{frame}"
+                 echo  ""
+             }
+         done
+     }
+
+
+     # sed -e "s/\s\{3,\}/  /g" inputFile will substitute every sequence of at least 3 whitespaces with two spaces.
+     function rmLatexComments()
+     # remove Comments from LaTeX files
+     # see also: removeCommentfromTeXsource.pl
+     # Unklar im Moment ob die Perl-Version besser ist
+     # laenger auf jeden Fall
+     {
+         cat $1 | sed "/^\%/d"
+     }
+
+     function rmdoubleEmptyLines()
+     {
+         cat -s $1
+     }
+
+     function tag2fileName()
+     {
+         #cd "/media/win-d/mp3/medeski, martin & wood/unvisible"
+         #mp3info  01\ Titel\ 2.mp3
+
+         [[ $# -eq 0 ]] && { echo "Usage: tag2fileName  <file> or tag2fileName <*.mp3>"; }
+         for i in "$@"; do
+             local mystring=`mp3info  "${i}"  | grep Title`
+             local mext=`getext ${i}`
+             mext=`deblank "${mext}"`
+             local trackno=`echo $mystring | sed  's/.* Track://' | awk '{ print $(NF - 1) }'`
+             trackno=`int2str0 ${trackno} 2`
+             trackno=`deblank  ${trackno}`
+             local trackname=`echo $mystring | sed  's/Title: //' | sed 's/Track:.*//'`
+             trackname=`deblanktrailing "${trackname}"`
+
+             local out=`echo  ${trackno}"."${trackname}"."${mext}`
+             #out=`echo ${out} | sed 's/ /-/g'`
+
+             echo ${i}" -> "${out}
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; echo  "${i}"   "${out}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
+
+     function int2str0()
+     {
+         #for a in [0-9]*.mp3; do
+         #    #mv $a `printf %04d.%s ${a%.*} ${a##*.}`
+         #oname=`printf %04d.%s ${$1%.*} ${a##*.}`
+         #echo  `printf %04d%s ${1}`
+         echo  `printf %0${2}d%s ${1}`
+         #echo $oname
+         #done
+     }
+
+     # from http://stackoverflow.com/questions/369758/how-to-trim-whitespace-from-bash-variable
+     # this will delete ALL spaces
+     # Usage Example: trackname=`deblank "${trackname}"`
+     #
+     function deblank(){
+         echo $1 | tr -d ' '
+     }
+
+
+     # this will delete TRAILING whitespaces
+     # Usage Example: trackname=`deblank "${trackname}"`
+     #
+     function deblanktrailing()
+     {
+         echo ${1} | sed 's/ *$//g'
+     }
+
+
+     # this will delete LEADING whitespaces
+     # Usage Example: trackname=`deblank "${trackname}"`
+     #
+     function deblankleading()
+     {
+         echo ${1} | sed 's/^ *//g'
+     }
+
+
+
+
+     # convert to lower case. requires bash v4 or higher
+     # based on a post in stackoverflow
+     # http://stackoverflow.com/questions/2264428/converting-string-to-lower-case-in-bash-shell-scripting
+     lc(){
+         #    echo ""
+         for i in "$@"; do
+             echo -n  ${i,,}" "
+         done
+         echo ""
+     }
+
+     extractmp4audio()
+     {
+
+         [[ $# -eq 0 ]] && { echo "Usage: extractmp4audio  <file.mp4> or extractmp4audio <*.mp4>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".wav"
+             echo -n "outfile"
+             echo $out
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; ffmpeg -i  "${i}"  -f wav -ab 192000 -vn  s "${out}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+         #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     }
+
+
+     function adoc2md() {
+         asciidoc -b docbook ${1}.adoc
+         pandoc -f docbook -t markdown_strict ${1}.xml ${1}.adoc -o ${1}.md
+     }
+
+
+     function org2md(){
+         # $1 must have an extension
+         # Usage:
+         # org2rst infile.org
+
+         # local mbase=`getbase $1`".rst"
+         # echo "basename is "$mbase
+         # pandoc -f org -t rst -o ${mbase} ${1};
+
+         [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".md"
+             echo -n "outfile "
+             echo $out
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+         #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     }
+
+
+
+
+     function md2adoc(){
+         # $1 must have an extension
+         # Usage:
+         # org2adoc infile.org
+
+         # local mbase=`getbase $1`".rst"
+         # echo "basename is "$mbase
+         # pandoc -f org -t rst -o ${mbase} ${1};
+
+         [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".adoc"
+             echo -n "outfile "
+             echo $out
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f asciidoc -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+         #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     }
+
+
+     function org2md(){
+         # $1 must have an extension
+         # Usage:
+         # org2md infile.org
+
+         # local mbase=`getbase $1`".rst"
+         # echo "basename is "$mbase
+         # pandoc -f org -t rst -o ${mbase} ${1};
+
+         [[ $# -eq 0 ]] && { echo "Usage Examples: org2md <file.org> or org2md <*.org>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".md"
+             echo -n "outfile "
+             echo $out
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t markdown -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+         #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     }
+
+
+     function org2rst(){
+         # $1 must have an extension
+         # Usage:
+         # org2rst infile.org
+
+         # local mbase=`getbase $1`".rst"
+         # echo "basename is "$mbase
+         # pandoc -f org -t rst -o ${mbase} ${1};
+
+         [[ $# -eq 0 ]] && { echo "Usage Examples: org2rst  <file.org> or org2rst <*.org>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".rst"
+             echo -n "outfile"
+             echo $out
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pandoc -f org -t rst  -o "${out}"  "${1}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+         #ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     }
 
 
 
 
 
- # gets basename from file
- # TODO: Does not operate on filenames including blanks!
- function getbase()
- {
-     for fullpath in "$@"
-     do
-         local filename="${fullpath##*/}"                      # Strip longest match of */ from start
-         local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
-         local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
-         ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
-         if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
-             base=".$ext"
-             ext=""
-         fi
+     # croppdfinplace
+     function croppdfinplace()
+     {
+         [[ $# -eq 0 ]] && { echo "Usage: croppdfinplace <file.pdf> or croppdfinplace <*.pdf>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local pdfcropIn=${mpath}${mbase}"-in."${mext}
+             cp  "${i}" "${pdfcropIn}";
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; pdfcrop  "$pdfcropIn" "${i}" &>/dev/null  && echo "done." || echo "failed."; }
+             rm "${pdfcropIn}";
+         done
+     }
 
-         # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
-         #echo "$fullpath|$dir|$base|$ext"
-         echo $base
-     done
- }
+     function aiff2wav()
+     {
+         [[ $# -eq 0 ]] && { echo "Usage: aiff2wav  <file.aiff> or aiff2wav <*.aiff>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local mext=`getext ${i}`
+             local out=${mpath}${mbase}".wav"
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; sox  "${i}" "${out}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
 
- # move file at its destination
- # For example if you have a file LONGPATH/<oldfilename> and want to rename it to LONGPATH/<nefilename>
- # mv_abs helps you save typing as mv LONGPATH/<oldfilename> <newfilename>
-function mv_abs(){
-     local mpath=`getpath ${1}`
-     local mbase=`getbase ${1}`
-     local newfilename=${mpath}$2
-     echo ${newfilename}
-     mv $1 ${newfilename}
- }
+     function pdf2grayscale()
+     # http://superuser.com/questions/104656/convert-a-pdf-to-greyscale-on-the-command-line-in-floss
+     # problem of this approach:
+     # http://superuser.com/questions/200378/converting-a-pdf-to-black-white-with-ghostscript
+     {
+         [[ $# -eq 0 ]] && { echo "Usage: pdf2grayscale <file.pdf> or <*.pdf>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}"-grayscale.pdf"
+             echo "will create file "${out}
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; gs \
+                                                                  -o "${out}"  \
+                                                                  -sDEVICE=pdfwrite \
+                                                                  -dPDFSETTINGS=/prepress \
+                                                                  -sColorConversionStrategy=Gray \
+                                                                  -sColorConversionStrategyForImages=Gray \
+                                                                  -sProcessColorModel=DeviceGray \
+                                                                  -dCompatibilityLevel=1.4 \
+                                                                  "${i}" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
 
-function notebook_clear_output() {
-     jupyter nbconvert --clear-output --inplace ${1}
- }
 
-function notebook_run() {
-    jupyter nbconvert --execute --to notebook --inplace ${1}
+     # extract audio from youtube-dl mp4-files using ffmpeg
+     # ffmpeg -i The\ Cardinal\ Vowels\ -\ Daniel\ Jones.mp4-9fV2f_fmFGc.mp4   -f wav -ab 192000 -vn cardinalVowel.wav
+     function mp4toaudio(){
+         [[ $# -eq 0 ]] && { echo "Usage: mp4toaudio <file.mp4> or <*.mp4>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}".wav"
+             echo "will create file"${out}
+             echo "ffmpeg -i  "$i" " -f wav -ab 192000 -vn " "${out}""
+             #echo $evalstring
+             [[ -f "$i" ]] && { echo -n "Processing "${i}"..."; ffmpeg -i  "${i}" " -f wav -ab 192000 -vn " "${out}"  &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
+
+
+     # wav to mp3 conversion
+     # lame -V0 -h -b 160  "$i" "${out}"
+     function wavtomp3(){
+         [[ $# -eq 0 ]] && { echo "Usage: wavtomp3 <file.mp3> or <*.mp3>"; }
+         for i in "$@"; do
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}".mp3"
+             echo "will create file"${out}
+             #lame -V0 -h -b 160 --vbr-new $name.wav $name.mp3
+             #lame -V0 -h -b 160 --vbr-new 10L.wav 10L.mp3
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; lame -V0 -h -b 160  "$i" "${out}"  &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
+
+     # convert wav file (or a whole dir to wave)
+     # usage: . cglib; mp3wav mp3file
+     function mp3towav(){
+         [[ $# -eq 0 ]] && { echo "Usage: mp3towav mp3file"; }
+         for i in "$@"
+         do
+             # create .wav file name
+             #local out="${i%/*}.wav"
+             local mpath=`getpath ${i}`
+             local mbase=`getbase ${i}`
+             local out=${mpath}${mbase}".wav"
+             echo "will create file"${out}
+             [[ -f "$i" ]] && { echo -n "Processing ${i}..."; mpg123 -w "${out}" "$i" &>/dev/null  && echo "done." || echo "failed."; }
+         done
+     }
+
+
+     # wait for input to continue
+     # Usage: Pause
+     function Pause()
+     {
+         local key=""
+         echo -n Hit any key to continue....
+         stty -icanon
+         key=`dd count=1 2>/dev/null`
+         stty icanon
+     }
+
+
+     # cannot handle multiple extensions like filename.tar.bz2
+     # Multi-return args, Usage example (not usable from script!!):
+     # ret="$(fileparts FILENAME)"
+     # IFS="|"
+     # set -- $ret
+     # fullpath="$1"
+     # outdir="$2"
+     # fname="$3"
+     # ext="$4"
+     # To complicated, so it has been spread out to several routines
+     function fileparts()
+     {
+         for fullpath in "$@"
+         do
+             local filename="${fullpath##*/}"                      # Strip longest match of */ from start
+             local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
+             local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
+             local ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
+             if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
+                 base=".$ext"
+                 ext=""
+             fi
+
+             # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
+             echo "$fullpath|$dir|$base|$ext"
+         done
+     }
+
+
+
+
+     function getext()
+     {
+         for fullpath in "$@"
+         do
+             local filename="${fullpath##*/}"                      # Strip longest match of */ from start
+             local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
+             local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
+             local ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
+             if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
+                 base=".$ext"
+                 ext=""
+             fi
+             #echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
+             #echo "$fullpath|$dir|$base|$ext"
+             echo  $ext
+         done
+     }
+
+
+     # extract pathname from filename
+     function getpath()
+     {
+         for fullpath in "$@"
+         do
+             local filename="${fullpath##*/}"                      # Strip longest match of */ from start
+             local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
+             local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
+             ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
+             if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
+                 base=".$ext"
+                 ext=""
+             fi
+
+             # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
+             #echo "$fullpath|$dir|$base|$ext"
+             echo $dir
+         done
+     }
+
+
+
+
+
+     # gets basename from file
+     # TODO: Does not operate on filenames including blanks!
+     function getbase()
+     {
+         for fullpath in "$@"
+         do
+             local filename="${fullpath##*/}"                      # Strip longest match of */ from start
+             local dir="${fullpath:0:${#fullpath} - ${#filename}}" # Substring from 0 thru pos of filename
+             local base="${filename%.[^.]*}"                       # Strip shortest match of . plus at least one non-dot char from end
+             ext="${filename:${#base} + 1}"                  # Substring from len of base thru end
+             if [[ -z "$base" && -n "$ext" ]]; then          # If we have an extension and no base, it's really the base
+                 base=".$ext"
+                 ext=""
+             fi
+
+             # echo -e "$fullpath:\n\tdir  = \"$dir\"\n\tbase = \"$base\"\n\text  = \"$ext\""
+             #echo "$fullpath|$dir|$base|$ext"
+             echo $base
+         done
+     }
+
+     # move file at its destination
+     # For example if you have a file LONGPATH/<oldfilename> and want to rename it to LONGPATH/<nefilename>
+     # mv_abs helps you save typing as mv LONGPATH/<oldfilename> <newfilename>
+    function mv_abs(){
+         local mpath=`getpath ${1}`
+         local mbase=`getbase ${1}`
+         local newfilename=${mpath}$2
+         echo ${newfilename}
+         mv $1 ${newfilename}
+     }
+
+   function notebook_clear_output() {
+       jupyter nbconvert --clear-output --inplace ${1}
+   }
+
+  function notebook_run() {
+      jupyter nbconvert --execute --to notebook --inplace ${1}
+  }
+
+  alias nbx="jupyter nbconvert --execute --to notebook"
+
+   # ---- list open tcp ports
+   # ---- see https://unix.stackexchange.com/questions/26887/lsof-and-listening-ports
+   function ports() {
+       (
+           echo 'PROC PID USER x IPV x x PROTO BIND PORT'
+           (
+               sudo lsof +c 15 -iTCP -sTCP:LISTEN -P -n | tail -n +2
+               sudo lsof +c 15 -iUDP -P -n | tail -n +2 | egrep -v ' (127\.0\.0\.1|\[::1\]):'
+           ) | sed -E 's/ ([^ ]+):/ \1 /' | sort -k8,8 -k5,5 -k1,1 -k10,10n
+       ) | awk '{ printf "%-16s %-6s %-9s %-5s %-7s %s:%s\n",$1,$2,$3,$5,$8,$9,$10 }'
+   }
+
+killport() {
+  if [ -n "${1}" ]; then
+    port=$1
+  else
+    # default (Rails-centric)
+    port="3000"
+  fi
+  pid=`lsof -wni tcp:$port | awk 'NR==2 { print $2 }'`
+  if [ -n "${pid}" ]; then
+    kill -9 $pid
+    echo "Killed process $pid"
+  else
+    echo "No processes were found listening on tcp:$port"
+  fi
 }
 
-alias nbx="jupyter nbconvert --execute --to notebook"
+   # ---- docker tools
 
-# ---- list open tcp ports
-# ---- see https://unix.stackexchange.com/questions/26887/lsof-and-listening-ports
-function ports() {
-    (
-        echo 'PROC PID USER x IPV x x PROTO BIND PORT'
-        (
-            sudo lsof +c 15 -iTCP -sTCP:LISTEN -P -n | tail -n +2
-            sudo lsof +c 15 -iUDP -P -n | tail -n +2 | egrep -v ' (127\.0\.0\.1|\[::1\]):'
-        ) | sed -E 's/ ([^ ]+):/ \1 /' | sort -k8,8 -k5,5 -k1,1 -k10,10n
-    ) | awk '{ printf "%-16s %-6s %-9s %-5s %-7s %s:%s\n",$1,$2,$3,$5,$8,$9,$10 }'
-}
+   function docker_stop_all_containers() {
+       docker stop $(docker ps -a -q)
+   }
 
-# ---- docker tools
+   function docker_remove_all_containers() {
+       docker rm $(docker ps -a -q)
+   }
 
-function docker_stop_all_containers() {
-    docker stop $(docker ps -a -q)
-}
+   function docker_remove_all_images() {
+       docker rmi $(docker images -a -q)
+       }
 
-function docker_remove_all_containers() {
-    docker rm $(docker ps -a -q)
-}
+   function docker_remove_all_unused_volumes() {
+       yes | docker volume prune
+   }
 
-function docker_remove_all_images() {
-    docker rmi $(docker images -a -q)
+
+   function docker_reset_container_dev() {
+       docker stop $(docker ps -a -q)
+       docker rm $(docker ps -a -q)
+       yes  | docker system prune
+   }
+
+   function docker_clone_volume(){
+         #
+         # Author: Guido Diepen
+         # Convenience script that can help me to easily create a clone of a given
+         # data volume. The script is mainly useful if you are using named volumes
+
+         #First check if the user provided all needed arguments
+         if [ "$1" = "" ]
+         then
+             echo "Please provide a source volume name"
+             return 1
+         fi
+
+         if [ "$2" = "" ]
+         then
+             echo "Please provide a destination volume name"
+             return 1
+         fi
+
+         #Check if the source volume name does exist
+         docker volume inspect $1 > /dev/null 2>&1
+         if [ "$?" != "0" ]
+         then
+             echo "The source volume \"$1\" does not exist"
+             return  1
+         fi
+
+         #Now check if the destinatin volume name does not yet exist
+         docker volume inspect $2 > /dev/null 2>&1
+
+         if [ "$?" = "0" ]
+         then
+             echo "The destination volume \"$2\" already exists"
+             return 1
+         fi
+
+         echo "Creating destination volume \"$2\"..."
+         docker volume create --name $2
+         echo "Copying data from source volume \"$1\" to destination volume \"$2\"..."
+         docker run --rm \
+                -i \
+                -t \
+                -v $1:/from \
+                -v $2:/to \
+                alpine ash -c "cd /from ; cp -av . /to"
+     }
+
+  function pdf2fdf() {
+    # get absolute path
+    abspath=$(readlink -e "${1}")
+    [[ -z "$abspath" ]] && { echo "absolute path not resolved" ; return 1; }
+    # filename without extension
+    filebase=$(basename -- "$abspath")
+    filename_wo_ext="${filebase%.*}"
+    infix=""  # just use extension
+    echo "filename_wo_ext: ${filename_wo_ext}"
+    echo "filebase: ${filebase}"
+    outpath="${filename_wo_ext}${infix}.fdf"
+    pdftk ${1} generate_fdf output ${outpath}
+    echo "fdf generated: ${outpath}"
+  }
+
+  function fillpdffromfdf() {
+    # get absolute path
+    abspath=$(readlink -e "${1}")
+    [[ -z "$abspath" ]] && { echo "absolute path not resolved" ; return 1; }
+    # filename without extension
+    filebase=$(basename -- "$abspath")
+    filename_wo_ext="${filebase%.*}"
+    infix="_filled"  # just use extension
+    outpath="${filename_wo_ext}${infix}.pdf"
+    echo ${outpath}
+    pdftk ${1} fill_form ${2} output ${outpath}
+  }
+
+  function hw() {
+    for d in system-manufacturer system-product-name system-serial-number system-version bios-release-date bios-version
+    do
+          echo "${d^} : " $(sudo dmidecode -s $d);
+    done
+  }
+
+  function getip4addr() {
+    # Obtain an ip4 address for specific networking device
+    # Usage Example(s):
+    # ip4=$(getip4addr tun0)
+    # echo $ip4
+    ip addr show  $1  | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1
     }
 
-function docker_remove_all_unused_volumes() {
-    yes | docker volume prune
-}
-
-
-function docker_reset_container_dev() {
-    docker stop $(docker ps -a -q)
-    docker rm $(docker ps -a -q)
-    yes  | docker system prune
-}
-
-function docker_clone_volume(){
-      #
-      # Author: Guido Diepen
-      # Convenience script that can help me to easily create a clone of a given
-      # data volume. The script is mainly useful if you are using named volumes
-
-      #First check if the user provided all needed arguments
-      if [ "$1" = "" ]
-      then
-          echo "Please provide a source volume name"
-          return 1
-      fi
-
-      if [ "$2" = "" ]
-      then
-          echo "Please provide a destination volume name"
-          return 1
-      fi
-
-      #Check if the source volume name does exist
-      docker volume inspect $1 > /dev/null 2>&1
-      if [ "$?" != "0" ]
-      then
-          echo "The source volume \"$1\" does not exist"
-          return  1
-      fi
-
-      #Now check if the destinatin volume name does not yet exist
-      docker volume inspect $2 > /dev/null 2>&1
-
-      if [ "$?" = "0" ]
-      then
-          echo "The destination volume \"$2\" already exists"
-          return 1
-      fi
-
-      echo "Creating destination volume \"$2\"..."
-      docker volume create --name $2
-      echo "Copying data from source volume \"$1\" to destination volume \"$2\"..."
-      docker run --rm \
-             -i \
-             -t \
-             -v $1:/from \
-             -v $2:/to \
-             alpine ash -c "cd /from ; cp -av . /to"
+  function tanglefile() {
+  # emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "file-to-tangle.org")'
+  cmd="(org-babel-tangle-file \"${1}\")"
+  echo $cmd
+  # emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file ${1})'
+  emacs --batch --eval "(require 'org)" --eval "$cmd"
   }
-
-function pdf2fdf() {
-  # get absolute path
-  abspath=$(readlink -e "${1}")
-  [[ -z "$abspath" ]] && { echo "absolute path not resolved" ; return 1; }
-  # filename without extension
-  filebase=$(basename -- "$abspath")
-  filename_wo_ext="${filebase%.*}"
-  infix=""  # just use extension
-  echo "filename_wo_ext: ${filename_wo_ext}"
-  echo "filebase: ${filebase}"
-  outpath="${filename_wo_ext}${infix}.fdf"
-  pdftk ${1} generate_fdf output ${outpath}
-  echo "fdf generated: ${outpath}"
-}
-
-function fillpdffromfdf() {
-  # get absolute path
-  abspath=$(readlink -e "${1}")
-  [[ -z "$abspath" ]] && { echo "absolute path not resolved" ; return 1; }
-  # filename without extension
-  filebase=$(basename -- "$abspath")
-  filename_wo_ext="${filebase%.*}"
-  infix="_filled"  # just use extension
-  outpath="${filename_wo_ext}${infix}.pdf"
-  echo ${outpath}
-  pdftk ${1} fill_form ${2} output ${outpath}
-}
-
-function hw() {
-  for d in system-manufacturer system-product-name system-serial-number system-version bios-release-date bios-version
-  do
-        echo "${d^} : " $(sudo dmidecode -s $d);
-  done
-}
-
-function getip4addr() {
-  # Obtain an ip4 address for specific networking device
-  # Usage Example(s):
-  # ip4=$(getip4addr tun0)
-  # echo $ip4
-  ip addr show  $1  | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1
-  }
-
-function tanglefile() {
-# emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file "file-to-tangle.org")'
-cmd="(org-babel-tangle-file \"${1}\")"
-echo $cmd
-# emacs --batch --eval "(require 'org)" --eval '(org-babel-tangle-file ${1})'
-emacs --batch --eval "(require 'org)" --eval "$cmd"
-}

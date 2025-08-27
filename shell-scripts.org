@@ -1,5 +1,7 @@
 #+title: Write conf files to disk
 
+* Main Script
+
   #+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
 
      #!/bin/bash
@@ -1586,6 +1588,26 @@ pip list -l --exclude pkg_resources --exclude  pkgutil_resolve_name   --exclude-
 #+end_src
 
 
+**** Kill a port
+
+ #+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
+killport() {
+  if [ -n "${1}" ]; then
+    port=$1
+  else
+    # default (Rails-centric)
+    port="3000"
+  fi
+  pid=`lsof -wni tcp:$port | awk 'NR==2 { print $2 }'`
+  if [ -n "${pid}" ]; then
+    kill -9 $pid
+    echo "Killed process $pid"
+  else
+    echo "No processes were found listening on tcp:$port"
+  fi
+}
+
+#+end_src
 
 **** Docker CMD tools
 
