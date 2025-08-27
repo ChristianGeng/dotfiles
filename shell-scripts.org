@@ -1590,6 +1590,8 @@ pip list -l --exclude pkg_resources --exclude  pkgutil_resolve_name   --exclude-
 
 **** Kill a port
 
+Snippet from https://gist.github.com/ncherro/4539635 that I find useful.
+
  #+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
 killport() {
   if [ -n "${1}" ]; then
