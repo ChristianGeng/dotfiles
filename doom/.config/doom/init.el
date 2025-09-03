@@ -164,7 +164,7 @@
         +gfm                 ; enable GitHub Flavored Markdown export
         +pretty              ; replace asterisks with pretty org bullets
         +publish)            ; create static websites with org
-       php               ; perl's insecure younger brother
+       ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
        (python +lsp +pyenv +pyright)
