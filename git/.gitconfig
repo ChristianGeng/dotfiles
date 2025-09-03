@@ -51,8 +51,10 @@
 [user]
 	# email = jedhoo@gmail.com
 	# name = Christian Geng
-	email = christian.c.geng@gmail.com
-	name = ChristianGeng
+	# email = christian.c.geng@gmail.com
+	# name = ChristianGeng
+	email = cgeng@audeering.com
+	name = cgeng
 [credential]
 	helper = store
 [core]
