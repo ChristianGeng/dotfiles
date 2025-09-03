@@ -367,8 +367,35 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Open term here"       "p T" (cmd! (let ((default-directory (projectile-project-root))) (term (getenv "SHELL")))))
 
 (after! lsp-mode
-  (setq lsp-pyright-python-executable-cmd "python") ;; or path to your venv's python
-  (setq lsp-pyright-typechecking-mode "basic"))      ;; optional, for type checking level
+  ;; General LSP settings
+  (setq lsp-enable-file-watchers nil
+        lsp-file-watch-threshold 2000
+        lsp-idle-delay 0.500
+        lsp-log-io nil))
+
+(after! lsp-ui
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-position 'top)
+  (setq lsp-ui-doc-use-childframe nil)
+  (setq lsp-ui-peek-enable nil)
+  (setq lsp-ui-doc-show-with-cursor t)
+  (setq lsp-ui-sideline-enable nil)
+  ;; (setq lsp-ui-doc-position 'at-point)
+  ;; (setq lsp-ui-doc-use-webkit t)
+  ;; (setq lsp-ui-doc-maximum-width 150)
+  ;; (setq lsp-ui-doc-maximum-height 35)
+  ;; (setq lsp-ui-doc-header "Documentation")
+  ;; (setq lsp-ui-sideline-enable t)
+  ;; (setq lsp-ui-sideline-show-hover nil)
+  ;; (setq lsp-ui-doc-show-with-cursor t)
+  ;; (setq lsp-ui-doc-use-childframe nil)
+  )
+
+(after! lsp-mode
+  (setq lsp-pyright-python-executable-cmd "python" ;; or path to your venv's python
+        lsp-pyright-typechecking-mode "basic"))     ;; optional, for type checking level
+
+;; Python-specific settings (non-LSP)
 
 (define-globalized-minor-mode global-rainbow-mode rainbow-mode
   (lambda ()
