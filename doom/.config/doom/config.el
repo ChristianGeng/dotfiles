@@ -664,21 +664,26 @@ With FORCE, overwrite differing entries without prompting."
       (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
       (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
       (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
-  
+
   :config
   ;; Initialize API keys when aidermacs is actually loaded
   (cg/ensure-secrets-loaded)
-  
+
   ;; Customize aidermacs behavior
-  (setq aidermacs-model "gpt-4o"  ; or "claude-3-5-sonnet-20241022"
-        aidermacs-auto-commit nil  ; Don't auto-commit changes
-        aidermacs-show-diffs t)    ; Always show diffs
+  ;; (setq aidermacs-model "gpt-4o")   ; or "claude-3-5-sonnet-20241022"
+  (setq aidermacs-auto-commit nil)  ; Don't auto-commit changes
+  (setq aidermacs-show-diffs t)     ; Always show diffs
+  (setq aidermacs-show-diff-after-change nil) ; diffs after changes (default: t)
+  (setq aidermacs-backend 'vterm)        ; aidermacs
+  ;; Vterm backend:
+  (setq aidermacs-vterm-multiline-newline-key "S-<return>")
+
 
   ;; Set up keys before any aidermacs command (with safety check)
   (advice-add 'aidermacs-start :before
               (lambda (&rest _)
                 (cg/ensure-secrets-loaded)))
-  
+
   (advice-add 'aidermacs-send-prompt :before
               (lambda (&rest _)
                 (cg/ensure-secrets-loaded))))
