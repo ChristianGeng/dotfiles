@@ -80,6 +80,8 @@ You can use similar patterns with other text objects:
 - ~vi"~: Select inside double quotes.
 - ~vi(~: Select inside parentheses.
 - ~vi[~: Select inside brackets.
+- ~viW~: Select word including special characters, selection =excluding= surrounding whitespace
+- ~vaW~: Select word including special characters, selection =including= surrounding whitespace
 
 ** Visual Mode
 | COMMAND | DESCRIPTION                    |
