@@ -639,17 +639,7 @@ With FORCE, overwrite differing entries without prompting."
   (add-hook 'rust-mode-hook 'copilot-mode)
   (add-hook 'go-mode-hook 'copilot-mode)
   (add-hook 'emacs-lisp-mode-hook 'copilot-mode)
-
-  ;; Custom keybindings for copilot control
-  (map! :leader
-        (:prefix ("c" . "copilot")
-         :desc "Toggle Copilot" "t" #'copilot-mode
-         :desc "Accept completion" "a" #'copilot-accept-completion
-         :desc "Next completion" "n" #'copilot-next-completion
-         :desc "Previous completion" "p" #'copilot-previous-completion
-         :desc "Clear completion" "c" #'copilot-clear-overlay
-         :desc "Login" "l" #'copilot-login
-         :desc "Diagnose" "d" #'copilot-diagnose)))
+  )
 
 ;; Secret management functions are now loaded from ~/emacs-conf/defuns/cg-secrets.el
 
