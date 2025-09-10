@@ -49,10 +49,10 @@
 - [[#search][Search]]
 - [[#start-page][START PAGE]]
 - [[#theming][THEMING]]
-- [[#treesitter][Treesitter]]
+- [[#treesitter][TREESITTER]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
-- [[#other-file-stuff][Other file stuff]]
+- [[#other-file-stuff][OTHER FILE STUFF]]
 - [[#pass---manage-secrets-using-the-default-unix-password-manager][PASS - Manage Secrets using the default unix password manager]]
   - [[#using-pass][Using Pass]]
   - [[#idempotently-insert-keys-into-pass-store][Idempotently insert keys into pass store]]
@@ -994,7 +994,7 @@ on/off read-only-mode with 'SPC t r'.
 (map! :leader
       :desc "Load new theme" "h t" #'consult-theme)
 #+end_src
-* Treesitter
+* TREESITTER
 
 I have installed the *treesitter* language grammar manually using =treesitter-install-language-grammar=.
 Allegedly this will do it automaticalls:
@@ -1038,7 +1038,7 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
       :desc "Zap up to char" "Z" #'zap-up-to-char)
 #+END_SRC
 
-* Other file stuff
+* OTHER FILE STUFF
 
 #+begin_src emacs-lisp
 (map! :leader
