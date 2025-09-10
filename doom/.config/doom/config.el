@@ -1,7 +1,5 @@
 ;; Functions (load all files in defuns-dir)
-;;(add-to-list 'load-path user-emacs-directory)
-(setq user-emacs-default-dir "~/emacs-conf/")
-(setq defuns-dir (expand-file-name "defuns" user-emacs-default-dir))
+(setq defuns-dir (expand-file-name "defuns" doom-user-dir))
 (dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
   (when (file-regular-p file)
     (load (file-name-sans-extension file))))
@@ -979,3 +977,8 @@ With FORCE, overwrite differing entries without prompting."
 
 ;; Add to modeline (uncomment if desired)
 ;; (add-to-list 'mode-line-misc-info '(:eval (cg/ai-status-indicator)))
+
+(after! yasnippet
+;; add multiple directories
+(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir))
+(yas-reload-all))

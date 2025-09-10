@@ -67,7 +67,7 @@
   - [[#enhanced-keybindings-with-rules-support][Enhanced Keybindings with Rules Support]]
   - [[#optional-performance-and-ux-improvements][Optional: Performance and UX Improvements]]
   - [[#startup-configuration][Startup Configuration]]
-  - [[#post-setup-instructions][Post-Setup Instructions]]
+- [[#yasnippet][YASNIPPET]]
 
 * ABOUT THIS CONFIG
 :PROPERTIES:
@@ -102,6 +102,7 @@ and "~/emacs-conf/" in ~emacs-default~.
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/org")
 #+end_src
+
 
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
@@ -1836,5 +1837,13 @@ https://github.com/Aider-AI/aider
 ;; (add-to-list 'mode-line-misc-info '(:eval (cg/ai-status-indicator)))
 #+end_src
 
-** Post-Setup Instructions
- ??
+* YASNIPPET
+
+#+begin_src emacs-lisp
+(after! yasnippet
+;; add multiple directories
+(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir))
+(yas-reload-all))
+#+end_src
+
+#+RESULTS:
