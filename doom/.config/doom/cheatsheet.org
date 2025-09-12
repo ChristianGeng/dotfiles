@@ -44,6 +44,53 @@
 | C-r     | Redo                        |
 | .       | Repeat last command         |
 
+
+
+** Deleting
+The delete operator `d` combines with motion commands to delete text.
+
+*** Basic Delete Commands
+| COMMAND | DESCRIPTION                           |
+|---------+---------------------------------------|
+| dd      | Delete entire line                    |
+| dw      | Delete from cursor to start of next word |
+| de      | Delete from cursor to end of current word |
+| d$      | Delete from cursor to end of line     |
+| d^      | Delete from cursor to beginning of line |
+| db      | Delete from cursor to beginning of word |
+| d{      | Delete from cursor to beginning of paragraph |
+| d}      | Delete from cursor to end of paragraph |
+| D       | Delete from cursor to end of line (same as d$) |
+| x       | Delete character under cursor         |
+| X       | Delete character before cursor        |
+
+*** Delete with Count
+| COMMAND | DESCRIPTION                    |
+|---------+--------------------------------|
+| d3w     | Delete next three words        |
+| d5d     | Delete 5 lines                 |
+| 2dd     | Delete 2 lines                 |
+| 5dap    | Delete around 5 paragraphs     |
+
+*** Delete Text Objects (Inner/Around)
+| COMMAND | DESCRIPTION                              |
+|---------+------------------------------------------|
+| diw     | Delete inner word (word only)            |
+| daw     | Delete around word (word + whitespace)   |
+| dip     | Delete inner paragraph                   |
+| dap     | Delete around paragraph                  |
+| di(     | Delete inside parentheses                |
+| da(     | Delete around parentheses (including ()) |
+| di{     | Delete inside curly braces               |
+| da{     | Delete around curly braces (including {}) |
+| di"     | Delete inside double quotes              |
+| da"     | Delete around double quotes (including "") |
+| di'     | Delete inside single quotes              |
+| da'     | Delete around single quotes (including '') |
+
+*Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
+
+
 ** Insert Mode
 | Command | Description                |
 |---------+----------------------------|
