@@ -980,5 +980,9 @@ With FORCE, overwrite differing entries without prompting."
 
 (after! yasnippet
 ;; add multiple directories
-(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir))
+(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir)
+             (directory-files (expand-file-name "snippets" "emacs-conf" (getenv "HOME")))
+             )
+
+
 (yas-reload-all))

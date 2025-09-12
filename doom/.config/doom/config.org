@@ -1842,7 +1842,11 @@ https://github.com/Aider-AI/aider
 #+begin_src emacs-lisp
 (after! yasnippet
 ;; add multiple directories
-(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir))
+(add-to-list 'yas-snippet-dirs (expand-file-name "snippets" doom-user-dir)
+             (directory-files (expand-file-name "snippets" "emacs-conf" (getenv "HOME")))
+             )
+
+
 (yas-reload-all))
 #+end_src
 
