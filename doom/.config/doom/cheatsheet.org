@@ -50,19 +50,19 @@
 The delete operator `d` combines with motion commands to delete text.
 
 *** Basic Delete Commands
-| COMMAND | DESCRIPTION                           |
-|---------+---------------------------------------|
-| dd      | Delete entire line                    |
-| dw      | Delete from cursor to start of next word |
-| de      | Delete from cursor to end of current word |
-| d$      | Delete from cursor to end of line     |
-| d^      | Delete from cursor to beginning of line |
-| db      | Delete from cursor to beginning of word |
-| d{      | Delete from cursor to beginning of paragraph |
-| d}      | Delete from cursor to end of paragraph |
+| COMMAND | DESCRIPTION                                    |
+|---------+------------------------------------------------|
+| dd      | Delete entire line                             |
+| dw      | Delete from cursor to start of next word       |
+| de      | Delete from cursor to end of current word      |
+| d$      | Delete from cursor to end of line              |
+| d^      | Delete from cursor to beginning of line        |
+| db      | Delete from cursor to beginning of word        |
+| d{      | Delete from cursor to beginning of paragraph   |
+| d}      | Delete from cursor to end of paragraph         |
 | D       | Delete from cursor to end of line (same as d$) |
-| x       | Delete character under cursor         |
-| X       | Delete character before cursor        |
+| x       | Delete character under cursor                  |
+| X       | Delete character before cursor                 |
 
 *** Delete with Count
 | COMMAND | DESCRIPTION                    |
@@ -73,40 +73,40 @@ The delete operator `d` combines with motion commands to delete text.
 | 5dap    | Delete around 5 paragraphs     |
 
 *** Delete Text Objects (Inner/Around)
-| COMMAND | DESCRIPTION                              |
-|---------+------------------------------------------|
-| diw     | Delete inner word (word only)            |
-| daw     | Delete around word (word + whitespace)   |
-| dip     | Delete inner paragraph                   |
-| dap     | Delete around paragraph                  |
-| di(     | Delete inside parentheses                |
-| da(     | Delete around parentheses (including ()) |
-| di{     | Delete inside curly braces               |
-| da{     | Delete around curly braces (including {}) |
-| di"     | Delete inside double quotes              |
+| COMMAND | DESCRIPTION                                |
+|---------+--------------------------------------------|
+| diw     | Delete inner word (word only)              |
+| daw     | Delete around word (word + whitespace)     |
+| dip     | Delete inner paragraph                     |
+| dap     | Delete around paragraph                    |
+| di(     | Delete inside parentheses                  |
+| da(     | Delete around parentheses (including ())   |
+| di{     | Delete inside curly braces                 |
+| da{     | Delete around curly braces (including {})  |
+| di"     | Delete inside double quotes                |
 | da"     | Delete around double quotes (including "") |
-| di'     | Delete inside single quotes              |
+| di'     | Delete inside single quotes                |
 | da'     | Delete around single quotes (including '') |
 
 *Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
 
 
 ** Insert Mode
-| Command | Description                |
-|---------+----------------------------|
-| i       | Insert before cursor       |
+| Command | Description                 |
+|---------+-----------------------------|
+| i       | Insert before cursor        |
 | I       | Insert at beginning of line |
-| a       | Insert after cursor        |
-| A       | Insert at end of line      |
-| o       | New line below            |
-| O       | New line above            |
+| a       | Insert after cursor         |
+| A       | Insert at end of line       |
+| o       | New line below              |
+| O       | New line above              |
 | s       | Delete character and insert |
-| S       | Delete line and insert     |
-| C       | Change to end of line      |
-| cc      | Change entire line         |
-| r       | Replace character         |
-| R       | Replace mode              |
-| ESC     | Exit insert mode          |
+| S       | Delete line and insert      |
+| C       | Change to end of line       |
+| cc      | Change entire line          |
+| r       | Replace character           |
+| R       | Replace mode                |
+| ESC     | Exit insert mode            |
 
 *** Modifiers ~i~ and ~o~
 | Command | Description                             |
@@ -241,14 +241,14 @@ In Doom Emacs, the leader key is SPC (space) by default. This is used as a prefi
 | @<reg>          | Execute macro from register        |
 
 * Macros
-| Command | Description                               |
-|---------+-------------------------------------------|
-| qa      | Start recording macro in register a        |
-| q       | Stop recording macro                      |
-| @a      | Execute macro in register a               |
-| @@      | Repeat last macro                         |
-| qA      | Append to macro in register a             |
-| :reg    | List all registers (including macros)     |
+| Command | Description                           |
+|---------+---------------------------------------|
+| qa      | Start recording macro in register a   |
+| q       | Stop recording macro                  |
+| @a      | Execute macro in register a           |
+| @@      | Repeat last macro                     |
+| qA      | Append to macro in register a         |
+| :reg    | List all registers (including macros) |
 
 - To record a macro: press `q` followed by a register (e.g., `a`), perform your commands, then press `q` again to stop.
 - To run a macro: press `@` followed by the register (e.g., `@a`).
