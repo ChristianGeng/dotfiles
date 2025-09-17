@@ -45,7 +45,6 @@
 | .       | Repeat last command         |
 
 
-
 ** Deleting
 The delete operator `d` combines with motion commands to delete text.
 
@@ -89,7 +88,6 @@ The delete operator `d` combines with motion commands to delete text.
 | da'     | Delete around single quotes (including '') |
 
 *Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
-
 
 ** Insert Mode
 | Command | Description                 |
