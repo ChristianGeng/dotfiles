@@ -490,127 +490,15 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 ;; or
 (password-store-get "code/openai_api_key")
 
-;;; ========== pass bulk insert core (idempotent) ===========
-(defun cg/pass--ensure ()
-  (or (executable-find "pass")
-      (user-error "pass(1) not found. Install and initialize pass + GPG")))
-
-(defun cg/pass--existing-first-line (path)
-  "Return first line of existing pass entry PATH, or nil if missing/error."
-  (let (out)
-    (with-temp-buffer
-      (let ((status (call-process "pass" nil t nil "show" path)))
-        (when (and (integerp status) (= status 0))
-          (goto-char (point-min))
-          (when (re-search-forward "\\`\\([^\n\r]+\\)" nil t)
-            (setq out (match-string 1))))))
-    out))
-
-(defun cg/pass--insert (path secret &optional force)
-  "Insert SECRET at PATH via pass. If FORCE, overwrite."
-  (let ((pass (cg/pass--ensure)))
-    (with-temp-buffer
-      (insert secret "\n")
-      (let* ((args (append '("insert" "-m") (when force '("-f")) (list path)))
-             (status (apply #'call-process-region (point-min) (point-max)
-                            pass nil nil nil args)))
-        (unless (and (integerp status) (= status 0))
-          (user-error "pass insert failed (status %S) for %s" status path))))))
-
-(defun cg/pass-upsert (path secret &optional force)
-  "Idempotent insert: if PATH exists and equals SECRET, do nothing.
-If different, overwrite when FORCE non-nil; otherwise prompt."
-  (let ((existing (cg/pass--existing-first-line path)))
-    (cond
-     ((and existing (string= existing secret))
-      (message "pass: %s already set; skipping" path))
-     ((and existing (not force))
-      (when (y-or-n-p (format "pass: %s exists and differs. Overwrite? " path))
-        (cg/pass--insert path secret t)
-        (message "pass: %s updated" path)))
-     (t
-      (cg/pass--insert path secret force)
-      (message "pass: %s inserted" path)))))
-
-;;; ========== bulk from encrypted file ==========
-(defun cg/pass-bulk-insert-from-file (file &optional force symbol)
-  "Load FILE (e.g. ~/.config/doom/my-secrets.el.gpg) and upsert all entries.
-FILE must define an alist variable. SYMBOL (default: cg/private-pass-secrets)
-is the variable name to read. With FORCE, overwrite without prompting."
-  (interactive
-   (list (read-file-name "Secrets file: " "~/.config/doom/" nil t nil
-                         (lambda (f) (string-match-p "\\.el\\(\\.gpg\\)?\\'" f)))
-         current-prefix-arg
-         (intern (completing-read "Var symbol: "
-                                  '(cg/private-pass-secrets cg/api-keys)
-                                  nil t nil nil "cg/private-pass-secrets"))))
-  (let ((sym (or symbol 'cg/private-pass-secrets)))
-    (unless (file-readable-p file)
-      (user-error "Secrets file not readable: %s" file))
-    (load file nil t)
-    (unless (boundp sym)
-      (user-error "Variable %s not defined in %s" sym file))
-    (cg/pass-bulk-insert-from-var (symbol-value sym) force)))
-
-;;; ========== bulk from variable (defvar cg/api-keys ...) ==========
-(defun cg/pass-bulk-insert-from-var (alist &optional force)
-  "Upsert all (PATH . SECRET) pairs from ALIST into pass.
-With FORCE, overwrite differing entries without prompting."
-  (interactive
-   (list (let* ((sym (intern (completing-read "Var symbol: "
-                                              obarray
-                                              (lambda (s)
-                                                (and (boundp s)
-                                                     (listp (symbol-value s))))
-                                              t nil nil "cg/api-keys"))))
-           (symbol-value sym))
-         current-prefix-arg))
-  (unless (and (listp alist)
-               (cl-every (lambda (x)
-                           (and (consp x)
-                                (stringp (car x))
-                                (stringp (cdr x))))
-                         alist))
-    (user-error "Expected an alist of (PATH . SECRET) strings"))
-  (dolist (cell alist)
-    (cg/pass-upsert (car cell) (cdr cell) force)))
-
 (setq cg/secret-specs
-  '((anthropic-aud
-     :pass "code/anthropic_api_key_aud"
-     :env  ("ANTHROPIC_API_KEY"))     ; optionally also "ANTHROPIC_API_KEY"
-    (anthropic-personal
-     :pass "code/anthropic_api_key_personal"
-     :env  ("ANTHROPIC_API_KEY_PERSONAL"))
-    (xai
-     :pass "code/xai_api_key"
-     :env  ("XAI_API_KEY"))
-    (perplexity
-     :pass "code/perplexity_api_key"
-     :env  ("PPLX_API_KEY"))
-    (openai-personal
-     :pass "code/openai_api_key"
-     :env  "OPENAI_API_KEY"))
-  )
+  '((anthropic-aud      :pass "code/anthropic_api_key_aud"      :env "ANTHROPIC_API_KEY")
+    (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY_PERSONAL")
+    (xai                :pass "code/xai_api_key"                :env "XAI_API_KEY")
+    (perplexity         :pass "code/perplexity_api_key"         :env "PPLX_API_KEY")
+    (openai-personal    :pass "code/openai_api_key"             :env "OPENAI_API_KEY")))
 
-
-
-(defun cg/write-pass-export-script (file)
-  "Write a script exporting env vars by reading pass at shell init time."
-  (interactive "FWrite export script: ")
-  (let ((lines (list "#!/usr/bin/env bash"
-                     "set -euo pipefail" "")))
-    (dolist (cell cg/secret-specs)
-      (let* ((spec (cdr cell))
-             (path (plist-get spec :pass))
-             (envs (let ((e (plist-get spec :env))) (if (listp e) e (list e)))))
-        (dolist (name envs)
-          (push (format "export %s=\"$(pass show %s | head -n1)\"" name path)
-                lines))))
-    (with-temp-file file
-      (insert (mapconcat #'identity (nreverse lines) "\n")))
-    (set-file-modes file #o600)
-    (message "Wrote %s (mode 600). Add 'source %s' to your shell rc." file file)))
+;; Run at startup
+(add-hook 'after-init-hook #'cg/export-env-from-pass)
 
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
@@ -663,6 +551,7 @@ With FORCE, overwrite differing entries without prompting."
   (setq aidermacs-show-diffs t)     ; Always show diffs
   (setq aidermacs-show-diff-after-change nil) ; diffs after changes (default: t)
   (setq aidermacs-backend 'vterm)        ; aidermacs
+  (setq aidermacs-default-model "gpt-5")
   ;; Vterm backend:
   (setq aidermacs-vterm-multiline-newline-key "S-<return>")
 

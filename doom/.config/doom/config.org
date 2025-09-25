@@ -60,8 +60,7 @@
 - [[#other-file-stuff][OTHER FILE STUFF]]
 - [[#pass---manage-secrets-using-the-default-unix-password-manager][PASS - Manage Secrets using the default unix password manager]]
   - [[#using-pass][Using Pass]]
-  - [[#idempotently-insert-keys-into-pass-store][Idempotently insert keys into pass store]]
-  - [[#pass-end-environment-variables-from-env][PASS end environment variables from ENV]]
+  - [[#pass---environment-variables-management][PASS - Environment Variables Management]]
   - [[#migration-to-better-hierarchy][MIGRATION to better hierarchy]]
 - [[#ailmms][AI/LMMS]]
   - [[#github-copilot-configuration][Github Copilot Configuration]]
@@ -104,7 +103,6 @@ and "~/emacs-conf/" in ~emacs-default~.
 #+begin_src emacs-lisp
 (setq org-directory "~/Dropbox/org")
 #+end_src
-
 
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
@@ -1176,162 +1174,107 @@ Optional: initialize only the "code/" subtree:
 pass init -p code ${GPG_KEY_ID}
 #+end_example
 
-** Idempotently insert keys into pass store
 
-#+begin_src emacs-lisp
+** PASS - Environment Variables Management
 
-;;; ========== pass bulk insert core (idempotent) ===========
-(defun cg/pass--ensure ()
-  (or (executable-find "pass")
-      (user-error "pass(1) not found. Install and initialize pass + GPG")))
+*** 1. Secret Mapping Configuration
 
-(defun cg/pass--existing-first-line (path)
-  "Return first line of existing pass entry PATH, or nil if missing/error."
-  (let (out)
-    (with-temp-buffer
-      (let ((status (call-process "pass" nil t nil "show" path)))
-        (when (and (integerp status) (= status 0))
-          (goto-char (point-min))
-          (when (re-search-forward "\\`\\([^\n\r]+\\)" nil t)
-            (setq out (match-string 1))))))
-    out))
+This section defines how pass entries map to environment variables.
+The format is: (ID :pass "pass/path" :env "ENV_VAR_NAME")
 
-(defun cg/pass--insert (path secret &optional force)
-  "Insert SECRET at PATH via pass. If FORCE, overwrite."
-  (let ((pass (cg/pass--ensure)))
-    (with-temp-buffer
-      (insert secret "\n")
-      (let* ((args (append '("insert" "-m") (when force '("-f")) (list path)))
-             (status (apply #'call-process-region (point-min) (point-max)
-                            pass nil nil nil args)))
-        (unless (and (integerp status) (= status 0))
-          (user-error "pass insert failed (status %S) for %s" status path))))))
-
-(defun cg/pass-upsert (path secret &optional force)
-  "Idempotent insert: if PATH exists and equals SECRET, do nothing.
-If different, overwrite when FORCE non-nil; otherwise prompt."
-  (let ((existing (cg/pass--existing-first-line path)))
-    (cond
-     ((and existing (string= existing secret))
-      (message "pass: %s already set; skipping" path))
-     ((and existing (not force))
-      (when (y-or-n-p (format "pass: %s exists and differs. Overwrite? " path))
-        (cg/pass--insert path secret t)
-        (message "pass: %s updated" path)))
-     (t
-      (cg/pass--insert path secret force)
-      (message "pass: %s inserted" path)))))
-
-;;; ========== bulk from encrypted file ==========
-(defun cg/pass-bulk-insert-from-file (file &optional force symbol)
-  "Load FILE (e.g. ~/.config/doom/my-secrets.el.gpg) and upsert all entries.
-FILE must define an alist variable. SYMBOL (default: cg/private-pass-secrets)
-is the variable name to read. With FORCE, overwrite without prompting."
-  (interactive
-   (list (read-file-name "Secrets file: " "~/.config/doom/" nil t nil
-                         (lambda (f) (string-match-p "\\.el\\(\\.gpg\\)?\\'" f)))
-         current-prefix-arg
-         (intern (completing-read "Var symbol: "
-                                  '(cg/private-pass-secrets cg/api-keys)
-                                  nil t nil nil "cg/private-pass-secrets"))))
-  (let ((sym (or symbol 'cg/private-pass-secrets)))
-    (unless (file-readable-p file)
-      (user-error "Secrets file not readable: %s" file))
-    (load file nil t)
-    (unless (boundp sym)
-      (user-error "Variable %s not defined in %s" sym file))
-    (cg/pass-bulk-insert-from-var (symbol-value sym) force)))
-
-;;; ========== bulk from variable (defvar cg/api-keys ...) ==========
-(defun cg/pass-bulk-insert-from-var (alist &optional force)
-  "Upsert all (PATH . SECRET) pairs from ALIST into pass.
-With FORCE, overwrite differing entries without prompting."
-  (interactive
-   (list (let* ((sym (intern (completing-read "Var symbol: "
-                                              obarray
-                                              (lambda (s)
-                                                (and (boundp s)
-                                                     (listp (symbol-value s))))
-                                              t nil nil "cg/api-keys"))))
-           (symbol-value sym))
-         current-prefix-arg))
-  (unless (and (listp alist)
-               (cl-every (lambda (x)
-                           (and (consp x)
-                                (stringp (car x))
-                                (stringp (cdr x))))
-                         alist))
-    (user-error "Expected an alist of (PATH . SECRET) strings"))
-  (dolist (cell alist)
-    (cg/pass-upsert (car cell) (cdr cell) force)))
-#+end_src
-
-** PASS end environment variables from ENV
-
-*** 1. Create a mapping
-
-use defvar if it does not exist, and setq if it exists
-
+(getenv "ANTHROPIC_API_KEY")
 #+begin_src emacs-lisp
 (setq cg/secret-specs
-  '((anthropic-aud
-     :pass "code/anthropic_api_key_aud"
-     :env  ("ANTHROPIC_API_KEY"))     ; optionally also "ANTHROPIC_API_KEY"
-    (anthropic-personal
-     :pass "code/anthropic_api_key_personal"
-     :env  ("ANTHROPIC_API_KEY_PERSONAL"))
-    (xai
-     :pass "code/xai_api_key"
-     :env  ("XAI_API_KEY"))
-    (perplexity
-     :pass "code/perplexity_api_key"
-     :env  ("PPLX_API_KEY"))
-    (openai-personal
-     :pass "code/openai_api_key"
-     :env  "OPENAI_API_KEY"))
-  )
+  '((anthropic-aud      :pass "code/anthropic_api_key_aud"      :env "ANTHROPIC_API_KEY")
+    (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY_PERSONAL")
+    (xai                :pass "code/xai_api_key"                :env "XAI_API_KEY")
+    (perplexity         :pass "code/perplexity_api_key"         :env "PPLX_API_KEY")
+    (openai-personal    :pass "code/openai_api_key"             :env "OPENAI_API_KEY")))
 #+end_src
 
 #+RESULTS:
-| anthropic-aud      | :pass | code/anthropic_api_key_aud      | :env | (ANTHROPIC_API_KEY)          |
-| anthropic-personal | :pass | code/anthropic_api_key_personal | :env | (ANTHROPIC_API_KEY_PERSONAL) |
-| xai                | :pass | code/xai_api_key                | :env | (XAI_API_KEY)                |
-| perplexity         | :pass | code/perplexity_api_key         | :env | (PPLX_API_KEY)               |
-| openai-personal    | :pass | code/openai_api_key             | :env | OPENAI_API_KEY               |
+| anthropic-aud      | :pass | code/anthropic_api_key_aud      | :env | ANTHROPIC_API_KEY          |
+| anthropic-personal | :pass | code/anthropic_api_key_personal | :env | ANTHROPIC_API_KEY_PERSONAL |
+| xai                | :pass | code/xai_api_key                | :env | XAI_API_KEY                |
+| perplexity         | :pass | code/perplexity_api_key         | :env | PPLX_API_KEY               |
+| openai-personal    | :pass | code/openai_api_key             | :env | OPENAI_API_KEY             |
 
-*** 2) Export to Emacs env from pass
-Idempotently set env vars in the current Emacs based on pass entries in ~cg/secret-specs~:
+*** 2. Automatic Environment Setup
+
+Environment variables are automatically set on Emacs startup via ~cg/export-env-from-pass~.
+
+Access them in Emacs with:
+- ~(getenv "VARIABLE_NAME")~
+- ~(system-getenv "VARIABLE_NAME")~
+
 #+begin_src emacs-lisp
+;; Run at startup
+(add-hook 'after-init-hook #'cg/export-env-from-pass)
 #+end_src
 
-#+RESULTS:
-: cg/export-env-from-pass
+*** 3. Shell Integration
 
-*** 3. Generate a shell snippet for .bashrc (safe, via pass at runtime)
-This writes a script that reads secrets from pass at shell startup (no plaintext secrets on disk):
-#+begin_src emacs-lisp
-(defun cg/write-pass-export-script (file)
-  "Write a script exporting env vars by reading pass at shell init time."
-  (interactive "FWrite export script: ")
-  (let ((lines (list "#!/usr/bin/env bash"
-                     "set -euo pipefail" "")))
-    (dolist (cell cg/secret-specs)
-      (let* ((spec (cdr cell))
-             (path (plist-get spec :pass))
-             (envs (let ((e (plist-get spec :env))) (if (listp e) e (list e)))))
-        (dolist (name envs)
-          (push (format "export %s=\"$(pass show %s | head -n1)\"" name path)
-                lines))))
-    (with-temp-file file
-      (insert (mapconcat #'identity (nreverse lines) "\n")))
-    (set-file-modes file #o600)
-    (message "Wrote %s (mode 600). Add 'source %s' to your shell rc." file file)))
-#+end_src
+To access these variables in your shell, generate a script:
 
-#+RESULTS:
-: cg/write-pass-export-script
+
+# (cg/write-pass-export-script "~/.emacs.d/pass-env.sh")
+
+
+Then add this to your ~/.bashrc or ~/.zshrc:
+
+# [ -f ~/.emacs.d/pass-env.sh ] && source ~/.emacs.d/pass-env.sh
+
+
+*** 4. Managing Secrets
+
+You have two options to update your pass store:
+
+1. **From Encrypted File** (Recommended for manual updates):
+   - Edit: =~/.config/doom/secrets.el.gpg=
+   - Run: ~M-x cg/pass-bulk-insert-from-file~
+   - This uses the =cg/private-pass-secrets= variable by default
+
+2. **From Variable** (For programmatic use):
+   ```elisp
+   (cg/pass-bulk-insert-from-var
+    '(("code/anthropic_api_key" . "your-secret-here")
+      ("code/xai_api_key" . "another-secret")))
+   ```
+
+3. After updating, restart Emacs or run ~(cg/init-secrets)~ to update environment
+
+*** 5. GPG Secret File Maintenance
+
+When updating the GPG-encrypted secrets file:
+1. Decrypt: ~gpg -d ~/.config/doom/secrets.el.gpg > secrets.el~
+2. Edit: ~emacs secrets.el~
+3. Re-encrypt: ~gpg -e -r your-email@example.com -o ~/.config/doom/secrets.el.gpg secrets.el~
+4. Update pass store: ~M-x cg/pass-bulk-insert-from-file~
+5. Securely delete: ~shred -u secrets.el~
 
 ** MIGRATION to better hierarchy
+
+
+#+begin_example
+
+pass/
+├── personal/
+│   ├── api/
+│   │   ├── anthropic/
+│   │   │   └── personal
+│   │   ├── search/
+│   │   │   ├── perplexity
+│   │   │   └── brave
+│   │   └── xai
+└── work/
+    └── aud/
+        └── api/
+            └── anthropic/
+                └── main
+
+#+end_example
+
+
 
 
 1. Modify Mapping between secrets and env vars, e.g.
@@ -1455,6 +1398,8 @@ uv tool update-shell
 https://aider.chat/docs/config.html
 https://github.com/Aider-AI/aider
 
+
+
 # (add-hook 'aidermacs-before-run-backend-hook
 #           (lambda ()
 #             (setenv "OPENAI_API_KEY" (password-store-get "code/openai_api_key"))))
@@ -1462,6 +1407,27 @@ https://github.com/Aider-AI/aider
 #+begin_src emacs-lisp
 ;; Secret management functions are now loaded from ~/emacs-conf/defuns/cg-secrets.el
 #+end_src
+
+
+| AIDER COMMAND                 | WHAT IS DOES                    |
+|-------------------------------+---------------------------------|
+| /model openai/gpt-5           | use gpt-5 as the defaulat model |
+| /weak-model openai/gpt-5-mini | use gpt5-mini-as the weak model |
+| /editor-model openai/gpt-5    |                                 |
+
+/editor-model
+
+| Architect/Main Model | Weak Model               | Editor Model    | Provider  | Notes                          |
+|----------------------+--------------------------+-----------------+-----------+--------------------------------|
+| Claude 3 Opus        | Claude 3.5 Haiku         | Claude Sonnet 4 | Anthropic | Strong edits, cheap summarizer |
+| Claude Sonnet 4      | Claude 3.5 Haiku         | Claude Sonnet 4 | Anthropic | Balanced cost/quality          |
+| GPT-4o               | GPT-3.5                  | GPT-4o          | OpenAI    | Optimal for most workflows     |
+| GPT-4 Turbo          | GPT-3.5                  | GPT-4 Turbo     | OpenAI    | Efficient for large projects   |
+| GPT-5 (planned)      | GPT-3.5 or GPT-5 (cheap) | GPT-5           | OpenAI    | Use when available             |
+
+
+
+
 
 
 #+begin_src emacs-lisp
@@ -1488,6 +1454,7 @@ https://github.com/Aider-AI/aider
   (setq aidermacs-show-diffs t)     ; Always show diffs
   (setq aidermacs-show-diff-after-change nil) ; diffs after changes (default: t)
   (setq aidermacs-backend 'vterm)        ; aidermacs
+  (setq aidermacs-default-model "gpt-5")
   ;; Vterm backend:
   (setq aidermacs-vterm-multiline-newline-key "S-<return>")
 
