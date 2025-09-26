@@ -1592,6 +1592,9 @@ pip list -l --exclude pkg_resources --exclude  pkgutil_resolve_name   --exclude-
 
 Snippet from https://gist.github.com/ncherro/4539635 that I find useful.
 
+This might not work and maybe we need fuser:
+https://stackoverflow.com/questions/39322089/node-js-port-3000-already-in-use-but-it-actually-isnt
+
  #+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
 killport() {
   if [ -n "${1}" ]; then
