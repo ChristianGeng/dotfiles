@@ -71,21 +71,25 @@ The delete operator `d` combines with motion commands to delete text.
 | 2dd     | Delete 2 lines                 |
 | 5dap    | Delete around 5 paragraphs     |
 
-*** Delete Text Objects (Inner/Around)
-| COMMAND | DESCRIPTION                                |
-|---------+--------------------------------------------|
-| diw     | Delete inner word (word only)              |
-| daw     | Delete around word (word + whitespace)     |
-| dip     | Delete inner paragraph                     |
-| dap     | Delete around paragraph                    |
-| di(     | Delete inside parentheses                  |
-| da(     | Delete around parentheses (including ())   |
-| di{     | Delete inside curly braces                 |
-| da{     | Delete around curly braces (including {})  |
-| di"     | Delete inside double quotes                |
-| da"     | Delete around double quotes (including "") |
-| di'     | Delete inside single quotes                |
-| da'     | Delete around single quotes (including '') |
+*** Delete/copy/delete Text Objects (Inner/Around)
+
+Examples
+
+| COMMAND | DESCRIPTION                                     |
+|---------+-------------------------------------------------|
+| diw     | Delete inner word (word only)                   |
+| daw     | Delete around word (word + whitespace)          |
+| dip     | Delete inner paragraph                          |
+| dap     | Delete around paragraph                         |
+| di(     | Delete inside parentheses                       |
+| da(     | Delete around parentheses (including ())        |
+| di{     | Delete inside curly braces                      |
+| da{     | Delete around curly braces (including {})       |
+| di"     | Delete inside double quotes                     |
+| da"     | Delete around double quotes (including "")      |
+| di'     | Delete inside single quotes                     |
+| da'     | Delete around single quotes (including '')      |
+| yiW     | Copy word, including special chars (=, +. etc.) |
 
 *Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
 
