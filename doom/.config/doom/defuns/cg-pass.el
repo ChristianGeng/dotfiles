@@ -7,6 +7,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'ansi-color)
 
 ;;; Core password store operations
 
@@ -26,8 +27,14 @@
             (setq out (match-string 1))))))
     out))
 
+;;;###autoload
 (defun cg/pass--insert (path secret &optional force)
-  "Insert SECRET at PATH via pass. If FORCE, overwrite."
+  "Insert SECRET at PATH via pass. If FORCE, overwrite.
+Interactively, prompt for PATH and SECRET. With a prefix arg, set FORCE."
+  (interactive
+   (list (read-string "pass path: ")
+         (read-passwd "Secret: ")
+         current-prefix-arg))
   (let ((pass (cg/pass--ensure)))
     (with-temp-buffer
       (insert secret "\n")
@@ -37,9 +44,61 @@
         (unless (and (integerp status) (= status 0))
           (user-error "pass insert failed (status %S) for %s" status path))))))
 
+;;;###autoload
+(defun cg/pass-remove (path &optional force)
+  "Remove PATH from the password store using pass.
+If FORCE is non-nil, do not prompt before removal.
+
+Interactively, prompt for PATH; with a prefix argument, set FORCE.
+
+Equivalent pass CLI:
+  pass rm -f PATH"
+  (interactive
+   (list (read-string "pass path: ")
+         current-prefix-arg))
+  (let ((pass (cg/pass--ensure)))
+    (when (or force (y-or-n-p (format "pass: remove %s? " path)))
+      (let* ((args (append '("rm") (when force '("-f")) (list path)))
+             (status (apply #'call-process pass nil nil nil args)))
+        (if (and (integerp status) (= status 0))
+            (message "pass: removed %s" path)
+          (user-error "pass rm failed (status %S) for %s" status path))))))
+
+;;;###autoload
+(defun cg/pass-list ()
+  "List all entries in the password store using pass.
+
+Interactively, display the output in a buffer named *pass-list*.
+
+Equivalent pass CLI:
+  pass list"
+  (interactive)
+  (let ((pass (cg/pass--ensure)))
+    (with-current-buffer (get-buffer-create "*pass-list*")
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (let ((status (call-process pass nil t nil "list")))
+          (if (and (integerp status) (= status 0))
+              (progn
+                (goto-char (point-min))
+                (let* ((raw (buffer-substring-no-properties (point-min) (point-max)))
+                       (rendered (ansi-color-filter-apply raw)))
+                  (erase-buffer)
+                  (insert rendered))
+                (goto-char (point-min))
+                (special-mode)
+                (pop-to-buffer (current-buffer)))
+            (user-error "pass list failed (status %S)" status)))))))
+
+;;;###autoload
 (defun cg/pass-upsert (path secret &optional force)
   "Idempotent insert: if PATH exists and equals SECRET, do nothing.
-If different, overwrite when FORCE non-nil; otherwise prompt."
+If different, overwrite when FORCE non-nil; otherwise prompt.
+Interactively, prompt for PATH and SECRET; prefix arg sets FORCE."
+  (interactive
+   (list (read-string "pass path: ")
+         (read-passwd "Secret: ")
+         current-prefix-arg))
   (let ((existing (cg/pass--existing-first-line path)))
     (cond
      ((and existing (string= existing secret))
@@ -54,7 +113,8 @@ If different, overwrite when FORCE non-nil; otherwise prompt."
 
 ;;; Bulk operations
 
-defun cg/pass-bulk-insert-from-file (file &optional force symbol)
+;;;###autoload
+(defun cg/pass-bulk-insert-from-file (file &optional force symbol)
   "Load FILE (e.g. ~/.config/doom/my-secrets.el.gpg) and upsert all entries.
 FILE must define an alist variable. SYMBOL (default: cg/private-pass-secrets)
 is the variable name to read. With FORCE, overwrite without prompting."
@@ -73,7 +133,8 @@ is the variable name to read. With FORCE, overwrite without prompting."
       (user-error "Variable %s not defined in %s" sym file))
     (cg/pass-bulk-insert-from-var (symbol-value sym) force)))
 
-defun cg/pass-bulk-insert-from-var (alist &optional force)
+;;;###autoload
+(defun cg/pass-bulk-insert-from-var (alist &optional force)
   "Upsert all (PATH . SECRET) pairs from ALIST into pass.
 With FORCE, overwrite differing entries without prompting."
   (interactive
