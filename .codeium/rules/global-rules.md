@@ -36,6 +36,8 @@ log_message = f"User '{user}' triggered error at '{timestamp}'. Returned error c
 
 ### Use audeer as utility package
 
+Use https://github.com/audeering/audeer/ for path management and other utilities.
+
 - For path management, rely on `audeer` features  rather than `pathlib.Path`
 
 Example:
@@ -45,6 +47,32 @@ import audeer
 audeer.mkdir("path/to/directory")
 audeer.path("a/b/c", "test")
 ```
+
+### use audiofile for audio processing
+
+Use https://github.com/audeering/audiofile/ for audio processing.
+
+- read audio file
+- write audio file
+- convert to wav
+- resample audio file
+- count the number of samples in an audio file
+- obtain the sampling rate of an audio file
+- obtain the number of channels in an audio file
+- obtain the duration of an audio file
+- check if an audio file has video
+- obtain bitdepth of audio files
+
+
+### click_preferred
+Category: Python / CLI Design
+
+- Always use the click library for command-line interface (CLI) implementations in Python. 
+- Avoid using argparse unless explicitly required for compatibility reasons.
+
+#### Rationale:
+*click* provides a more declarative, composable, and Pythonic way to define CLI commands and options. It supports decorators, reusable options, and better user experience out of the box.
+
 
 ### Early returns
 
@@ -87,3 +115,4 @@ use relative imports or request a package structure.
 - Documentation is in the directory docs/
 - `index.rst` contains the the top level file of the documentation
 - Instead of peppering `README.md` files over the repo, use `docs/install.rst` and `docs/usage.rst` for this kind of documentation
+
