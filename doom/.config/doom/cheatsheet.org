@@ -88,8 +88,11 @@ Examples
 | di"     | Delete inside double quotes                     |
 | da"     | Delete around double quotes (including "")      |
 | di'     | Delete inside single quotes                     |
-| da'     | Delete around single quotes (including '')      |
+| da'     | Delete around single quotes (including ')       |
 | yiW     | Copy word, including special chars (=, +. etc.) |
+| viw S'  | Mark a word and surround by '                   |
+| cs'"    | Surround turning string 'test' into "test" |
+| ysiw"   | surround word by ""                             |
 
 *Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
 
