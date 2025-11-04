@@ -98,6 +98,13 @@ if not condition:
 ```
 
 
+### Docstrings
+
+- Docstring for all public methods please
+- Use google/napoleon style
+- Respect long lines aka PEP e501
+- D401 First line of docstring should be in imperative mood
+
 ### Avoid patching sys.path
 
 - Rather than just adding a path in order to fix import issues,
