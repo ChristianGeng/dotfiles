@@ -117,9 +117,10 @@ use relative imports or request a package structure.
 - all tests are in `tests` relative to the project root
 - All test requirements are set in `pyproject.toml`
 
-## Sphinx and reststructured text
+### Sphinx and Restructured Text
 
 - Documentation is in the directory docs/
 - `index.rst` contains the the top level file of the documentation
 - Instead of peppering `README.md` files over the repo, use `docs/install.rst` and `docs/usage.rst` for this kind of documentation
+
 
