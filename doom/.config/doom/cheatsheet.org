@@ -75,26 +75,44 @@ The delete operator `d` combines with motion commands to delete text.
 
 Examples
 
-| COMMAND | DESCRIPTION                                     |
-|---------+-------------------------------------------------|
-| diw     | Delete inner word (word only)                   |
-| daw     | Delete around word (word + whitespace)          |
-| dip     | Delete inner paragraph                          |
-| dap     | Delete around paragraph                         |
-| di(     | Delete inside parentheses                       |
-| da(     | Delete around parentheses (including ())        |
-| di{     | Delete inside curly braces                      |
-| da{     | Delete around curly braces (including {})       |
-| di"     | Delete inside double quotes                     |
-| da"     | Delete around double quotes (including "")      |
-| di'     | Delete inside single quotes                     |
-| da'     | Delete around single quotes (including ')       |
-| yiW     | Copy word, including special chars (=, +. etc.) |
-| viw S'  | Mark a word and surround by '                   |
-| cs'"    | Surround turning string 'test' into "test" |
-| ysiw"   | surround word by ""                             |
+| COMMAND | DESCRIPTION                                     |   |
+|---------+-------------------------------------------------+---|
+| diw     | Delete inner word (word only)                   |   |
+| daw     | Delete around word (word + whitespace)          |   |
+| dip     | Delete inner paragraph                          |   |
+| dap     | Delete around paragraph                         |   |
+| di(     | Delete inside parentheses                       |   |
+| da(     | Delete around parentheses (including ())        |   |
+| di{     | Delete inside curly braces                      |   |
+| da{     | Delete around curly braces (including {})       |   |
+| di"     | Delete inside double quotes                     |   |
+| da"     | Delete around double quotes (including "")      |   |
+| di'     | Delete inside single quotes                     |   |
+| da'     | Delete around single quotes (including ')       |   |
+| yiW     | Copy word, including special chars (=, +. etc.) |   |
+| viw S'  | Mark a word and surround by '                   |   |
+| cs'"    | Surround turning string 'test' into "test"      |   |
+| ysiw"   | surround word by ""                             | a |
 
 *Note:* The `i` modifier means "inner" (excludes delimiters/whitespace), while `a` means "around" (includes delimiters/whitespace).
+
+
+*** Moving Lines around
+
+TODO: Cheatsheet this
+
+:m .-2 move line one up
+:m .+1 move line one down
+
+The same in vimscript that goes to .vimrc:
+
+nnoremap <A-j> :m .+1<CR>==
+nnoremap <A-k> :m .-2<CR>==
+
+https://github.com/emacs-evil/evil-collection
+
+
+
 
 ** Insert Mode
 | Command | Description                 |
