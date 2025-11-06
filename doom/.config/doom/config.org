@@ -959,6 +959,51 @@ Limitations:
   (advice-add fn :around #'cg/consult-dwim-input))
 #+END_SRC
 
+[[https://www.perplexity.ai/search/vertico-versus-helm-mWKEYuh9T4C_TujxKjqsgQ#2][My perplexity thread]] gave me this suggestion:
+
+#+BEGIN_SRC emacs-lisp
+(defun helm-swoop-via-consult-line-at-point ()
+  "Run consult-line with symbol at point as initial input."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol)))
+    (consult-line sym)))
+#+END_SRC
+
+#+RESULTS:
+: helm-swoop-via-consult-line-at-point
+
+#+begin_src emacs-lisp
+(defun helm-do-grep-ag-via-consult-ripgrep-symbol-at-point ()
+  "Run `consult-ripgrep` initialized with the symbol under the cursor."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol t)))
+    (consult-ripgrep nil (when sym (concat "\\b" (regexp-quote sym) "\\b")))))
+#+end_src
+
+
+Built-in keybindings (TAB, C-j) can be used to jump/to the right place!
+
+#+RESULTS:
+: consult-ripgrep-symbol-at-point
+
+#+begin_src emacs-lisp
+(defun consult-projectile-ripgrep-symbol-at-point ()
+  "Run `consult-ripgrep` in the current Projectile project with symbol at point."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol t)))
+    (consult-ripgrep (projectile-project-root) sym)))
+#+end_src
+
+#+RESULTS:
+: consult-projectile-ripgrep-symbol-at-point
+
+This is not working yet:
+
+- Then, execute helm-projectile-grep for the text you desire.
+- Use C-x C-s to make permanent your search results to a buffer
+- Use C-c C-p within that result buffer to execute wgrep-change-to-wgrep-mode and now you can make edits to any lines you please (including regular emacs search-and-replace commands)
+- Use C-c C-c to save you changes, which will be promulgated to all files you’ve chosen
+
 * START PAGE
 Instead of using Doom's Dashboard or the Emacs Dashboard program, I have decided
 to just set an custom start file as my "dashboard" since it allows me more
@@ -999,11 +1044,11 @@ on/off read-only-mode with 'SPC t r'.
 I have installed the *treesitter* language grammar manually using =treesitter-install-language-grammar=.
 Allegedly this will do it automaticalls:
 
-#+begin_src emacs-lisp
+#+begin_example emacs-lisp
 (after! treesit
   (unless (treesit-language-available-p 'python)
     (treesit-install-language-grammar 'python)))
-#+end_src
+#+end_example
 
 * WINNER MODE
 Winner mode has been included with GNU Emacs since version 20.  This is a global minor mode and, when activated, it allows you to “undo” (and “redo”) changes in the window configuration with the key commands 'SCP w <left>' and 'SPC w <right>'.

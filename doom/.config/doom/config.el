@@ -447,6 +447,24 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (dolist (fn '(consult-ripgrep consult-grep consult-find))
   (advice-add fn :around #'cg/consult-dwim-input))
 
+(defun helm-swoop-via-consult-line-at-point ()
+  "Run consult-line with symbol at point as initial input."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol)))
+    (consult-line sym)))
+
+(defun helm-do-grep-ag-via-consult-ripgrep-symbol-at-point ()
+  "Run `consult-ripgrep` initialized with the symbol under the cursor."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol t)))
+    (consult-ripgrep nil (when sym (concat "\\b" (regexp-quote sym) "\\b")))))
+
+(defun consult-projectile-ripgrep-symbol-at-point ()
+  "Run `consult-ripgrep` in the current Projectile project with symbol at point."
+  (interactive)
+  (let ((sym (thing-at-point 'symbol t)))
+    (consult-ripgrep (projectile-project-root) sym)))
+
 (setq initial-buffer-choice "~/.config/doom/start.org")
 
 (define-minor-mode start-mode
@@ -468,10 +486,6 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (setq doom-theme 'doom-henna)
 (map! :leader
       :desc "Load new theme" "h t" #'consult-theme)
-
-(after! treesit
-  (unless (treesit-language-available-p 'python)
-    (treesit-install-language-grammar 'python)))
 
 (map! :leader
       (:prefix ("w" . "window")
