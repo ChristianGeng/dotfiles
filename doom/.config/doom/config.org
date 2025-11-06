@@ -76,6 +76,14 @@
 
 This is my personal Doom Emacs configuration.
 
+Important command line commands
+
+#+begin_example bash
+doom sync      # reload configuration aka sync,
+doom build     # build after syncing
+doom doctor    # diagnose configuration problems
+#+end_example
+
 * VIM/EVIL CHEATSHEET
 :PROPERTIES:
 :END:
