@@ -5,6 +5,7 @@
         ci = commit
         co = checkout
         br = branch
+	    wt = worktree
         unstage = reset HEAD --
         last = log -1 HEAD
         gr = log --graph --full-history --all --color --pretty=tformat:"%x1b[31m%h%x09%x1b[32m%d%x1b[0m%x20%s%x20%x1b[33m(%an)%x1b[0m"
@@ -37,6 +38,15 @@
         # reset
         unstage = reset HEAD            # remove files from index (tracking)
         uncommit = reset --soft HEAD^   # go back before last commit, with files in
+
+	    Z = stash             # use as in magit
+	    #  TODO:
+		#  I want to be able to only stash unstaged and have it as an alias
+		#  git stash save "wire up statechange tracking" -k
+		#  Zu would be a nice alias for this
+		#  In the same vein:
+		#  git stash save "wire up statechange tracking" -k
+		#  Zk stashes away saved changes
         # uncommited  state
         theirs = reset --hard           # E.g. replace your branch by the remote:
         # git reset --hard origin/feature-branch
