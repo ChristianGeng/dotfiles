@@ -9,6 +9,46 @@
 (require 'cl-lib)
 (require 'ansi-color)
 
+(defvar cg/pass--path-history nil
+  "History list for pass entry prompts used by cg/pass commands.")
+
+;; Optional deps: prefer Emacs password-store and consult if available.
+;; We'll gracefully fall back to the pass CLI and completing-read.
+(eval-and-compile
+  (require 'password-store nil t)
+  (require 'consult nil t))
+
+(defun cg/pass--list-entries ()
+  "Return a list of pass entry names as strings.
+Prefers `password-store-list' if available; otherwise uses the pass CLI."
+  (cond
+   ((fboundp 'password-store-list)
+    (password-store-list))
+   ((executable-find "pass")
+    (with-temp-buffer
+      (let ((status (call-process "pass" nil t nil "list" "--flat")))
+        (when (and (integerp status) (= status 0))
+          (goto-char (point-min))
+          (let* ((raw (buffer-substring-no-properties (point-min) (point-max)))
+                 (clean (ansi-color-filter-apply raw)))
+            (split-string clean "[\r\n]+" t))))))
+   (t nil)))
+
+(defun cg/pass--read-path (prompt &optional require-match)
+  "Read a pass entry path with fuzzy completion via Consult/Vertico when available.
+PROMPT is the minibuffer prompt. When REQUIRE-MATCH is non-nil, restrict to existing entries."
+  (let* ((cands (cg/pass--list-entries)))
+    (cond
+     ((featurep 'consult)
+      (consult--read cands
+                     :prompt prompt
+                     :require-match require-match
+                     :history 'cg/pass--path-history
+                     :category 'pass-entry
+                     :sort nil))
+     (t
+      (completing-read prompt cands nil require-match nil 'cg/pass--path-history)))))
+
 ;;; Core password store operations
 
 (defun cg/pass--ensure ()
@@ -32,7 +72,7 @@
   "Insert SECRET at PATH via pass. If FORCE, overwrite.
 Interactively, prompt for PATH and SECRET. With a prefix arg, set FORCE."
   (interactive
-   (list (read-string "pass path: ")
+   (list (cg/pass--read-path "pass path: ")
          (read-passwd "Secret: ")
          current-prefix-arg))
   (let ((pass (cg/pass--ensure)))
