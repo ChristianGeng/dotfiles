@@ -50,10 +50,9 @@
         # uncommited  state
         theirs = reset --hard           # E.g. replace your branch by the remote:
         # git reset --hard origin/feature-branch
-        # edit all conflicting files in VIM
-        edit-conflict = "!f() { git diff --name-only --diff-filter=U ; }; vim +/'<<<<<<<' $(f)"
-        add-conflict = "!f() { git diff --name-only --diff-filter=U ; }; git add $(f)"
-	root = rev-parse --show-toplevel
+    	root = rev-parse --show-toplevel
+	    # Only keep branches that have a remote.
+        prune-local = "!git fetch --prune && branches=$(git branch -vv | grep 'gone]' | awk '{print $1}'); if [ -n \"$branches\" ]; then echo \"$branches\" | xargs git branch -D; else echo 'No local branches to prune'; fi"
 
 [format]
     pretty = format:%C(reset)%C(247)%>(14,trunc)%ar %C(247)%h %C(188)%s  %C(247)[%an]%C(226)%d%C(reset)
