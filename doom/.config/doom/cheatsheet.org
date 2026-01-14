@@ -43,6 +43,10 @@
 | u       | Undo                        |
 | C-r     | Redo                        |
 | .       | Repeat last command         |
+| y$      | Yank from cursor to end of line (no newline)     |
+| yg_     | Yank to last non-blank char on line (no newline) |
+| v$ y    | Visual select to end of line, then yank          |
+| Y       | Yank entire line (includes newline; in Evil it may behave like yy unless configured) |
 
 
 ** Deleting
