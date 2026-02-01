@@ -76,7 +76,7 @@
 (package! peep-dired)
 (package! password-store)
 (package! pass-simple
-  :recipe (:host github :repo "cgeng/pass-simple"))
+  :recipe (:host github :repo "ChristianGeng/pass-simple"))
 (package! rainbow-mode)
 (package! resize-window)
 (package! tldr)
