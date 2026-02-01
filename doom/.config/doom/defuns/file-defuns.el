@@ -61,6 +61,30 @@
                   (point))))
       (buffer-substring start end))))
 
+;;;###autoload
+(defun delete-file-at-point (&optional use-trash)
+  "Delete the file at point.
+With prefix argument, move it to Trash instead of unlinking.
+Uses `file-name-at-point' to detect the path."
+  (interactive "P")
+  (let* ((raw (file-name-at-point))
+         (fname (and raw (expand-file-name raw default-directory))))
+    (unless (and fname (not (string-empty-p fname)))
+      (user-error "No file name at point"))
+    (when (file-directory-p fname)
+      (user-error "Path at point is a directory (not a file): %s" fname))
+    (unless (file-exists-p fname)
+      (user-error "No such file: %s" fname))
+    (when (yes-or-no-p (format "%s %s? "
+                               (if use-trash "Move to trash" "Delete")
+                               (abbreviate-file-name fname)))
+      (let ((buf (get-file-buffer fname)))
+        (when buf (kill-buffer buf)))
+      (delete-file fname use-trash)
+      (message "%s %s"
+               (if use-trash "Trashed" "Deleted")
+               (abbreviate-file-name fname)))))
+
 (defun touch-buffer-file ()
   (interactive)
   (insert " ")
