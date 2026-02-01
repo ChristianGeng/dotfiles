@@ -504,7 +504,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 ;; or
 (password-store-get "code/openai_api_key")
 
-(setq cg/secret-specs
+(setq pass-simple-secret-specs
   '((anthropic-aud      :pass "code/anthropic_api_key_aud"      :env "ANTHROPIC_API_KEY")
     (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY_PERSONAL")
     (xai                :pass "code/xai_api_key"                :env "XAI_API_KEY")
@@ -512,7 +512,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
     (openai-personal    :pass "code/openai_api_key"             :env "OPENAI_API_KEY")))
 
 ;; Run at startup
-(add-hook 'after-init-hook #'cg/export-env-from-pass)
+(add-hook 'after-init-hook #'pass-simple-export-env)
 
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
@@ -541,23 +541,17 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
   (add-hook 'emacs-lisp-mode-hook 'copilot-mode)
   )
 
-;; Secret management functions are now loaded from ~/emacs-conf/defuns/cg-secrets.el
+;; Secret management now handled by pass-simple package
 
 (use-package! aidermacs
   :defer t  ; Defer loading until actually needed
-  :init
-  ;; Set up environment variables early, but safely
-  (defun cg/ensure-secrets-loaded ()
-    "Ensure secret management functions are available and set environment variables."
-    (when (fboundp 'cg/set-env-from-secrets)
-      (cg/set-env-from-secrets "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-      (cg/set-env-from-secrets "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-      (cg/set-env-from-secrets "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-      (cg/set-env-from-secrets "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai")))
-
   :config
-  ;; Initialize API keys when aidermacs is actually loaded
-  (cg/ensure-secrets-loaded)
+  ;; Initialize API keys when aidermacs is actually loaded - using pass-simple
+  (when (fboundp 'pass-simple-set-env)
+    (pass-simple-set-env "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
+    (pass-simple-set-env "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
+    (pass-simple-set-env "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
+    (pass-simple-set-env "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))
 
   ;; Customize aidermacs behavior
   ;; (setq aidermacs-model "gpt-4o")   ; or "claude-3-5-sonnet-20241022"
@@ -570,14 +564,16 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
   (setq aidermacs-vterm-multiline-newline-key "S-<return>")
 
 
-  ;; Set up keys before any aidermacs command (with safety check)
+  ;; Set up keys before any aidermacs command
   (advice-add 'aidermacs-start :before
               (lambda (&rest _)
-                (cg/ensure-secrets-loaded)))
+                (when (fboundp 'pass-simple-set-env)
+                  (pass-simple-set-env "OPENAI_API_KEY" "code/openai_api_key" "openai.com"))))
 
   (advice-add 'aidermacs-send-prompt :before
               (lambda (&rest _)
-                (cg/ensure-secrets-loaded))))
+                (when (fboundp 'pass-simple-set-env)
+                  (pass-simple-set-env "OPENAI_API_KEY" "code/openai_api_key" "openai.com")))))
 
 (map! :leader
       (:prefix ("A" . "AI / LLM")
