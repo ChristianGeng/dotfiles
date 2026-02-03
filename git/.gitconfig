@@ -5,6 +5,7 @@
     ci = commit
     co = checkout
     br = branch
+	bc = branch --show-current
 	wt = worktree
     unstage = reset HEAD --
     last = log -1 HEAD
