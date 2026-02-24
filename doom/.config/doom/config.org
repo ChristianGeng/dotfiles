@@ -112,6 +112,13 @@ and "~/emacs-conf/" in ~emacs-default~.
 (setq org-directory "~/Dropbox/org")
 #+end_src
 
+** Emacs Server
+Start the Emacs server so emacsclient can connect (used by org-roam MCP, shell scripts, etc.).
+
+#+begin_src emacs-lisp
+(server-start)
+#+end_src
+
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
 

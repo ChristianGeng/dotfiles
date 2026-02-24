@@ -6,6 +6,8 @@
 
 (setq org-directory "~/Dropbox/org")
 
+(server-start)
+
 (setq bookmark-default-file "~/.config/doom/bookmarks")
 
 (map! :leader
