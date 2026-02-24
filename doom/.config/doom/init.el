@@ -161,6 +161,8 @@
        (org
         +journal             ; enable org journal
         +roam 		     ; create a personal wiki
+        +dragndrop           ; drag & drop files/images into org buffers
+        ;; +jupyter          ; ipython/jupyter support for babel
         +gfm                 ; enable GitHub Flavored Markdown export
         +pretty              ; replace asterisks with pretty org bullets
         +publish)            ; create static websites with org
