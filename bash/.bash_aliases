@@ -55,3 +55,8 @@ alias zap="java -jar /home/audeering.local/cgeng/bin/ZAP_2.10.0/zap-2.10.0.jar"
 alias emacs-doom='emacs --with-profile doom'
 alias emacs-default='emacs --with-profile default'
 alias emacs-spacemacs='emacs --with-profile spacemacs'
+
+
+# Claude code and vs studio
+alias claude-work="CLAUDE_CONFIG_DIR=~/.claude-work/ claude"
+alias claude-personal="CLAUDE_CONFIG_DIR=~/.claude-personal/ claude"
