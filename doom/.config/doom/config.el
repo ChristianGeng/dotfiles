@@ -323,7 +323,10 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (after! org
   (when (display-graphic-p)
     (setq org-roam-directory (expand-file-name "roam" org-directory)
-          org-roam-graph-viewer "/usr/bin/google-chrome")))
+          org-roam-graph-viewer "/usr/bin/google-chrome"
+          org-roam-graph-layout "circo"
+          ;; Hide external link types from graph visualization
+          org-roam-graph-link-hidden-types '("file" "https" "http" "fuzzy" "mailto"))))
 
 (map! :leader
       (:prefix ("n r" . "org-roam")
