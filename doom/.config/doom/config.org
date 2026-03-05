@@ -109,15 +109,109 @@ and "~/emacs-conf/" in ~emacs-default~.
 #+end_src
 
 ** Org-Directory
+
+Probes three directories, helpful for machines without dropbox.
+
 #+begin_src emacs-lisp
-(setq org-directory "~/Dropbox/org")
+(setq org-directory
+      (or (getenv "ORG_DIRECTORY")
+          (cl-find-if #'file-directory-p
+                      '("~/Dropbox/org" "~/org"))
+          "~/org"))
 #+end_src
 
 ** Emacs Server
 Start the Emacs server so emacsclient can connect (used by org-roam MCP, shell scripts, etc.).
 
 #+begin_src emacs-lisp
-(server-start)
+;; Server start is now handled in config.el to avoid duplication
+;; (server-start)  ; This is tangled to config.el
+#+end_src
+
+*** System Integration with xdg-mime
+To make system applications (Chrome, file managers, etc.) open files with emacsclient:
+
+#+begin_src bash :tangle no
+# 1. Create desktop entry
+mkdir -p ~/.local/share/applications
+cat > ~/.local/share/applications/emacsclient.desktop << 'EOF'
+[Desktop Entry]
+Name=Emacs Client
+GenericName=Text Editor
+Comment=Edit text files with Emacs
+MimeType=text/plain;text/x-makefile;text/x-python;text/x-shellscript;
+Exec=emacsclient -c -a emacs %f
+Icon=emacs
+Type=Application
+Terminal=false
+Categories=Utility;TextEditor;
+EOF
+
+# 2. Set as default text editor
+xdg-mime default emacsclient.desktop text/plain
+
+# 3. Verify
+grep "text/plain=" ~/.config/mimeapps.list
+#+end_src
+
+#+RESULTS:
+| text/plain=emacsclient.desktop            |
+| text/plain=okularApplication_txt.desktop; |
+
+*** Alternative: Open in Same Window
+
+To open files in the currently active Emacs window (same frame) instead of creating a new frame:
+
+#+begin_src bash :tangle no
+# 1. Create wrapper script
+mkdir -p ~/.local/bin
+cat > ~/.local/bin/emacsclient-same-window << 'EOF'
+#!/bin/bash
+# Open file in existing Emacs window (same frame)
+emacsclient --eval "(find-file \"$1\")" || emacs "$1" &
+EOF
+chmod +x ~/.local/bin/emacsclient-same-window
+
+# 2. Create desktop entry
+mkdir -p ~/.local/share/applications
+cat > ~/.local/share/applications/emacsclient-same-window.desktop << 'EOF'
+[Desktop Entry]
+Name=Emacs Client (Same Window)
+GenericName=Text Editor
+Comment=Edit in existing Emacs window
+MimeType=text/plain;text/x-makefile;text/x-python;text/x-shellscript;
+Exec=~/.local/bin/emacsclient-same-window %f
+Icon=emacs
+Type=Application
+Terminal=false
+Categories=Utility;TextEditor;
+EOF
+
+# 3. Set as default text editor
+xdg-mime default emacsclient-same-window.desktop text/plain
+
+# 4. Verify
+grep "text/plain=" ~/.config/mimeapps.list
+#+end_src
+
+*** Managing Both Options
+
+If both desktop entries are installed, you can switch between them:
+
+#+begin_src bash :tangle no
+# Check which is currently default
+xdg-mime query default text/plain
+
+# Switch to new frame mode
+xdg-mime default emacsclient.desktop text/plain
+
+# Switch to same window mode
+xdg-mime default emacsclient-same-window.desktop text/plain
+
+# Remove one you don't want (e.g., remove new frame version to keep only same-window)
+rm ~/.local/share/applications/emacsclient.desktop
+# or
+rm ~/.local/share/applications/emacsclient-same-window.desktop
 #+end_src
 
 * BOOKMARKS AND BUFFERS
@@ -739,9 +833,9 @@ Nicer formula
 #+begin_src emacs-lisp
 
 (after! org
+  (setq org-roam-directory (expand-file-name "roam" org-directory))
   (when (display-graphic-p)
-    (setq org-roam-directory (expand-file-name "roam" org-directory)
-          org-roam-graph-viewer "/usr/bin/google-chrome"
+    (setq org-roam-graph-viewer "/usr/bin/google-chrome"
           org-roam-graph-layout "circo"
           ;; Hide external link types from graph visualization
           org-roam-graph-link-hidden-types '("file" "https" "http" "fuzzy" "mailto"))))

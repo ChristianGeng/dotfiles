@@ -4,9 +4,14 @@
   (when (file-regular-p file)
     (load (file-name-sans-extension file))))
 
-(setq org-directory "~/Dropbox/org")
+(setq org-directory
+      (or (getenv "ORG_DIRECTORY")
+          (cl-find-if #'file-directory-p
+                      '("~/Dropbox/org" "~/org"))
+          "~/org"))
 
-(server-start)
+;; Server start is now handled in config.el to avoid duplication
+;; (server-start)  ; This is tangled to config.el
 
 (setq bookmark-default-file "~/.config/doom/bookmarks")
 
@@ -321,9 +326,9 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
          :desc "Toggle inline images"   "i" #'org-toggle-inline-images)))
 
 (after! org
+  (setq org-roam-directory (expand-file-name "roam" org-directory))
   (when (display-graphic-p)
-    (setq org-roam-directory (expand-file-name "roam" org-directory)
-          org-roam-graph-viewer "/usr/bin/google-chrome"
+    (setq org-roam-graph-viewer "/usr/bin/google-chrome"
           org-roam-graph-layout "circo"
           ;; Hide external link types from graph visualization
           org-roam-graph-link-hidden-types '("file" "https" "http" "fuzzy" "mailto"))))
