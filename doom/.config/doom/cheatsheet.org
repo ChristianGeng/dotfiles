@@ -286,3 +286,28 @@ In Doom Emacs, the leader key is SPC (space) by default. This is used as a prefi
 - To run a macro: press `@` followed by the register (e.g., `@a`).
 - To repeat the last macro: press `@@`.
 - Macros are stored in registers and can be viewed with `:reg`.
+
+* Magit
+** Interactive Rebase (edit an older commit)
+1. ~l l~ — open log
+2. Move cursor to the target commit
+3. ~r i~ — start interactive rebase
+4. ~e~ on the commit line — mark for edit (~pick~ → ~edit~)
+5. ~C-c C-c~ — begin rebase
+6. Make changes, stage with ~s~, then ~c a~ to amend
+7. ~r r~ — continue rebase
+
+After rebase, force-push with ~P~ then ~-f P~ (~--force-with-lease~).
+
+** Hunk-Level Editing (during rebase or staging)
+| Command | Description                                     |
+|---------+-------------------------------------------------|
+| d d     | Diff the current commit                         |
+| k       | Discard hunk at point                           |
+| s       | Stage hunk at point                             |
+| u       | Unstage hunk at point                           |
+| v + s   | Visual-select lines within a hunk, then stage   |
+| v + k   | Visual-select lines within a hunk, then discard |
+
+During an interactive rebase (~edit~ stop), use these to surgically
+modify a commit: discard or unstage unwanted hunks, then ~c a~ to amend.
