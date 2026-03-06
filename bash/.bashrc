@@ -87,7 +87,6 @@ if [ -f ~/.bash_aliases ]; then
 fi
 
 if [ -f ~/.bash_path ]; then
-    echo "sourcing existing bash_path in home directory"
     . ~/.bash_path
 fi
 
@@ -192,3 +191,4 @@ export EDITOR=emacsclient
 if [ -f "$HOME/.cargo/env" ]; then
    . "$HOME/.cargo/env"
 fi
+alias audio-detect="uvx --from git+https://github.com/ChristianGeng/audio-capture.git audio-detect"
