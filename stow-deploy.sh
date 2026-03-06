@@ -7,6 +7,7 @@
 #   --force       Force overwrite of existing files
 #   --absolute    Use absolute symlinks instead of relative ones
 #   --target=DIR  Target directory (default: $HOME)
+#   --generate-configs  Generate ~/.local_configs from pass store
 #   --help        Display this help message
 #
 # If no packages are specified, all default packages will be deployed.
@@ -62,6 +63,7 @@ show_help() {
   echo "  --force         Force overwrite of existing files"
   echo "  --absolute      Use absolute symlinks instead of relative ones"
   echo "  --target=DIR    Target directory (default: \$HOME)"
+  echo "  --generate-configs  Generate ~/.local_configs from pass store"
   echo "  --help          Display this help message"
   echo
   echo "Available packages:"
@@ -84,6 +86,7 @@ show_help() {
 # Parse command line arguments
 FORCE=false
 ABSOLUTE=false
+GENERATE_CONFIGS=false
 TARGET_DIR="$HOME"
 PACKAGES=("bash" "git" "node" "doom")
 
@@ -99,6 +102,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --target=*)
       TARGET_DIR="${1#*=}"
+      shift
+      ;;
+    --generate-configs)
+      GENERATE_CONFIGS=true
       shift
       ;;
     --help)
@@ -150,5 +157,19 @@ for package in "${PACKAGES[@]}"; do
   echo "Stowing $package to $TARGET_DIR..."
   stow --no-folding -v $STOW_OPTS "$package"
 done
+
+# Generate local configs if requested
+if $GENERATE_CONFIGS; then
+  echo "[DEPLOY] Generating local configurations..."
+  
+  # Check if generate script exists
+  GEN_SCRIPT="$SCRIPT_DIR/scripts/generate-local-configs"
+  if [ -f "$GEN_SCRIPT" ]; then
+    $GEN_SCRIPT
+  else
+    print_warn "Generate script not found: $GEN_SCRIPT"
+    print_warn "Skipping local config generation"
+  fi
+fi
 
 print_msg "Deployment complete!"

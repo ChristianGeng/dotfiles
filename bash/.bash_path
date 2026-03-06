@@ -40,8 +40,8 @@ export PYENVS_DIR="$HOME/.envs"
 mkdir -p ${PYENVS_DIR}
 export PYENVS_PYTHON_VERSION="3"
 source  ${HOME}/pyenvs.sh/pyenvs.sh
-echo "env variable PYENVS_DIR as in .bash_path:"
-echo ${PYENVS_DIR}
+# echo "env variable PYENVS_DIR as in .bash_path:"
+# echo ${PYENVS_DIR}
   source  ${HOME}/pyenvs.sh/pyenvs.sh
 
 

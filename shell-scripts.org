@@ -978,6 +978,21 @@
          youtube-dl --verbose  -k --max-quality FORMAT --extract-audio --audio-format mp3 ${1}
      }
 
+     function generate_local_configs()
+     {
+         # Generate ~/.local_configs from pass store
+         # Usage: generate_local_configs [--dry-run]
+         local script_dir="$(dirname "${BASH_SOURCE[0]}")"
+         local gen_script="$script_dir/../scripts/generate-local-configs"
+         
+         if [ -f "$gen_script" ]; then
+             "$gen_script" "$@"
+         else
+             echo "Error: generate-local-configs script not found at $gen_script"
+             return 1
+         fi
+     }
+
      function findbydate()
      #
      # recursiv Dateibaunm durchsuchen und dann nach Datum sortieren
