@@ -216,13 +216,30 @@ You can use similar patterns with other text objects:
 | :%s/old/new/g | Replace all 'old' with 'new' |
 
 ** Project-wide Search & Replace (Doom Emacs)
-| COMMAND                         | DESCRIPTION                                             |
-|---------------------------------+---------------------------------------------------------|
-| SPC s p                         | Search in project (Consult ripgrep)                     |
-| C-c C-e                         | Edit results in writable buffer (wgrep)                 |
-| C-c C-c                         | Apply changes to all files (after editing wgrep buffer) |
-| SPC : projectile-replace        | Search and replace string in project (classic)          |
-| SPC : projectile-replace-regexp | Regexp search/replace in project                        |
+
+*** Quick replace (projectile)
+| Command                         | Description                     |
+|---------------------------------+---------------------------------|
+| SPC : projectile-replace        | Search and replace in project   |
+| SPC : projectile-replace-regexp | Regexp search/replace in project |
+
+*** wgrep workflow (edit grep results like a buffer)
+1. ~SPC s p~ — search in project (consult-ripgrep)
+2. ~C-c C-e~ — export results to a writable wgrep buffer
+3. Edit the buffer freely (use ~:%s/old/new/g~, ~query-replace-regexp~, etc.)
+4. ~C-c C-c~ — apply changes to all files
+5. ~C-x C-s~ — save all modified files (or ~C-c C-k~ to abort)
+
+*** consult-ripgrep with symbol at point (custom)
+| Command                    | Binding | Description                              |
+|----------------------------+---------+------------------------------------------|
+| consult-line at point      | SPC s s | helm-swoop equivalent (current buffer)   |
+| consult-ripgrep at point   | SPC s S | helm-do-grep-ag equivalent (project-wide) |
+
+*** rgrep fallback (works without projectile)
+1. ~M-x rgrep~ — grep across files
+2. ~M-x wgrep-change-to-wgrep-mode~ (or ~C-c C-p~) — make buffer editable
+3. Edit, then ~M-x wgrep-finish-edit~ and ~M-x wgrep-save-all-buffers~
 
 ** Windows and Buffers
 | COMMAND     | DESCRIPTION               |
