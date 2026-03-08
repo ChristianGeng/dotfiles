@@ -311,6 +311,14 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
           (agenda "")
           (alltodo "")))))
 
+(after! org
+  (setq org-file-apps
+        '(("\\.pdf\\'" . "xdg-open %s")
+          ("\\.png\\'" . "xdg-open %s")
+          ("\\.jpg\\'" . "xdg-open %s")
+          (auto-mode . emacs)
+          (directory . emacs))))
+
 (setq org-journal-dir (joindirs org-directory "journal")
       org-journal-date-prefix "#+TITLE: "
       org-journal-time-prefix "* "

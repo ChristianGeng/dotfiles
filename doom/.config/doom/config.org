@@ -37,6 +37,7 @@
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
 - [[#org-mode][ORG MODE]]
   - [[#org-agenda][Org-agenda]]
+  - [[#org-file-apps][Org file apps]]
   - [[#org-journal][Org-Journal]]
   - [[#org-and-latex-inline-images][Org and latex inline images]]
   - [[#org-roam][Org-roam]]
@@ -783,6 +784,20 @@ Keybindings to open files that I work with all the time using the find-file comm
 
           (agenda "")
           (alltodo "")))))
+#+end_src
+
+** Org file apps
+Open pdfs and images with xdg-open instead of inside Emacs.
+
+
+#+begin_src emacs-lisp
+(after! org
+  (setq org-file-apps
+        '(("\\.pdf\\'" . "xdg-open %s")
+          ("\\.png\\'" . "xdg-open %s")
+          ("\\.jpg\\'" . "xdg-open %s")
+          (auto-mode . emacs)
+          (directory . emacs))))
 #+end_src
 
 ** Org-Journal
