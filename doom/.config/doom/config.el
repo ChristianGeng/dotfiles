@@ -353,6 +353,37 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (use-package! ox-gfm
   :after org)
 
+(after! ox-latex
+  (add-to-list 'org-latex-classes
+    '("steuerjahr"
+      "\\documentclass[fontsize=11pt,DIV=12,parskip=half,a4paper]{scrartcl}
+\\usepackage[T1]{fontenc}
+\\usepackage[utf8]{inputenc}
+\\usepackage{helvet}
+\\renewcommand{\\familydefault}{\\sfdefault}
+\\usepackage{microtype}
+\\usepackage{xcolor}
+\\definecolor{myblue}{rgb}{0.2,0.2,0.59}
+\\usepackage[pdftex,colorlinks=true,linkcolor=myblue,filecolor=myblue,urlcolor=myblue]{hyperref}
+\\usepackage{booktabs}
+\\usepackage{longtable}
+\\usepackage{enumitem}
+\\setlist{nosep,leftmargin=1.8em}
+\\clubpenalty10000
+\\widowpenalty10000
+\\usepackage{scrlayer-scrpage}
+\\clearpairofpagestyles
+\\ihead{\\textcolor{myblue}{\\textbf{Christian Geng}} \\\\ \\small Sonderburger Str.\\ 17 · 13357 Berlin}
+\\ohead{\\textcolor{myblue}{\\textbf{\\thetitle}} \\\\ \\small Stand: \\thedate}
+\\cfoot{\\textcolor{gray}{\\small\\thepage}}
+\\pagestyle{scrheadings}
+\\usepackage{titlesec}
+\\titleformat{\\section}{\\large\\bfseries\\color{myblue}}{}{0em}{}[\\titlerule]
+\\titleformat{\\subsection}{\\normalsize\\bfseries\\color{myblue}}{}{0em}{}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+
 (use-package! org-auto-tangle
   :defer t
   :hook (org-mode . org-auto-tangle-mode)

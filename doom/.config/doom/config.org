@@ -873,6 +873,44 @@ Nicer formula
   :after org)
 #+end_src
 
+** Org LaTeX Export — Steuerjahr class
+
+Custom LaTeX class =steuerjahr= für Steuerübersichten. Aktivieren mit
+=#+LATEX_CLASS: steuerjahr= im org-file, dann =C-c C-e l p= zum Exportieren.
+
+#+begin_src emacs-lisp
+(after! ox-latex
+  (add-to-list 'org-latex-classes
+    '("steuerjahr"
+      "\\documentclass[fontsize=11pt,DIV=12,parskip=half,a4paper]{scrartcl}
+\\usepackage[T1]{fontenc}
+\\usepackage[utf8]{inputenc}
+\\usepackage{helvet}
+\\renewcommand{\\familydefault}{\\sfdefault}
+\\usepackage{microtype}
+\\usepackage{xcolor}
+\\definecolor{myblue}{rgb}{0.2,0.2,0.59}
+\\usepackage[pdftex,colorlinks=true,linkcolor=myblue,filecolor=myblue,urlcolor=myblue]{hyperref}
+\\usepackage{booktabs}
+\\usepackage{longtable}
+\\usepackage{enumitem}
+\\setlist{nosep,leftmargin=1.8em}
+\\clubpenalty10000
+\\widowpenalty10000
+\\usepackage{scrlayer-scrpage}
+\\clearpairofpagestyles
+\\ihead{\\textcolor{myblue}{\\textbf{Christian Geng}} \\\\ \\small Sonderburger Str.\\ 17 · 13357 Berlin}
+\\ohead{\\textcolor{myblue}{\\textbf{\\thetitle}} \\\\ \\small Stand: \\thedate}
+\\cfoot{\\textcolor{gray}{\\small\\thepage}}
+\\pagestyle{scrheadings}
+\\usepackage{titlesec}
+\\titleformat{\\section}{\\large\\bfseries\\color{myblue}}{}{0em}{}[\\titlerule]
+\\titleformat{\\subsection}{\\normalsize\\bfseries\\color{myblue}}{}{0em}{}"
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+#+end_src
+
 ** Org-auto-tangle
 =org-auto-tangle= allows you to add the option =#+auto_tangle: t= in your Org file so that it automatically tangles when you save the document.  I have made adding this to your file even easier by creating a function 'dt/insert-auto-tangle-tag' and setting it to a keybinding 'SPC i a'.
 
