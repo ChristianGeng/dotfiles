@@ -1,3 +1,6 @@
 # .bash_variables - Environment variable settings for bash
 
 export SQUEUE_FORMAT2="jobid:9,name:40,username:20,state:9,timeused:12,numcpus:6,gres:15,tres"
+
+# Emacs/Emacs Lisp configuration
+export ORG_ROAM_DB="$HOME/.emacs.d/.local/cache/org-roam.db"
