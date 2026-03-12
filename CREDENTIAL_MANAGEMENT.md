@@ -35,14 +35,37 @@ sudo apt-get install pass
 pass init "your-gpg-key-id"
 ```
 
+### Pass Store Organization
+
+The pass store is organized hierarchically:
+
+```
+Password Store
+├── work/           # Work-related credentials
+│   └── aud/        # Audeering work
+│       └── api/    # API keys for work services
+│           ├── openai/openai_api_key
+│           └── anthropic/anthropic_api_key_aud
+└── personal/       # Personal credentials
+    └── api/        # Personal API keys
+        ├── perplexity/perplexity_api_key
+        └── xai/xai_api_key
+```
+
 ### 1. Store Credentials in Pass
 
 ```bash
-# Add your API keys to pass
-pass insert code/perplexity_api_key
-pass insert code/openai_api_key
-pass insert code/anthropic_api_key_personal
-pass insert code/xai_api_key
+# Work credentials
+pass insert work/aud/api/openai/openai_api_key
+pass insert work/aud/api/anthropic/anthropic_api_key_aud
+
+# Personal credentials
+pass insert personal/api/perplexity/perplexity_api_key
+pass insert personal/api/xai/xai_api_key
+
+# List the store structure
+pass list
+pass list work/aud/api
 ```
 
 ### 2. Configure Mappings
@@ -50,11 +73,29 @@ pass insert code/xai_api_key
 Edit `bash/.local_configs.spec` to match your credentials:
 
 ```elisp
-((perplexity         :pass "code/perplexity_api_key"         :env "PERPLEXITY_API_KEY")
-  (openai-personal   :pass "code/openai_api_key"             :env "OPENAI_API_KEY")
-  (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY")
-  (xai               :pass "code/xai_api_key"                :env "XAI_API_KEY"))
+((openai-work        :pass "work/aud/api/openai/openai_api_key"       :env "OPENAI_API_KEY")
+  (anthropic-work     :pass "work/aud/api/anthropic/anthropic_api_key_aud" :env "ANTHROPIC_API_KEY")
+  (perplexity-personal :pass "personal/api/perplexity/perplexity_api_key" :env "PERPLEXITY_API_KEY")
+  (xai-personal       :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY"))
 ```
+
+### Adding New Credentials
+
+1. Store in pass with proper hierarchy:
+   ```bash
+   # Work service
+   pass insert work/aud/api/service_name/api_key
+   
+   # Personal service
+   pass insert personal/api/service_name/api_key
+   ```
+
+2. Add to `.local_configs.spec`:
+   ```elisp
+   (service-name :pass "work/aud/api/service_name/api_key" :env "SERVICE_API_KEY")
+   ```
+
+3. Regenerate: `generate_local_configs`
 
 ### 3. Generate Local Configs
 
@@ -82,8 +123,20 @@ M-x cg/update-local-configs
 
 ### Adding New Credentials
 
-1. Store in pass: `pass insert api/new_service`
-2. Add to `.local_configs.spec`
+1. Store in pass with proper hierarchy:
+   ```bash
+   # Work service
+   pass insert work/aud/api/service_name/api_key
+   
+   # Personal service
+   pass insert personal/api/service_name/api_key
+   ```
+
+2. Add to `.local_configs.spec`:
+   ```elisp
+   (service-name :pass "work/aud/api/service_name/api_key" :env "SERVICE_API_KEY")
+   ```
+
 3. Regenerate: `generate_local_configs`
 
 ### Doom Emacs Commands
@@ -113,8 +166,30 @@ M-x cg/update-local-configs
 
 1. Use GPG-protected pass store
 2. Regularly backup your pass store
-3. Use descriptive pass paths (e.g., `work/api/service`, `personal/api/service`)
-4. Review `.local_configs.spec` before committing
+3. Use hierarchical paths (work/aud/api/ or personal/api/)
+4. Group credentials by service and context
+5. Review `.local_configs.spec` before committing
+
+### Migration from Legacy Code Tree
+
+If you have credentials in the old `code/` tree:
+
+1. Move credentials to new hierarchy:
+   ```bash
+   # Move to work tree
+   pass mv code/openai_api_key work/aud/api/openai/openai_api_key
+   pass mv code/anthropic_api_key_aud work/aud/api/anthropic/anthropic_api_key_aud
+   
+   # Move to personal tree
+   pass mv code/perplexity_api_key personal/api/perplexity/perplexity_api_key
+   pass mv code/xai_api_key personal/api/xai/xai_api_key
+   ```
+
+2. Update `.local_configs.spec` to use new paths
+
+3. Regenerate configs: `generate_local_configs`
+
+4. Verify all credentials are accessible
 
 ## Troubleshooting
 
@@ -122,7 +197,9 @@ M-x cg/update-local-configs
 
 ```bash
 # Check what's available
-pass list --flat
+pass list
+pass list work/aud/api
+pass list personal/api
 
 # Dry run to see what would be generated
 generate_local_configs --dry-run

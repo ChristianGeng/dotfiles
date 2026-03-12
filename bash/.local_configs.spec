@@ -2,12 +2,13 @@
 ;; Maps pass store entries to environment variables
 ;; Format: (name :pass "pass/path" :env "ENV_VAR_NAME")
 
-((perplexity         :pass "code/perplexity_api_key"         :env "PERPLEXITY_API_KEY")
-  (openai-personal   :pass "code/openai_api_key"             :env "OPENAI_API_KEY")
-  (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY")
-  (xai               :pass "code/xai_api_key"                :env "XAI_API_KEY")
-  (pplx              :pass "code/perplexity_api_key"         :env "PPLX_API_KEY")
+((openai-work        :pass "work/aud/api/openai/openai_api_key"       :env "OPENAI_API_KEY")
+  (anthropic-work     :pass "work/aud/api/anthropic/anthropic_api_key_aud" :env "ANTHROPIC_API_KEY")
+  (perplexity-personal :pass "personal/api/perplexity/perplexity_api_key" :env "PERPLEXITY_API_KEY")
+  (xai-personal       :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY")
+  (pplx-personal      :pass "personal/api/perplexity/perplexity_api_key" :env "PPLX_API_KEY")
 
   ;; Add additional credentials here as needed
-  ;; (example-api       :pass "api/example_key"              :env "EXAMPLE_API_KEY")
+  ;; Example format:
+  ;; (service-name :pass "work/aud/api/service/api_key" :env "SERVICE_API_KEY")
   )
