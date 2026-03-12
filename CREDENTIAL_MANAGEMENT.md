@@ -39,7 +39,7 @@ pass init "your-gpg-key-id"
 
 The pass store is organized hierarchically:
 
-```
+```text
 Password Store
 ├── work/           # Work-related credentials
 │   └── aud/        # Audeering work
@@ -82,6 +82,7 @@ Edit `bash/.local_configs.spec` to match your credentials:
 ### Adding New Credentials
 
 1. Store in pass with proper hierarchy:
+
    ```bash
    # Work service
    pass insert work/aud/api/service_name/api_key
@@ -91,6 +92,7 @@ Edit `bash/.local_configs.spec` to match your credentials:
    ```
 
 2. Add to `.local_configs.spec`:
+
    ```elisp
    (service-name :pass "work/aud/api/service_name/api_key" :env "SERVICE_API_KEY")
    ```
@@ -120,24 +122,6 @@ M-x cg/update-local-configs
 1. Update credentials in pass store as needed
 2. Run `generate_local_configs` to update `~/.local_configs`
 3. Source the file or restart shell: `source ~/.local_configs`
-
-### Adding New Credentials
-
-1. Store in pass with proper hierarchy:
-   ```bash
-   # Work service
-   pass insert work/aud/api/service_name/api_key
-   
-   # Personal service
-   pass insert personal/api/service_name/api_key
-   ```
-
-2. Add to `.local_configs.spec`:
-   ```elisp
-   (service-name :pass "work/aud/api/service_name/api_key" :env "SERVICE_API_KEY")
-   ```
-
-3. Regenerate: `generate_local_configs`
 
 ### Doom Emacs Commands
 
