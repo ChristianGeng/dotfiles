@@ -3,7 +3,6 @@
 ;; Format: (name :pass "pass/path" :env "ENV_VAR_NAME")
 
 ((openai-work        :pass "work/aud/api/openai/openai_api_key"       :env "OPENAI_API_KEY")
-  (anthropic-work     :pass "work/aud/api/anthropic/anthropic_api_key_aud" :env "ANTHROPIC_API_KEY")
   (perplexity-personal :pass "personal/api/perplexity/perplexity_api_key" :env "PERPLEXITY_API_KEY")
   (xai-personal       :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY")
   (brave-personal     :pass "personal/api/brave/BRAVE_API_KEY"            :env "BRAVE_API_KEY")
