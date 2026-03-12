@@ -9,6 +9,8 @@
   (pplx-personal      :pass "personal/api/perplexity/perplexity_api_key" :env "PPLX_API_KEY")
   (brave-personal     :pass "personal/api/brave/BRAVE_API_KEY"            :env "BRAVE_API_KEY")
   (deepgram-personal  :pass "personal/api/deepgram/main"                  :env "DEEPGRAM_API_KEY")
+  (gradium-personal   :pass "personal/api/gradium/gradium_api_key"        :env "GRADIUM_API_KEY")
+  (gitlab-work        :pass "work/aud/api/gitlab/gitlab_api_token"         :env "GITLAB_API_TOKEN")
 
   ;; Add additional credentials here as needed
   ;; Example format:
