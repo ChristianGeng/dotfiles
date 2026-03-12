@@ -8,6 +8,7 @@
   (xai-personal       :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY")
   (pplx-personal      :pass "personal/api/perplexity/perplexity_api_key" :env "PPLX_API_KEY")
   (brave-personal     :pass "personal/api/brave/BRAVE_API_KEY"            :env "BRAVE_API_KEY")
+  (deepgram-personal  :pass "personal/api/deepgram/main"                  :env "DEEPGRAM_API_KEY")
 
   ;; Add additional credentials here as needed
   ;; Example format:

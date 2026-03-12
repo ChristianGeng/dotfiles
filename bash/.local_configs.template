@@ -10,6 +10,7 @@ export ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
 export XAI_API_KEY="${XAI_API_KEY}"
 export PPLX_API_KEY="${PPLX_API_KEY}"
 export BRAVE_API_KEY="${BRAVE_API_KEY}"
+export DEEPGRAM_API_KEY="${DEEPGRAM_API_KEY}"
 
 # Add additional exports below as needed
 # export CUSTOM_API_KEY="${CUSTOM_API_KEY}"
