@@ -1848,3 +1848,79 @@ Bios-version :  F.12
 #+end_src
 
 #+RESULTS:
+
+
+** PDF password protection (pdftk)
+
+Schützt eine PDF-Datei mit einem User-Passwort via =pdftk=.
+Das Passwort liegt im =pass=-Store unter =personal/passwords/vlh-pdf-secret=
+(siehe [[file:CREDENTIAL_MANAGEMENT.md][CREDENTIAL_MANAGEMENT.md]]).
+
+Voraussetzung: =pdftk= installiert (=sudo apt install pdftk=), =pass= verfügbar.
+
+Verwendung:
+#+begin_src bash :eval no
+password_protect steuerbescheid.pdf
+# → erzeugt steuerbescheid_protected.pdf im gleichen Verzeichnis
+#+end_src
+
+Das Passwort wird *zur Laufzeit* via =pass show= abgerufen — es sitzt nie im
+Environment und wird nicht gespeichert.
+
+#+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
+password_protect() {
+    # Usage: password_protect <file.pdf>
+    # Requires: pdftk, pass store entry personal/passwords/vlh-pdf-secret
+    local input="$1"
+    [[ -z "$input" ]] && { echo "Usage: password_protect <file.pdf>"; return 1; }
+
+    local ext="${input##*.}"
+    [[ -z "$ext" || "$ext" == "$input" ]] && { echo "No extension found"; return 1; }
+
+    local abspath
+    abspath=$(readlink -e "$input")
+    [[ -z "$abspath" ]] && { echo "Could not resolve absolute path"; return 1; }
+
+    local real_dir
+    real_dir=$(dirname "$abspath")
+    local filebase
+    filebase=$(basename "$abspath")
+    local filename_wo_ext="${filebase%.*}"
+    local outpath="${filename_wo_ext}_protected.${ext}"
+
+    local pdf_password
+    pdf_password=$(pass show personal/passwords/vlh-pdf-secret 2>/dev/null)
+    if [[ -z "$pdf_password" ]]; then
+        echo "Error: could not retrieve password from pass (personal/passwords/vlh-pdf-secret)"
+        return 1
+    fi
+
+    (
+        cd "$real_dir"
+        echo "pwd: $PWD"
+        echo "pdftk $filebase output $outpath user_pw ***"
+        pdftk "$filebase" output "$outpath" user_pw "$pdf_password"
+    )
+}
+#+end_src
+
+** Convert webm to ogg
+
+https://askubuntu.com/questions/1258842/how-to-save-the-audio-from-webm-to-ogg-without-transcoding-using-ffmpeg
+
+ffmpeg -i "$INPUTFILE" -vn -c:a libvorbis -qscale:a 6 "$(basename "$INPUTFILE" .webm)".ogg
+
+
+
+#+begin_src bash :tangle ./bash/.shell_scripts :mkdirp yes
+convert_webm_to_ogg() {
+    local inputfile="$1"
+    if [[ -z "$inputfile" ]]; then
+        echo "Usage: convert_webm_to_ogg <inputfile>"
+        return 1
+    fi
+    ffmpeg -i "$inputfile" -vn -c:a libvorbis -qscale:a 6 "$(basename "$inputfile" .webm)".ogg
+}
+#+end_src
+
+

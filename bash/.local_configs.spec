@@ -9,6 +9,7 @@
   (deepgram-personal  :pass "personal/api/deepgram/main"                  :env "DEEPGRAM_API_KEY")
   (gradium-personal   :pass "personal/api/gradium/gradium_api_key"        :env "GRADIUM_API_KEY")
   (gitlab-work        :pass "work/aud/api/gitlab/gitlab_api_token"         :env "GITLAB_API_TOKEN")
+  (vlh-pdf            :pass "personal/passwords/vlh-pdf-secret"             :env "PDF_PASSWORD")
 
   ;; Add additional credentials here as needed
   ;; Example format:

@@ -11,6 +11,7 @@ export BRAVE_API_KEY="${BRAVE_API_KEY}"
 export DEEPGRAM_API_KEY="${DEEPGRAM_API_KEY}"
 export GRADIUM_API_KEY="${GRADIUM_API_KEY}"
 export GITLAB_API_TOKEN="${GITLAB_API_TOKEN}"
+export PDF_PASSWORD="${PDF_PASSWORD}"
 
 # Add additional exports below as needed
 # export CUSTOM_API_KEY="${CUSTOM_API_KEY}"
