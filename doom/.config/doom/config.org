@@ -932,6 +932,64 @@ Custom LaTeX class =steuerjahr= für Steuerübersichten. Aktivieren mit
       :desc "Insert auto_tangle tag" "i a" #'dt/insert-auto-tangle-tag)
 #+end_src
 
+** Org-Babel Mermaid (ob-mermaid)
+=ob-mermaid= enables rendering [[https://mermaid.js.org/][Mermaid]] diagrams from =#+begin_src mermaid= blocks in org-mode.
+Evaluate a block with =C-c C-c= to produce a PNG inline in the buffer.
+
+*** Prerequisites
+
+Requires the =mmdc= CLI from the [[https://github.com/mermaid-js/mermaid-cli][@mermaid-js/mermaid-cli]] npm package.
+
+*Install (once):*
+#+begin_src sh
+npm install -g @mermaid-js/mermaid-cli
+# verify:
+mmdc --version
+#+end_src
+
+If you use nvm, ensure the nvm node version is active when Emacs starts, or set the
+full path to =mmdc= explicitly (see config below).
+
+*After adding to =packages.el=, sync Doom:*
+#+begin_src sh
+doom sync
+#+end_src
+
+*** Emacs config
+
+#+begin_src emacs-lisp
+(use-package! ob-mermaid
+  :after org
+  :config
+  (setq ob-mermaid-cli-path (executable-find "mmdc"))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   (append org-babel-load-languages
+           '((mermaid . t)))))
+#+end_src
+
+=executable-find= resolves =mmdc= from your =$PATH= at load time.
+If Emacs does not inherit your shell =$PATH= (common on macOS / systemd-launched Emacs),
+set the path explicitly:
+
+#+begin_src emacs-lisp
+;; fallback if executable-find returns nil:
+;; (setq ob-mermaid-cli-path "/home/cgeng/.nvm/versions/node/v22.15.0/bin/mmdc")
+#+end_src
+
+*** Usage
+
+#+begin_src org
+,#+begin_src mermaid :file ./img/my-diagram.png
+graph TD
+    A[Start] --> B[End]
+,#+end_src
+#+end_src
+
+- =:file= path is relative to the org file's directory
+- =C-c C-c= renders the block and inlines the PNG
+- =C-c C-v v= views the result
+
 * PERSPECTIVE
 Perspective provides multiple named workspaces (or "perspectives") in Emacs, similar to having multiple desktops in window managers like Awesome and XMonad.  Each perspective has its own buffer list and its own window layout, making it easy to work on many separate projects without getting lost in all the buffers.  Switching to a perspective activates its window configuration, and when in a perspective, only its buffers are available (by default).  Doom Emacs uses 'SPC some_key' for binding some of the perspective commands, so I used this binging format for the perspective bindings that I created..
 
