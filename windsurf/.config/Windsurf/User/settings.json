@@ -15,5 +15,8 @@
     "windsurf.openRecentConversation": true,
     "terminal.integrated.showCommandHint": false,
     "claudeCode.preferredLocation": "panel",
-    "claudeCode.selectedModel": "opus"
+    "claudeCode.selectedModel": "claude-opus-4-6",
+    "windsurf.terminal.cascadeProfile.linux": "managed",
+    "notebook.consolidatedRunButton": true,
+    "notebook.formatOnSave.enabled": true
 }

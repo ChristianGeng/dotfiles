@@ -185,7 +185,7 @@ If called interactively with no active region, operates on entire buffer."
 (emms-default-players)
 (emms-mode-line 1)
 (emms-playing-time 1)
-(setq emms-source-file-default-directory "/media/cgeng/TOSHIBA EXT/mp3"
+(setq emms-source-file-default-directory "/media/cgeng_local/TOSHIBA EXT/mp3"
       emms-playlist-buffer-name "*Music*"
       emms-info-asynchronously t
       emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
@@ -351,7 +351,11 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
        :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
 
 (use-package! ox-gfm
-  :after org)
+  :after org
+  :config
+  ;; ox-gfm hardcodes <a id="orgXXX"> anchors in headlines — suppress them
+  ;; by falling back to ox-md's headline function which omits anchors.
+  (advice-add 'org-gfm-headline :override #'org-md-headline))
 
 (after! ox-latex
   (add-to-list 'org-latex-classes
@@ -410,7 +414,7 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
            '((mermaid . t)))))
 
 ;; fallback if executable-find returns nil:
-;; (setq ob-mermaid-cli-path "/home/cgeng/.nvm/versions/node/v22.15.0/bin/mmdc")
+;; (setq ob-mermaid-cli-path "/home/cgeng_local/.nvm/versions/node/v22.15.0/bin/mmdc")
 
 (map! :leader
       :desc "Switch to perspective NAME"       "DEL" #'persp-switch

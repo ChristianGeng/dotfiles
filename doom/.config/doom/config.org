@@ -42,7 +42,9 @@
   - [[#org-and-latex-inline-images][Org and latex inline images]]
   - [[#org-roam][Org-roam]]
   - [[#other-exporters][Other exporters]]
+  - [[#org-latex-export--steuerjahr-class][Org LaTeX Export — Steuerjahr class]]
   - [[#org-auto-tangle][Org-auto-tangle]]
+  - [[#org-babel-mermaid-ob-mermaid][Org-Babel Mermaid (ob-mermaid)]]
 - [[#perspective][PERSPECTIVE]]
 - [[#project][Project]]
 - [[#lsp-language-server-protocol][LSP (Language Server Protocol)]]
@@ -98,7 +100,7 @@ For a quick reference of Vim/Evil mode keybindings, see the [[file:./cheatsheet.
 ** Emacs Directories
 I want to use parts of the code from my old emacs configuration.
 This above all involves my lisp function.
-~user-emacs-directory~ is "/home/cgeng/doom-emacs/.local/cache/" in doom emacs.
+~user-emacs-directory~ is "/home/cgeng_local/doom-emacs/.local/cache/" in doom emacs.
 and "~/emacs-conf/" in ~emacs-default~.
 
 #+begin_src emacs-lisp
@@ -554,7 +556,7 @@ the imenu displayed as a vertical split that you can toggle show/hide.
 (emms-default-players)
 (emms-mode-line 1)
 (emms-playing-time 1)
-(setq emms-source-file-default-directory "/media/cgeng/TOSHIBA EXT/mp3"
+(setq emms-source-file-default-directory "/media/cgeng_local/TOSHIBA EXT/mp3"
       emms-playlist-buffer-name "*Music*"
       emms-info-asynchronously t
       emms-source-file-directory-tree-function 'emms-source-file-directory-tree-find)
@@ -870,7 +872,11 @@ Nicer formula
 
 #+begin_src emacs-lisp
 (use-package! ox-gfm
-  :after org)
+  :after org
+  :config
+  ;; ox-gfm hardcodes <a id="orgXXX"> anchors in headlines — suppress them
+  ;; by falling back to ox-md's headline function which omits anchors.
+  (advice-add 'org-gfm-headline :override #'org-md-headline))
 #+end_src
 
 ** Org LaTeX Export — Steuerjahr class
@@ -974,7 +980,7 @@ set the path explicitly:
 
 #+begin_src emacs-lisp
 ;; fallback if executable-find returns nil:
-;; (setq ob-mermaid-cli-path "/home/cgeng/.nvm/versions/node/v22.15.0/bin/mmdc")
+;; (setq ob-mermaid-cli-path "/home/cgeng_local/.nvm/versions/node/v22.15.0/bin/mmdc")
 #+end_src
 
 *** Usage
