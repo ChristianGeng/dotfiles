@@ -120,9 +120,3 @@
 ;; Mermaid diagram support in org-babel
 (package! ob-mermaid)
 
-;; ghub package has been split into vcs specific packages
-;; For gitlab I need this one:
-(package! glab)
-(package! gtea)
-(package! gogs)
-(package! buck)

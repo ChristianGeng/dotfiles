@@ -400,12 +400,6 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 (map! :leader
       :desc "Insert auto_tangle tag" "i a" #'dt/insert-auto-tangle-tag)
 
-npm install -g @mermaid-js/mermaid-cli
-# verify:
-mmdc --version
-
-doom sync
-
 (use-package! ob-mermaid
   :after org
   :config
@@ -417,11 +411,6 @@ doom sync
 
 ;; fallback if executable-find returns nil:
 ;; (setq ob-mermaid-cli-path "/home/cgeng/.nvm/versions/node/v22.15.0/bin/mmdc")
-
-#+begin_src mermaid :file ./img/my-diagram.png
-graph TD
-    A[Start] --> B[End]
-#+end_src
 
 (map! :leader
       :desc "Switch to perspective NAME"       "DEL" #'persp-switch

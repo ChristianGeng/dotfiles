@@ -941,7 +941,7 @@ Evaluate a block with =C-c C-c= to produce a PNG inline in the buffer.
 Requires the =mmdc= CLI from the [[https://github.com/mermaid-js/mermaid-cli][@mermaid-js/mermaid-cli]] npm package.
 
 *Install (once):*
-#+begin_src sh
+#+begin_src sh :tangle no
 npm install -g @mermaid-js/mermaid-cli
 # verify:
 mmdc --version
@@ -951,7 +951,7 @@ If you use nvm, ensure the nvm node version is active when Emacs starts, or set 
 full path to =mmdc= explicitly (see config below).
 
 *After adding to =packages.el=, sync Doom:*
-#+begin_src sh
+#+begin_src sh :tangle no
 doom sync
 #+end_src
 
@@ -979,7 +979,7 @@ set the path explicitly:
 
 *** Usage
 
-#+begin_src org
+#+begin_src org :tangle no
 ,#+begin_src mermaid :file ./img/my-diagram.png
 graph TD
     A[Start] --> B[End]
