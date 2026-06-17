@@ -1,3 +1,7 @@
+# Rendered secret files (generated from pass; never commit)
+/.local_configs
+/.audeering_configs
+
 # Ignore backup files
 *.bak
 *~
