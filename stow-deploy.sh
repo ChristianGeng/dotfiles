@@ -11,7 +11,7 @@
 #   --help        Display this help message
 #
 # If no packages are specified, all default packages will be deployed.
-# Default packages: bash git node doom tmux
+# Default packages: bash git node doom tmux emacs
 #
 # Examples:
 #   ./stow-deploy.sh                # Deploy all default packages
@@ -111,7 +111,7 @@ show_help() {
   echo "  tmux            Tmux configuration (includes OSC 52 clipboard passthrough)"
   echo
   echo "If no packages are specified, the default packages will be deployed."
-  echo "Default packages: bash git node doom tmux"
+  echo "Default packages: bash git node doom tmux emacs"
   echo
   echo "Examples:"
   echo "  ./stow-deploy.sh                # Deploy all default packages"
@@ -125,7 +125,7 @@ FORCE=false
 ABSOLUTE=false
 GENERATE_CONFIGS=false
 TARGET_DIR="$HOME"
-PACKAGES=("bash" "git" "node" "doom" "tmux")
+PACKAGES=("bash" "git" "node" "doom" "tmux" "emacs")
 
 while [[ $# -gt 0 ]]; do
   case $1 in
