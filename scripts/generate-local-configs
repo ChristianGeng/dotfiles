@@ -14,10 +14,36 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Paths
-TEMPLATE_FILE="$DOTFILES_DIR/bash/.local_configs.template"
-SPEC_FILE="$DOTFILES_DIR/bash/.local_configs.spec"
-OUTPUT_FILE="$HOME/.local_configs"
+# Location of the audeering-dotfiles repo (override with AUDEERING_DOTFILES_DIR).
+AUDEERING_DOTFILES_DIR="${AUDEERING_DOTFILES_DIR:-$HOME/work/cgeng/audeering-dotfiles}"
+
+# Paths — resolved by resolve_paths() from the selected --profile, or overridden
+# individually via --template/--spec/--output.
+PROFILE="private"
+TEMPLATE_FILE=""
+SPEC_FILE=""
+OUTPUT_FILE=""
+
+# Resolve TEMPLATE_FILE/SPEC_FILE/OUTPUT_FILE for the chosen profile, honouring
+# any explicit per-path overrides already set.
+resolve_paths() {
+  case "$PROFILE" in
+    private|local|"")
+      TEMPLATE_FILE="${TEMPLATE_FILE:-$DOTFILES_DIR/bash/.local_configs.template}"
+      SPEC_FILE="${SPEC_FILE:-$DOTFILES_DIR/bash/.local_configs.spec}"
+      OUTPUT_FILE="${OUTPUT_FILE:-$HOME/.local_configs}"
+      ;;
+    audeering)
+      TEMPLATE_FILE="${TEMPLATE_FILE:-$AUDEERING_DOTFILES_DIR/audeering-config/.audeering_configs.template}"
+      SPEC_FILE="${SPEC_FILE:-$AUDEERING_DOTFILES_DIR/audeering-config/.audeering_configs.spec}"
+      OUTPUT_FILE="${OUTPUT_FILE:-$HOME/.audeering_configs}"
+      ;;
+    *)
+      print_error "Unknown profile: $PROFILE (expected 'private' or 'audeering')"
+      exit 1
+      ;;
+  esac
+}
 
 # Print colored message
 print_msg() {
@@ -111,12 +137,41 @@ main() {
         dry_run=true
         shift
         ;;
+      --profile)
+        PROFILE="$2"
+        shift 2
+        ;;
+      --profile=*)
+        PROFILE="${1#*=}"
+        shift
+        ;;
+      --template)
+        TEMPLATE_FILE="$2"; shift 2 ;;
+      --template=*)
+        TEMPLATE_FILE="${1#*=}"; shift ;;
+      --spec)
+        SPEC_FILE="$2"; shift 2 ;;
+      --spec=*)
+        SPEC_FILE="${1#*=}"; shift ;;
+      --output)
+        OUTPUT_FILE="$2"; shift 2 ;;
+      --output=*)
+        OUTPUT_FILE="${1#*=}"; shift ;;
       --help|-h)
         echo "Usage: $0 [OPTIONS]"
         echo
         echo "Options:"
+        echo "  --profile NAME   Which config to generate: 'private' (default,"
+        echo "                   -> ~/.local_configs) or 'audeering'"
+        echo "                   (-> ~/.audeering_configs)"
+        echo "  --template FILE  Override the template file path"
+        echo "  --spec FILE      Override the spec file path"
+        echo "  --output FILE    Override the output file path"
         echo "  --dry-run, -n    Show what would be generated without doing it"
         echo "  --help, -h       Show this help message"
+        echo
+        echo "The audeering profile expects audeering-dotfiles at"
+        echo "  \$AUDEERING_DOTFILES_DIR (default: \$HOME/work/cgeng/audeering-dotfiles)"
         echo
         exit 0
         ;;
@@ -127,6 +182,9 @@ main() {
     esac
   done
 
+  # Resolve paths for the selected profile (honours explicit overrides)
+  resolve_paths
+
   # Check dependencies
   check_deps
 
@@ -135,7 +193,7 @@ main() {
     dry_run
   else
     generate_configs
-    print_msg "You can now run: source ~/.local_configs"
+    print_msg "You can now run: source $OUTPUT_FILE"
   fi
 }
 
