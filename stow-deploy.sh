@@ -77,6 +77,27 @@ install_kitty_terminfo() {
   rm -f "$tmp"
 }
 
+# Back up pre-existing *real* (non-symlink) files that would block stow.
+# Tools like byobu (~/.byobu/.tmux.conf) and chemacs (~/.emacs.d/*.el) seed real
+# files where we want symlinks; stow aborts on those. Detect them with a dry
+# run and move each to a timestamped .bak so the real stow can proceed.
+backup_conflicts() {
+  local package="$1" conflicts rel tgt bak ts
+  conflicts="$(stow --no-folding -n -v $STOW_OPTS "$package" 2>&1 \
+                 | sed -n 's/.*existing target is neither a link nor a directory: //p' || true)"
+  [ -z "$conflicts" ] && return 0
+  ts="$(date +%Y%m%d%H%M%S)"
+  while IFS= read -r rel; do
+    [ -z "$rel" ] && continue
+    tgt="$TARGET_DIR/$rel"
+    if [ -e "$tgt" ] && [ ! -L "$tgt" ]; then
+      bak="$tgt.bak.$ts"
+      print_warn "Backing up conflicting $tgt -> $bak"
+      mv "$tgt" "$bak"
+    fi
+  done <<< "$conflicts"
+}
+
 # Check if stow is installed
 if ! command -v stow &> /dev/null; then
   print_error "GNU Stow is not installed. Please install it first."
@@ -191,6 +212,9 @@ for package in "${PACKAGES[@]}"; do
     stow --no-folding -v $STOW_OPTS -D "$package" 2>/dev/null || true
   fi
   
+  # Move aside any pre-existing real files that would conflict
+  backup_conflicts "$package"
+
   # Stow the package
   echo "Stowing $package to $TARGET_DIR..."
   stow --no-folding -v $STOW_OPTS "$package"
