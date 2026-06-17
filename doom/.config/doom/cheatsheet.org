@@ -170,6 +170,14 @@ You can use similar patterns with other text objects:
 | C-v     | Enter visual block mode        |
 | o       | Move to other end of selection |
 
+*** Whole-buffer operations
+| COMMAND | DESCRIPTION                                   |
+|---------+-----------------------------------------------|
+| ggVG    | Select all (go to start, linewise visual, go to end) |
+| ggVGy   | Yank (copy) everything (~``~ returns cursor)  |
+| ggVGd   | Delete everything                             |
+| ggVGc   | Replace everything (enters insert mode)       |
+
 ** Search/Replace
 | COMMAND    ** Search |                                       |
 | Command              | Description                           |
