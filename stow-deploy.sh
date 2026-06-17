@@ -109,6 +109,7 @@ show_help() {
   echo "  doom            Doom Emacs configuration (based on Derek Taylor's setup)"
   echo "  emacs           Emacs profile configuration for Chemacs"
   echo "  tmux            Tmux configuration (includes OSC 52 clipboard passthrough)"
+  echo "  kitty           Kitty terminal config (LOCAL workstation only; not a default)"
   echo
   echo "If no packages are specified, the default packages will be deployed."
   echo "Default packages: bash git node doom tmux emacs"
