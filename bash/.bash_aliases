@@ -94,7 +94,9 @@ ssh() {
   resolved="$(command ssh -G "$@" 2>/dev/null | awk '/^hostname /{print $2; exit}')"
   for a in "$@"; do case "$a" in -*) ;; *) typed="${a#*@}"; break ;; esac; done
   local theme; theme="$(_kitty_theme_for "$resolved" "$typed")"
-  [ -n "$theme" ] && [ -f "$theme" ] && $kc set-colors -a "$theme" 2>/dev/null
+  # No --all: color only THIS window/tab (kitty's default scope), so each tab
+  # keeps the color of the host it connected to.
+  [ -n "$theme" ] && [ -f "$theme" ] && $kc set-colors "$theme" 2>/dev/null
   command ssh "$@"
   [ -n "$theme" ] && $kc set-colors --reset 2>/dev/null
 }
