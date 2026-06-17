@@ -41,6 +41,42 @@ print_error() {
   echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Install kitty's terminfo (xterm-kitty) into ~/.terminfo if it is missing.
+# Lets a plain `ssh` into this host work from kitty without "Terminal type
+# xterm-kitty is not defined". Idempotent and best-effort: skips when already
+# present and never fails the deploy if there is no network or no tic.
+install_kitty_terminfo() {
+  if infocmp xterm-kitty &> /dev/null; then
+    print_msg "kitty terminfo (xterm-kitty) already present, skipping."
+    return 0
+  fi
+  if ! command -v tic &> /dev/null; then
+    print_warn "tic not found (install ncurses-bin); skipping kitty terminfo."
+    return 0
+  fi
+
+  local url="https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo"
+  local tmp
+  tmp="$(mktemp)"
+  print_msg "Installing kitty terminfo into ~/.terminfo ..."
+  if command -v curl &> /dev/null; then
+    curl -fsSL "$url" -o "$tmp" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
+  elif command -v wget &> /dev/null; then
+    wget -qO "$tmp" "$url" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
+  else
+    print_warn "Neither curl nor wget found; skipping kitty terminfo."
+    rm -f "$tmp"
+    return 0
+  fi
+
+  if tic -x -o "$HOME/.terminfo" "$tmp" &> /dev/null && infocmp xterm-kitty &> /dev/null; then
+    print_msg "kitty terminfo installed."
+  else
+    print_warn "Failed to compile kitty terminfo; skipping."
+  fi
+  rm -f "$tmp"
+}
+
 # Check if stow is installed
 if ! command -v stow &> /dev/null; then
   print_error "GNU Stow is not installed. Please install it first."
@@ -158,6 +194,9 @@ for package in "${PACKAGES[@]}"; do
   echo "Stowing $package to $TARGET_DIR..."
   stow --no-folding -v $STOW_OPTS "$package"
 done
+
+# Ensure kitty's terminfo is available so plain `ssh` from kitty works here
+install_kitty_terminfo
 
 # Generate local configs if requested
 if $GENERATE_CONFIGS; then
