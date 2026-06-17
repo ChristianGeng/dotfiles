@@ -256,6 +256,15 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
         (:prefix ("t" . "toggle")
          :desc "Toggle xterm-mouse-mode" "M" #'cg/toggle-mouse-and-line-numbers )))
 
+;; GUI: ensure kill-ring is synced with system clipboard (default, but explicit)
+(setq select-enable-clipboard t)
+
+;; Terminal (local + SSH): clipetty uses OSC 52 to reach the local clipboard.
+;; Works over SSH without X11 forwarding. Requires a modern terminal emulator.
+(use-package! clipetty
+  :config
+  (global-clipetty-mode 1))
+
 (after! neotree
   (setq neo-smart-open t
         neo-window-fixed-size nil))
