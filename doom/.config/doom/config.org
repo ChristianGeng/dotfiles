@@ -676,18 +676,23 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 #+end_src
 
 * CLIPBOARD
-System clipboard integration that works in both X11 (GUI) and terminal Emacs.
-In the GUI, Emacs already syncs with the system clipboard via =select-enable-clipboard=.
-In the terminal, the =xclip= package bridges Emacs kill-ring to =xclip=/=xsel=/=wl-copy=.
+System clipboard integration that works in GUI, local terminal, and terminal over SSH.
+- GUI: =select-enable-clipboard= (Emacs default)
+- Local terminal: =xclip= bridges kill-ring to OS clipboard via X11
+- SSH terminal: =clipetty= uses OSC 52 escape sequences to set the *local* machine's clipboard
+  (requires a modern terminal: iTerm2, Kitty, WezTerm, Alacritty, foot, etc.)
+
+Requirements: =sudo apt install xclip= on local machines with X11.
 
 #+begin_src emacs-lisp
 ;; GUI: ensure kill-ring is synced with system clipboard (default, but explicit)
 (setq select-enable-clipboard t)
 
-;; Terminal: use xclip package to bridge to system clipboard
-(use-package! xclip
+;; Terminal (local + SSH): clipetty uses OSC 52 to reach the local clipboard.
+;; Works over SSH without X11 forwarding. Requires a modern terminal emulator.
+(use-package! clipetty
   :config
-  (xclip-mode 1))
+  (global-clipetty-mode 1))
 #+end_src
 
 * NEOTREE

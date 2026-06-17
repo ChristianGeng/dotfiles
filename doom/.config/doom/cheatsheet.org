@@ -180,13 +180,19 @@ You can use similar patterns with other text objects:
 
 *** System clipboard via Evil registers
 The ~+~ register is the system clipboard; ~*~ is the X primary selection.
-Requires ~xclip~ package for terminal Emacs (see config.org CLIPBOARD section).
+Uses =clipetty= (OSC 52) which works in local terminal *and* over SSH without X11 forwarding.
 
 ~xclip-mode~ and Evil registers do *not* interfere:
-- ~xclip-mode~ hooks into Emacs' kill-ring ↔ OS clipboard bridge only
+- ~clipetty~ hooks into Emacs' kill-ring ↔ OS clipboard bridge only
 - Evil registers (~"a~–~"z~, ~"+~, ~"*~) are a separate layer on top
-- With ~xclip-mode~ active, plain ~y~ already syncs to clipboard, making ~"+y~ and ~y~ equivalent in practice
+- With ~clipetty~ active, plain ~y~ already syncs to clipboard, making ~"+y~ and ~y~ equivalent in practice
 - Named registers (~"a~–~"z~) remain private to Emacs, unaffected
+
+*Troubleshooting — clipboard not working over SSH:*
+- ~$DISPLAY~ will be empty on headless SSH — this is expected; clipetty doesn't need it
+- Requires a modern terminal on your *local* machine: iTerm2, Kitty, WezTerm, Alacritty, foot
+- If using tmux, add ~set -g set-clipboard on~ to =~/.tmux.conf= to allow OSC 52 passthrough
+- After ~doom sync~, run ~M-x doom/reload~ then test with ~ggVGy~ and paste in browser
 
 | COMMAND   | DESCRIPTION                                      |
 |-----------+--------------------------------------------------|
