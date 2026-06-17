@@ -60,3 +60,36 @@ alias emacs-spacemacs='emacs --with-profile spacemacs'
 # Claude code and vs studio
 alias claude-work="CLAUDE_CONFIG_DIR=~/.claude-work/ claude"
 alias claude-personal="CLAUDE_CONFIG_DIR=~/.claude-personal/ claude"
+
+
+# --- Host-based kitty background tint --------------------------------------
+# When you run ssh from a LOCAL kitty window, tint the background based on the
+# host (mapping in ~/.config/kitty/ssh-themes), and reset on disconnect.
+# No-op outside kitty, or when remote control / the kitten binary is absent --
+# so it's safe even though this file is sourced on remote servers too.
+_kitty_theme_for() {
+  # Echo the theme file for the first pattern matching the resolved HostName
+  # (robust to ssh options) or the typed target. Returns non-zero if no match.
+  local resolved="$1" typed="$2" pat file
+  [ -f ~/.config/kitty/ssh-themes ] || return 1
+  while read -r pat file; do
+    case "$pat" in ''|\#*) continue ;; esac
+    case "$resolved" in $pat) echo "$HOME/.config/kitty/themes/$file"; return 0 ;; esac
+    case "$typed"    in $pat) echo "$HOME/.config/kitty/themes/$file"; return 0 ;; esac
+  done < ~/.config/kitty/ssh-themes
+  return 1
+}
+
+ssh() {
+  if [ -z "$KITTY_WINDOW_ID" ] || ! command -v kitten >/dev/null 2>&1; then
+    command ssh "$@"; return
+  fi
+  # Resolved hostname (parses all ssh options correctly) + best-effort typed target.
+  local resolved typed="" a
+  resolved="$(command ssh -G "$@" 2>/dev/null | awk '/^hostname /{print $2; exit}')"
+  for a in "$@"; do case "$a" in -*) ;; *) typed="${a#*@}"; break ;; esac; done
+  local theme; theme="$(_kitty_theme_for "$resolved" "$typed")"
+  [ -n "$theme" ] && [ -f "$theme" ] && kitten @ set-colors -a "$theme" 2>/dev/null
+  command ssh "$@"
+  [ -n "$theme" ] && kitten @ set-colors --reset 2>/dev/null
+}

@@ -1,0 +1,11 @@
+# Host -> kitty background tint map, used by the ssh() wrapper in ~/.bash_aliases.
+#
+# Format:  <glob-pattern>   <theme-file under ~/.config/kitty/themes/>
+# Each pattern is matched against BOTH the resolved HostName (ssh -G) and the
+# target you typed. First match wins. Blank lines and #-comments are ignored.
+#
+# Local shell (not via ssh) intentionally has no entry -> stays the default,
+# untinted theme, so "untinted == I'm local".
+
+iva-p4d-param*       host-red.conf
+iva-M2-demo-cgeng*   host-blue.conf
