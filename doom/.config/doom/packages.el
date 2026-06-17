@@ -86,6 +86,8 @@
 (package! minimap)
 (package! olivetti)
 
+(package! xclip)
+
 ;; Enable project grepping in ag-style
 (package! ripgrep)
 (package! rg)

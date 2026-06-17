@@ -675,6 +675,21 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
          :desc "Toggle xterm-mouse-mode" "M" #'cg/toggle-mouse-and-line-numbers )))
 #+end_src
 
+* CLIPBOARD
+System clipboard integration that works in both X11 (GUI) and terminal Emacs.
+In the GUI, Emacs already syncs with the system clipboard via =select-enable-clipboard=.
+In the terminal, the =xclip= package bridges Emacs kill-ring to =xclip=/=xsel=/=wl-copy=.
+
+#+begin_src emacs-lisp
+;; GUI: ensure kill-ring is synced with system clipboard (default, but explicit)
+(setq select-enable-clipboard t)
+
+;; Terminal: use xclip package to bridge to system clipboard
+(use-package! xclip
+  :config
+  (xclip-mode 1))
+#+end_src
+
 * NEOTREE
 
 Neotree is a file tree viewer. When you open neotree, it jumps to the current

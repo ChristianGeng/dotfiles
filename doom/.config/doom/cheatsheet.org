@@ -178,6 +178,25 @@ You can use similar patterns with other text objects:
 | ggVGd   | Delete everything                             |
 | ggVGc   | Replace everything (enters insert mode)       |
 
+*** System clipboard via Evil registers
+The ~+~ register is the system clipboard; ~*~ is the X primary selection.
+Requires ~xclip~ package for terminal Emacs (see config.org CLIPBOARD section).
+
+~xclip-mode~ and Evil registers do *not* interfere:
+- ~xclip-mode~ hooks into Emacs' kill-ring ↔ OS clipboard bridge only
+- Evil registers (~"a~–~"z~, ~"+~, ~"*~) are a separate layer on top
+- With ~xclip-mode~ active, plain ~y~ already syncs to clipboard, making ~"+y~ and ~y~ equivalent in practice
+- Named registers (~"a~–~"z~) remain private to Emacs, unaffected
+
+| COMMAND   | DESCRIPTION                                      |
+|-----------+--------------------------------------------------|
+| ~"+y~     | Yank selection to system clipboard               |
+| ~"+p~     | Paste from system clipboard                      |
+| ~"+ggVGy~ | Copy whole buffer to system clipboard            |
+| ~"*y~     | Yank to X primary selection (middle-click paste) |
+| ~"ay~     | Yank to named register ~a~ (private to Emacs)    |
+| ~"ap~     | Paste from named register ~a~                    |
+
 ** Search/Replace
 | COMMAND    ** Search |                                       |
 | Command              | Description                           |
