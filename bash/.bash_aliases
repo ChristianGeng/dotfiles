@@ -81,7 +81,12 @@ _kitty_theme_for() {
 }
 
 ssh() {
-  if [ -z "$KITTY_WINDOW_ID" ] || ! command -v kitten >/dev/null 2>&1; then
+  # Use `kitten` if present, else fall back to `kitty +kitten` (the binary
+  # always ships the kittens even when a standalone `kitten` isn't on PATH).
+  local kc
+  if command -v kitten >/dev/null 2>&1; then kc="kitten"
+  elif command -v kitty >/dev/null 2>&1; then kc="kitty +kitten"; fi
+  if [ -z "$KITTY_WINDOW_ID" ] || [ -z "$kc" ]; then
     command ssh "$@"; return
   fi
   # Resolved hostname (parses all ssh options correctly) + best-effort typed target.
@@ -89,7 +94,7 @@ ssh() {
   resolved="$(command ssh -G "$@" 2>/dev/null | awk '/^hostname /{print $2; exit}')"
   for a in "$@"; do case "$a" in -*) ;; *) typed="${a#*@}"; break ;; esac; done
   local theme; theme="$(_kitty_theme_for "$resolved" "$typed")"
-  [ -n "$theme" ] && [ -f "$theme" ] && kitten @ set-colors -a "$theme" 2>/dev/null
+  [ -n "$theme" ] && [ -f "$theme" ] && $kc @ set-colors -a "$theme" 2>/dev/null
   command ssh "$@"
-  [ -n "$theme" ] && kitten @ set-colors --reset 2>/dev/null
+  [ -n "$theme" ] && $kc @ set-colors --reset 2>/dev/null
 }
