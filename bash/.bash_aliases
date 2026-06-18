@@ -81,12 +81,20 @@ _kitty_theme_for() {
 }
 
 ssh() {
-  # Remote-control entry point: `kitten @` (newer kitty) or `kitty @` (universal,
-  # works on older kitty where `@` isn't a standalone kitten).
-  local kc=""
-  if command -v kitten >/dev/null 2>&1; then kc="kitten @"
-  elif command -v kitty >/dev/null 2>&1; then kc="kitty @"; fi
-  if [ -z "$KITTY_WINDOW_ID" ] || [ -z "$kc" ]; then
+  # Inside a kitty window, route through kitty so we get two things:
+  #   * `<kbin> ssh`         -- copies kitty's terminfo + shell integration to
+  #     the remote, so tmux/byobu and editors work without "missing or
+  #     unsuitable terminal: xterm-kitty" even on hosts we don't deploy to.
+  #   * `<kbin> @ set-colors` -- host-based background tint (see ssh-themes).
+  # kbin is `kitten` on modern kitty, or `kitty +kitten` as a universal
+  # fallback. Empty when not in kitty or kitty is absent (this file is also
+  # sourced on remote servers) -- then we just use plain ssh.
+  local kbin=""
+  if [ -n "$KITTY_WINDOW_ID" ]; then
+    if command -v kitten >/dev/null 2>&1; then kbin="kitten"
+    elif command -v kitty  >/dev/null 2>&1; then kbin="kitty +kitten"; fi
+  fi
+  if [ -z "$kbin" ]; then
     command ssh "$@"; return
   fi
   # Resolved hostname (parses all ssh options correctly) + best-effort typed target.
@@ -96,7 +104,7 @@ ssh() {
   local theme; theme="$(_kitty_theme_for "$resolved" "$typed")"
   # No --all: color only THIS window/tab (kitty's default scope), so each tab
   # keeps the color of the host it connected to.
-  [ -n "$theme" ] && [ -f "$theme" ] && $kc set-colors "$theme" 2>/dev/null
-  command ssh "$@"
-  [ -n "$theme" ] && $kc set-colors --reset 2>/dev/null
+  [ -n "$theme" ] && [ -f "$theme" ] && $kbin @ set-colors "$theme" 2>/dev/null
+  $kbin ssh "$@"
+  [ -n "$theme" ] && $kbin @ set-colors --reset 2>/dev/null
 }
