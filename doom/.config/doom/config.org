@@ -1069,8 +1069,10 @@ per-host background tint, so it's obvious "which box am I on".
 
 Keyed on =(system-name)=, i.e. the *real* hostname — NOT the ssh alias kitty
 matches. Check it per host with =M-: (system-name)= and adjust the regexps:
-the p4d login node reports =ip-10-1-127-78=, so the cluster is matched by
-=^ip-10-1-=, not =iva-p4d-param=.
+the p4d login node reports =ip-10-1-127-78= (matched by =^ip-10-1-=), and the
+demo box reports =ip-172-31-2-123= (matched by =^ip-172-31-=) — NOT the ssh
+aliases =iva-p4d-param= / =iva-M2-demo-cgeng=. The hostname is the *private* one;
+an Elastic IP only fixes the public endpoint, not =(system-name)=.
 
 The badge is surfaced via =global-mode-string= (rendered by doom-modeline's
 =misc-info= segment). We deliberately do NOT redefine the =main= modeline layout:
@@ -1081,8 +1083,8 @@ through =global-mode-string= is version-proof.
 #+begin_src emacs-lisp
 (after! doom-modeline
   (defvar cg/host-accents
-    '(("^ip-10-1-"         "P4D"  "#ff5555")    ; iva-p4d cluster -> red
-      ("iva-M2-demo-cgeng" "DEMO" "#5599ff"))   ; demo / livekit  -> blue
+    '(("^ip-10-1-"    "P4D"  "#ff5555")    ; iva-p4d cluster (10.1.x) -> red
+      ("^ip-172-31-"  "DEMO" "#5599ff"))   ; iva-M2-demo (default VPC 172.31.x) -> blue
     "List of (HOST-REGEXP LABEL COLOR) matched against `system-name'.")
 
   (defun cg/host-accent ()

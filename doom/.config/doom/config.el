@@ -446,8 +446,8 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
 
 (after! doom-modeline
   (defvar cg/host-accents
-    '(("^ip-10-1-"         "P4D"  "#ff5555")    ; iva-p4d cluster -> red
-      ("iva-M2-demo-cgeng" "DEMO" "#5599ff"))   ; demo / livekit  -> blue
+    '(("^ip-10-1-"    "P4D"  "#ff5555")    ; iva-p4d cluster (10.1.x) -> red
+      ("^ip-172-31-"  "DEMO" "#5599ff"))   ; iva-M2-demo (default VPC 172.31.x) -> blue
     "List of (HOST-REGEXP LABEL COLOR) matched against `system-name'.")
 
   (defun cg/host-accent ()
