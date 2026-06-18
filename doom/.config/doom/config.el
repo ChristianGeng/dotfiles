@@ -1,8 +1,8 @@
-;; Functions (load all files in defuns-dir)
-(setq defuns-dir (expand-file-name "defuns" doom-user-dir))
-(dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
-  (when (file-regular-p file)
-    (load (file-name-sans-extension file))))
+  ;; Functions (load all files in defuns-dir)
+  (setq defuns-dir (expand-file-name "defuns" doom-user-dir))
+  (dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
+    (when (file-regular-p file)
+      (load (file-name-sans-extension file))))
 
 (setq org-directory
       (or (getenv "ORG_DIRECTORY")
@@ -459,21 +459,18 @@ is ALWAYS shown."
                  return (cons label color))
         (cons (car (split-string (system-name) "\\.")) nil)))
 
-  (doom-modeline-def-segment cg-host
-    "A host badge: colored text for mapped hosts, dim neutral otherwise.
+  (defun cg/host-badge ()
+    "Propertized host badge: colored text for mapped hosts, dim otherwise.
 The font is tinted in the host hue (bright variant of the kitty tint, since
 kitty's dark tints would be unreadable as text)."
     (let ((a (cg/host-accent)))
-      (concat (doom-modeline-spc)
-              (propertize (format " %s " (car a))
-                          'face (if (cdr a)
-                                    `(:foreground ,(cdr a) :weight bold)
-                                  'shadow))
-              (doom-modeline-spc))))
+      (propertize (format " %s " (car a))
+                  'face (if (cdr a)
+                            `(:foreground ,(cdr a) :weight bold)
+                          'shadow))))
 
-  (doom-modeline-def-modeline 'main
-    '(eldoc bar cg-host window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-    '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time)))
+  ;; Show it in the modeline without touching the layout (version-proof).
+  (add-to-list 'global-mode-string '(:eval (cg/host-badge)) 'append))
 
 (after! lsp-mode
   ;; General LSP settings

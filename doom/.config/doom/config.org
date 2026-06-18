@@ -1072,8 +1072,11 @@ matches. Check it per host with =M-: (system-name)= and adjust the regexps:
 the p4d login node reports =ip-10-1-127-78=, so the cluster is matched by
 =^ip-10-1-=, not =iva-p4d-param=.
 
-The badge is inserted after =bar= on the modeline's left; the rest of the
-default =main= layout is reproduced verbatim so no segments are dropped.
+The badge is surfaced via =global-mode-string= (rendered by doom-modeline's
+=misc-info= segment). We deliberately do NOT redefine the =main= modeline layout:
+hard-coding the segment list breaks on any host whose doom-modeline version
+lacks one of those segments (symptom: a completely blank modeline). Going
+through =global-mode-string= is version-proof.
 
 #+begin_src emacs-lisp
 (after! doom-modeline
@@ -1091,21 +1094,18 @@ is ALWAYS shown."
                  return (cons label color))
         (cons (car (split-string (system-name) "\\.")) nil)))
 
-  (doom-modeline-def-segment cg-host
-    "A host badge: colored text for mapped hosts, dim neutral otherwise.
+  (defun cg/host-badge ()
+    "Propertized host badge: colored text for mapped hosts, dim otherwise.
 The font is tinted in the host hue (bright variant of the kitty tint, since
 kitty's dark tints would be unreadable as text)."
     (let ((a (cg/host-accent)))
-      (concat (doom-modeline-spc)
-              (propertize (format " %s " (car a))
-                          'face (if (cdr a)
-                                    `(:foreground ,(cdr a) :weight bold)
-                                  'shadow))
-              (doom-modeline-spc))))
+      (propertize (format " %s " (car a))
+                  'face (if (cdr a)
+                            `(:foreground ,(cdr a) :weight bold)
+                          'shadow))))
 
-  (doom-modeline-def-modeline 'main
-    '(eldoc bar cg-host window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
-    '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time)))
+  ;; Show it in the modeline without touching the layout (version-proof).
+  (add-to-list 'global-mode-string '(:eval (cg/host-badge)) 'append))
 #+end_src
 
 * LSP (Language Server Protocol)
