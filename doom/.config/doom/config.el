@@ -438,6 +438,12 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
       :desc "Open eshell here"     "p E" #'eshell
       :desc "Open term here"       "p T" (cmd! (let ((default-directory (projectile-project-root))) (term (getenv "SHELL")))))
 
+(after! projectile
+  ;; Open Magit status on switch (default is find-file).
+  (setq projectile-switch-project-action #'magit-status
+        ;; Each project gets its own *compilation* buffer.
+        projectile-per-project-compilation-buffer t))
+
 (after! lsp-mode
   ;; General LSP settings
   (setq lsp-enable-file-watchers nil

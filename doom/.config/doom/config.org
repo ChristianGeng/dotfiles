@@ -1048,6 +1048,18 @@ Perspective provides multiple named workspaces (or "perspectives") in Emacs, sim
       :desc "Open term here"       "p T" (cmd! (let ((default-directory (projectile-project-root))) (term (getenv "SHELL")))))
 #+end_src
 
+What happens right after switching projects (~SPC p p~). Only the
+non-default settings are listed; doom already sets =projectile-indexing-method=,
+caching, and the completion system sensibly.
+
+#+begin_src emacs-lisp
+(after! projectile
+  ;; Open Magit status on switch (default is find-file).
+  (setq projectile-switch-project-action #'magit-status
+        ;; Each project gets its own *compilation* buffer.
+        projectile-per-project-compilation-buffer t))
+#+end_src
+
 * LSP (Language Server Protocol)
 
 ** General LSP Configuration
