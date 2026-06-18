@@ -68,14 +68,15 @@ alias claude-personal="CLAUDE_CONFIG_DIR=~/.claude-personal/ claude"
 # No-op outside kitty, or when remote control / the kitten binary is absent --
 # so it's safe even though this file is sourced on remote servers too.
 _kitty_theme_for() {
-  # Echo the theme file for the first pattern matching the resolved HostName
-  # (robust to ssh options) or the typed target. Returns non-zero if no match.
-  local resolved="$1" typed="$2" pat file
+  # Echo "THEME_FILE TAB_COLOR" for the first pattern matching the resolved
+  # HostName (robust to ssh options) or the typed target. TAB_COLOR may be
+  # empty. Returns non-zero if no match.
+  local resolved="$1" typed="$2" pat file color
   [ -f ~/.config/kitty/ssh-themes ] || return 1
-  while read -r pat file; do
+  while read -r pat file color; do
     case "$pat" in ''|\#*) continue ;; esac
-    case "$resolved" in $pat) echo "$HOME/.config/kitty/themes/$file"; return 0 ;; esac
-    case "$typed"    in $pat) echo "$HOME/.config/kitty/themes/$file"; return 0 ;; esac
+    case "$resolved" in $pat) echo "$HOME/.config/kitty/themes/$file $color"; return 0 ;; esac
+    case "$typed"    in $pat) echo "$HOME/.config/kitty/themes/$file $color"; return 0 ;; esac
   done < ~/.config/kitty/ssh-themes
   return 1
 }
@@ -101,12 +102,20 @@ ssh() {
   local resolved typed="" a
   resolved="$(command ssh -G "$@" 2>/dev/null | awk '/^hostname /{print $2; exit}')"
   for a in "$@"; do case "$a" in -*) ;; *) typed="${a#*@}"; break ;; esac; done
-  local theme; theme="$(_kitty_theme_for "$resolved" "$typed")"
-  # No --all: color only THIS window/tab (kitty's default scope), so each tab
-  # keeps the color of the host it connected to.
-  [ -n "$theme" ] && [ -f "$theme" ] && $kbin @ set-colors "$theme" 2>/dev/null
+  local spec theme="" color=""
+  spec="$(_kitty_theme_for "$resolved" "$typed")"
+  [ -n "$spec" ] && read -r theme color <<< "$spec"
+  # No --all / no --match: tint only THIS window's background and THIS tab
+  # (kitty's default scope), so each tab keeps the color of its own host.
+  if [ -n "$theme" ] && [ -f "$theme" ]; then
+    $kbin @ set-colors "$theme" 2>/dev/null
+    [ -n "$color" ] && $kbin @ set-tab-color "active_bg=$color" "active_fg=#000000" 2>/dev/null
+  fi
   $kbin ssh "$@"
-  [ -n "$theme" ] && $kbin @ set-colors --reset 2>/dev/null
+  if [ -n "$theme" ] && [ -f "$theme" ]; then
+    $kbin @ set-colors --reset 2>/dev/null
+    [ -n "$color" ] && $kbin @ set-tab-color --reset 2>/dev/null
+  fi
 }
 
 # Escape hatch: raw ssh, bypassing the kitten wrapper above. For hosts where
