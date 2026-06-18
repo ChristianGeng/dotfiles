@@ -108,3 +108,8 @@ ssh() {
   $kbin ssh "$@"
   [ -n "$theme" ] && $kbin @ set-colors --reset 2>/dev/null
 }
+
+# Escape hatch: raw ssh, bypassing the kitten wrapper above. For hosts where
+# kitten's bootstrap fails -- restricted/busybox shells, network gear,
+# sftp-only accounts, non-writable homes -- or when you just want plain ssh.
+alias vssh='command ssh'
