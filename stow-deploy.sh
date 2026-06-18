@@ -41,12 +41,28 @@ print_error() {
   echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Install kitty's terminfo (xterm-kitty) into ~/.terminfo if it is missing.
-# Lets a plain `ssh` into this host work from kitty without "Terminal type
-# xterm-kitty is not defined". Idempotent and best-effort: skips when already
-# present and never fails the deploy if there is no network or no tic.
+# Install kitty's terminfo (xterm-kitty) into ~/.terminfo so tmux, byobu and a
+# plain `ssh` into this host work from kitty without "missing or unsuitable
+# terminal: xterm-kitty".
+#
+# The subtle part: ncurses stores compiled entries either under an alphabetic
+# directory ($HOME/.terminfo/x/xterm-kitty) or a two-hex-digit one
+# ($HOME/.terminfo/78/xterm-kitty, 0x78 == 'x'), depending on how the local
+# ncurses was built. conda's tic writes the hex layout, but the *system*
+# ncurses that /usr/bin/tmux and byobu link against only reads the alphabetic
+# layout -- so a conda-installed entry is invisible to them and tmux fails even
+# though `infocmp xterm-kitty` succeeds. We therefore (1) gate on the alphabetic
+# entry actually existing, not on infocmp, and (2) after compiling, copy the
+# result into x/ if tic put it somewhere else.
+#
+# Idempotent and best-effort: never fails the deploy if there is no tic. Uses a
+# vendored copy of kitty.terminfo so it works offline, falling back to download.
 install_kitty_terminfo() {
-  if infocmp xterm-kitty &> /dev/null; then
+  local x_entry="$HOME/.terminfo/x/xterm-kitty"
+
+  # The real test is the alphabetic entry, since that is what system ncurses
+  # (tmux/byobu) reads. infocmp would falsely pass on a conda-only hex entry.
+  if [ -e "$x_entry" ]; then
     print_msg "kitty terminfo (xterm-kitty) already present, skipping."
     return 0
   fi
@@ -55,26 +71,43 @@ install_kitty_terminfo() {
     return 0
   fi
 
-  local url="https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo"
-  local tmp
-  tmp="$(mktemp)"
-  print_msg "Installing kitty terminfo into ~/.terminfo ..."
-  if command -v curl &> /dev/null; then
-    curl -fsSL "$url" -o "$tmp" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
-  elif command -v wget &> /dev/null; then
-    wget -qO "$tmp" "$url" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
-  else
-    print_warn "Neither curl nor wget found; skipping kitty terminfo."
-    rm -f "$tmp"
-    return 0
+  # Prefer the vendored source so this works without network on every host.
+  local src="$SCRIPT_DIR/terminfo/kitty.terminfo"
+  local tmp=""
+  if [ ! -f "$src" ]; then
+    local url="https://raw.githubusercontent.com/kovidgoyal/kitty/master/terminfo/kitty.terminfo"
+    tmp="$(mktemp)"
+    if command -v curl &> /dev/null; then
+      curl -fsSL "$url" -o "$tmp" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
+    elif command -v wget &> /dev/null; then
+      wget -qO "$tmp" "$url" || { print_warn "Could not download kitty terminfo; skipping."; rm -f "$tmp"; return 0; }
+    else
+      print_warn "No vendored terminfo and neither curl nor wget found; skipping."
+      return 0
+    fi
+    src="$tmp"
   fi
 
-  if tic -x -o "$HOME/.terminfo" "$tmp" &> /dev/null && infocmp xterm-kitty &> /dev/null; then
-    print_msg "kitty terminfo installed."
-  else
-    print_warn "Failed to compile kitty terminfo; skipping."
+  print_msg "Installing kitty terminfo into ~/.terminfo ..."
+  tic -x -o "$HOME/.terminfo" "$src" &> /dev/null || print_warn "tic reported issues compiling kitty terminfo."
+  [ -n "$tmp" ] && rm -f "$tmp"
+
+  # Normalize the layout: ensure the alphabetic x/ entry exists even if tic
+  # wrote the hex 78/ layout (conda) or anything else.
+  if [ ! -e "$x_entry" ]; then
+    local produced
+    produced="$(find "$HOME/.terminfo" -type f -name xterm-kitty 2>/dev/null | head -n1)"
+    if [ -n "$produced" ]; then
+      mkdir -p "$HOME/.terminfo/x"
+      cp "$produced" "$x_entry"
+    fi
   fi
-  rm -f "$tmp"
+
+  if [ -e "$x_entry" ]; then
+    print_msg "kitty terminfo installed ($x_entry)."
+  else
+    print_warn "Failed to install kitty terminfo; skipping."
+  fi
 }
 
 # Back up pre-existing *real* (non-symlink) files that would block stow.
