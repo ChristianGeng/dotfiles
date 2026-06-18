@@ -10,6 +10,7 @@ export BRAVE_API_KEY="${BRAVE_API_KEY}"
 export DEEPGRAM_API_KEY="${DEEPGRAM_API_KEY}"
 export GRADIUM_API_KEY="${GRADIUM_API_KEY}"
 export PDF_PASSWORD="${PDF_PASSWORD}"
+export HF_TOKEN="${HF_TOKEN}"
 
 # Company/work creds (OPENAI_API_KEY, GITLAB_API_TOKEN, ...) moved to
 # ~/.audeering_configs (generate-local-configs --profile audeering)

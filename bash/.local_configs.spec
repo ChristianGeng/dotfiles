@@ -12,6 +12,8 @@
   (gradium-personal   :pass "personal/api/gradium/gradium_api_key"        :env "GRADIUM_API_KEY")
   (vlh-pdf            :pass "personal/passwords/vlh-pdf-secret"             :env "PDF_PASSWORD")
 
+  (huggingface-personal :pass "personal/huggingface/api_key"                    :env "HF_TOKEN")
+
   ;; Add additional credentials here as needed
   ;; Example format:
   ;; (service-name :pass "work/aud/api/service/api_key" :env "SERVICE_API_KEY")
