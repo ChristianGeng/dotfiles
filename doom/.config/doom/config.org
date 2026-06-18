@@ -33,6 +33,7 @@
 - [[#menubartoolbar][MENUBAR/TOOLBAR]]
 - [[#modeline][MODELINE]]
 - [[#mouse-support][MOUSE SUPPORT]]
+- [[#clipboard][CLIPBOARD]]
 - [[#neotree][NEOTREE]]
 - [[#open-specific-files][OPEN SPECIFIC FILES]]
 - [[#org-mode][ORG MODE]]
@@ -47,6 +48,7 @@
   - [[#org-babel-mermaid-ob-mermaid][Org-Babel Mermaid (ob-mermaid)]]
 - [[#perspective][PERSPECTIVE]]
 - [[#project][Project]]
+- [[#per-host-appearance][Per-host appearance]]
 - [[#lsp-language-server-protocol][LSP (Language Server Protocol)]]
   - [[#general-lsp-configuration][General LSP Configuration]]
   - [[#lsp-ui-configuration][LSP UI Configuration]]
@@ -1058,6 +1060,52 @@ caching, and the completion system sensibly.
   (setq projectile-switch-project-action #'magit-status
         ;; Each project gets its own *compilation* buffer.
         projectile-per-project-compilation-buffer t))
+#+end_src
+
+* Per-host appearance
+
+A colored host badge in the modeline — the emacs counterpart to the kitty
+per-host background tint, so it's obvious "which box am I on".
+
+Keyed on =(system-name)=, i.e. the *real* hostname — NOT the ssh alias kitty
+matches. Check it per host with =M-: (system-name)= and adjust the regexps:
+the p4d login node reports =ip-10-1-127-78=, so the cluster is matched by
+=^ip-10-1-=, not =iva-p4d-param=.
+
+The badge is inserted after =bar= on the modeline's left; the rest of the
+default =main= layout is reproduced verbatim so no segments are dropped.
+
+#+begin_src emacs-lisp
+(after! doom-modeline
+  (defvar cg/host-accents
+    '(("^ip-10-1-"         "P4D"  "#ff5555")    ; iva-p4d cluster -> red
+      ("iva-M2-demo-cgeng" "DEMO" "#5599ff"))   ; demo / livekit  -> blue
+    "List of (HOST-REGEXP LABEL COLOR) matched against `system-name'.")
+
+  (defun cg/host-accent ()
+    "Return (LABEL . COLOR). Mapped hosts get their color; any other host
+falls back to its short hostname with no color (COLOR = nil), so the badge
+is ALWAYS shown."
+    (or (cl-loop for (re label color) in cg/host-accents
+                 when (string-match-p re (system-name))
+                 return (cons label color))
+        (cons (car (split-string (system-name) "\\.")) nil)))
+
+  (doom-modeline-def-segment cg-host
+    "A host badge: colored text for mapped hosts, dim neutral otherwise.
+The font is tinted in the host hue (bright variant of the kitty tint, since
+kitty's dark tints would be unreadable as text)."
+    (let ((a (cg/host-accent)))
+      (concat (doom-modeline-spc)
+              (propertize (format " %s " (car a))
+                          'face (if (cdr a)
+                                    `(:foreground ,(cdr a) :weight bold)
+                                  'shadow))
+              (doom-modeline-spc))))
+
+  (doom-modeline-def-modeline 'main
+    '(eldoc bar cg-host window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time)))
 #+end_src
 
 * LSP (Language Server Protocol)

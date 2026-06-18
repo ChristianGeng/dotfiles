@@ -444,6 +444,37 @@ When mouse mode is disabled, also disable line numbers for easier copy-paste."
         ;; Each project gets its own *compilation* buffer.
         projectile-per-project-compilation-buffer t))
 
+(after! doom-modeline
+  (defvar cg/host-accents
+    '(("^ip-10-1-"         "P4D"  "#ff5555")    ; iva-p4d cluster -> red
+      ("iva-M2-demo-cgeng" "DEMO" "#5599ff"))   ; demo / livekit  -> blue
+    "List of (HOST-REGEXP LABEL COLOR) matched against `system-name'.")
+
+  (defun cg/host-accent ()
+    "Return (LABEL . COLOR). Mapped hosts get their color; any other host
+falls back to its short hostname with no color (COLOR = nil), so the badge
+is ALWAYS shown."
+    (or (cl-loop for (re label color) in cg/host-accents
+                 when (string-match-p re (system-name))
+                 return (cons label color))
+        (cons (car (split-string (system-name) "\\.")) nil)))
+
+  (doom-modeline-def-segment cg-host
+    "A host badge: colored text for mapped hosts, dim neutral otherwise.
+The font is tinted in the host hue (bright variant of the kitty tint, since
+kitty's dark tints would be unreadable as text)."
+    (let ((a (cg/host-accent)))
+      (concat (doom-modeline-spc)
+              (propertize (format " %s " (car a))
+                          'face (if (cdr a)
+                                    `(:foreground ,(cdr a) :weight bold)
+                                  'shadow))
+              (doom-modeline-spc))))
+
+  (doom-modeline-def-modeline 'main
+    '(eldoc bar cg-host window-state workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    '(compilation objed-state misc-info project-name persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs check time)))
+
 (after! lsp-mode
   ;; General LSP settings
   (setq lsp-enable-file-watchers nil
