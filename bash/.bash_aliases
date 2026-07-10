@@ -109,7 +109,7 @@ ssh() {
   # (kitty's default scope), so each tab keeps the color of its own host.
   if [ -n "$theme" ] && [ -f "$theme" ]; then
     $kbin @ set-colors "$theme" 2>/dev/null
-    [ -n "$color" ] && $kbin @ set-tab-color "active_bg=$color" "active_fg=#000000" 2>/dev/null
+    [ -n "$color" ] && $kbin @ set-tab-color "active_bg=$color" "active_fg=#000000" "inactive_bg=$color" "inactive_fg=#000000" 2>/dev/null
   fi
   $kbin ssh "$@"
   if [ -n "$theme" ] && [ -f "$theme" ]; then

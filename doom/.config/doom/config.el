@@ -1,8 +1,8 @@
-  ;; Functions (load all files in defuns-dir)
-  (setq defuns-dir (expand-file-name "defuns" doom-user-dir))
-  (dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
-    (when (file-regular-p file)
-      (load (file-name-sans-extension file))))
+;; Functions (load all files in defuns-dir)
+(setq defuns-dir (expand-file-name "defuns" doom-user-dir))
+(dolist (file (directory-files defuns-dir t "^[^.#].*el$"))
+  (when (file-regular-p file)
+    (load (file-name-sans-extension file))))
 
 (setq org-directory
       (or (getenv "ORG_DIRECTORY")
