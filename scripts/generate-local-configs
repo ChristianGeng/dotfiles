@@ -93,8 +93,8 @@ generate_configs() {
   # Run Emacs with the Lisp file
   emacs --batch --quick --load "$SCRIPT_DIR/generate-local-configs.el"
   
-  # Make output file executable
-  chmod +x "$OUTPUT_FILE"
+  # Restrict to owner — the file is sourced, not executed, and holds secrets
+  chmod 600 "$OUTPUT_FILE"
   
   print_msg "Generated $OUTPUT_FILE successfully"
 }
