@@ -26,24 +26,8 @@ export PATH=~/local/bin/:$PATH
 #  eval "$(pyenv init -)"
 # fi
 
-# git clone git@github.com:audeering/pyenvs.sh.git ~/bin/pyenvs
-# venv_dir=${HOME}/pyenvs/
-# source ${venv_dir}pyenvs.sh
-# export PYENVS_DIR="${HOME}/.envs"
-# export PYENVS_DIR="$HOME/work/.envs"
-# mkdir -p ${PYENVS_DIR}
-# export PYENVS_PYTHON_VERSION="3"
 # whil put in /usr/loca,
 # export PATH=$PATH:$HOME/go/bin/
-
-export PYENVS_DIR="$HOME/.envs"
-mkdir -p ${PYENVS_DIR}
-export PYENVS_PYTHON_VERSION="3"
-source  ${HOME}/pyenvs.sh/pyenvs.sh
-# echo "env variable PYENVS_DIR as in .bash_path:"
-# echo ${PYENVS_DIR}
-  source  ${HOME}/pyenvs.sh/pyenvs.sh
-
 
 # export PATH=/home/audeering.local/cgeng/bin/grpc-bin/bin:$PATH
 # export PATH=$PATH:/home/audeering.local/cgeng/bin/cmake-3.19.6/bin
