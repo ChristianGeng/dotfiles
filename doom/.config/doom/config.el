@@ -17,7 +17,6 @@
 
 (map! :leader
       (:prefix ("b". "buffer")
-       :desc "Kill buffer"                             "d" #'kill-current-buffer
        :desc "List bookmarks"                          "L" #'list-bookmarks
        :desc "Set bookmark"                            "m" #'bookmark-set
        :desc "Delete bookmark"                         "M" #'bookmark-set
