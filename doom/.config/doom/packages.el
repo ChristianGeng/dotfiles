@@ -104,7 +104,7 @@
 ;; GitHub Copilot - Real-time code completion
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el"
-           :files ("*.el")))
+           :files ("*.el" "dist")))
 
 ;; AiderMacs - AI pair programming integration
 (package! aidermacs
