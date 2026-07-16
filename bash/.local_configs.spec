@@ -5,7 +5,8 @@
 ;; NOTE: company/work creds (OPENAI_API_KEY, GITLAB_API_TOKEN, ...) now live in
 ;; audeering-dotfiles/audeering-config/.audeering_configs.spec, generated via
 ;; `generate-local-configs --profile audeering`. Keep only personal creds here.
-((perplexity-personal :pass "personal/api/perplexity/perplexity_api_key" :env "PERPLEXITY_API_KEY")
+((ai-coustics-personal :pass "personal/api/ai-coustics/ai_coustics_api_key" :env "AIC_LICENSE_KEY")
+  (perplexity-personal :pass "personal/api/perplexity/perplexity_api_key" :env "PERPLEXITY_API_KEY")
   (xai-personal       :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY")
   (brave-personal     :pass "personal/api/brave/BRAVE_API_KEY"            :env "BRAVE_API_KEY")
   (deepgram-personal  :pass "personal/api/deepgram/main"                  :env "DEEPGRAM_API_KEY")

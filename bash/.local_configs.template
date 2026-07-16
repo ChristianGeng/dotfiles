@@ -4,6 +4,7 @@
 # Template for local environment variables
 
 # API Keys from pass store
+export AIC_LICENSE_KEY="${AIC_LICENSE_KEY}"
 export PERPLEXITY_API_KEY="${PERPLEXITY_API_KEY}"
 export XAI_API_KEY="${XAI_API_KEY}"
 export BRAVE_API_KEY="${BRAVE_API_KEY}"
