@@ -58,4 +58,51 @@
            "just \\*\\*bold\\*\\* text"
            (cg/org-gitlab--export-string "just *bold* text"))))
 
+(ert-deftest cg/org-gitlab-copy-subtree-at-point ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* One\nalpha\n* TODO Two\n[[id:xyz][Ref]]\nbeta\n")
+    (goto-char (point-min))
+    (forward-line 3)                    ; inside subtree "Two"
+    (cg/org-copy-as-gitlab-markdown)
+    (let ((md (current-kill 0)))
+      (should (string-match-p "^## Two" md))
+      (should (string-match-p "Ref" md))
+      (should-not (string-match-p "TODO" md))
+      (should-not (string-match-p "One" md)))))
+
+(ert-deftest cg/org-gitlab-copy-region-wins-over-subtree ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "* One\nalpha\n* Two\nbeta\n")
+    (set-mark (point-min))
+    (goto-char (point-min))
+    (forward-line 2)                    ; region = subtree "One" only
+    (activate-mark)
+    (let ((transient-mark-mode t))
+      (cg/org-copy-as-gitlab-markdown))
+    (let ((md (current-kill 0)))
+      (should (string-match-p "^## One" md))
+      (should-not (string-match-p "Two" md)))))
+
+(ert-deftest cg/org-gitlab-copy-before-first-heading-errors ()
+  (with-temp-buffer
+    (org-mode)
+    (insert "preamble\n* One\n")
+    (goto-char (point-min))
+    (should-error (cg/org-copy-as-gitlab-markdown) :type 'user-error)))
+
+(ert-deftest cg/org-gitlab-copy-outside-org-errors ()
+  (with-temp-buffer
+    (fundamental-mode)
+    (should-error (cg/org-copy-as-gitlab-markdown) :type 'user-error)))
+
+(ert-deftest cg/org-gitlab-yank-converts-clipboard-org ()
+  (with-temp-buffer
+    (kill-new "* Note\nsee [[id:abc][That Page]]")
+    (cg/org-yank-as-gitlab-markdown)
+    (should (string-match-p "^## Note" (buffer-string)))
+    (should (string-match-p "That Page" (buffer-string)))
+    (should-not (string-match-p "id:abc" (buffer-string)))))
+
 (provide 'org-gitlab-defuns-test)

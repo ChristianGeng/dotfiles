@@ -43,3 +43,38 @@ demotion needed, regardless of the input's absolute levels."
    '(:with-toc nil :with-todo-keywords nil :with-tags nil
      :with-author nil :with-date nil :with-timestamps nil
      :headline-levels 6)))
+
+(defun cg/org-copy-as-gitlab-markdown ()
+  "Copy region (or subtree at point) as GitLab-flavored markdown."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not in an org-mode buffer"))
+  (let* ((org-text
+          (cond
+           ((use-region-p)
+            (buffer-substring-no-properties (region-beginning) (region-end)))
+           ((org-before-first-heading-p)
+            (user-error "No region active and point is before the first heading"))
+           (t (save-excursion
+                (org-back-to-heading t)
+                (let ((beg (point)))
+                  (org-end-of-subtree t t)
+                  (buffer-substring-no-properties beg (point)))))))
+         (md (cg/org-gitlab--export-string org-text)))
+    (kill-new md)
+    (message "Copied %d chars as GitLab markdown" (length md))))
+
+(defun cg/org-yank-as-gitlab-markdown ()
+  "Insert clipboard/kill-ring org content converted to GitLab markdown."
+  (interactive)
+  (insert (cg/org-gitlab--export-string (current-kill 0))))
+
+(after! org
+  (map! :map org-mode-map
+        :localleader
+        :desc "Copy as GitLab markdown" "y" #'cg/org-copy-as-gitlab-markdown))
+
+(after! markdown-mode
+  (map! :map markdown-mode-map
+        :localleader
+        :desc "Yank org as GitLab markdown" "y" #'cg/org-yank-as-gitlab-markdown))
