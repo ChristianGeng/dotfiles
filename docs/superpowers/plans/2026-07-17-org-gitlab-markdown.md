@@ -56,7 +56,7 @@ Create `doom/.config/doom/tests/org-gitlab-defuns-test.el`:
 (ert-deftest cg/org-gitlab-bare-id-link-emits-nothing ()
   (let ((md (cg/org-gitlab--export-string "before [[id:abc-123]] after")))
     (should-not (string-match-p "abc-123" md))
-    (should (string-match-p "before  after" md))))
+    (should (string-match-p "before after" md))))  ; org folds the link's trailing space
 
 (ert-deftest cg/org-gitlab-https-links-survive ()
   (should (string-match-p
@@ -132,24 +132,17 @@ Create `doom/.config/doom/defuns/org-gitlab-defuns.el`:
       (or contents "")
     (org-export-with-backend 'gfm link contents info)))
 
-(defun cg/org-gitlab--demote-headings (tree _backend info)
-  "Demote headlines in TREE so the highest level becomes 2."
-  (let ((min-level nil))
-    (org-element-map tree 'headline
-      (lambda (hl)
-        (let ((level (org-element-property :level hl)))
-          (when (or (null min-level) (< level min-level))
-            (setq min-level level))))
-      info)
-    (when min-level
-      (let ((delta (- 2 min-level)))
-        (unless (zerop delta)
-          (org-element-map tree 'headline
-            (lambda (hl)
-              (org-element-put-property
-               hl :level (+ (org-element-property :level hl) delta)))
-            info)))))
-  tree)
+(defun cg/org-gitlab--headline (headline contents info)
+  "Transcode HEADLINE one level deeper, so the top level renders as H2.
+org-export normalizes levels so the shallowest headline is level 1
+\(`org-export--collect-tree-properties' sets `:headline-offset' to
+1 - min-level); bumping the offset by one is therefore all the
+demotion needed, regardless of the input's absolute levels."
+  (org-export-with-backend
+   'gfm headline contents
+   (org-combine-plists
+    info (list :headline-offset
+               (1+ (or (plist-get info :headline-offset) 0))))))
 
 (defvar cg/org-gitlab--backend
   (progn
@@ -157,9 +150,15 @@ Create `doom/.config/doom/defuns/org-gitlab-defuns.el`:
     (org-export-create-backend
      :name 'gitlab
      :parent 'gfm
-     :transcoders '((link . cg/org-gitlab--link))
-     :filters '((:filter-parse-tree . cg/org-gitlab--demote-headings))))
+     :transcoders '((link . cg/org-gitlab--link)
+                    (headline . cg/org-gitlab--headline))))
   "GFM-derived export backend for GitLab issues/MRs.")
+
+**Note (found during execution):** a `:filter-parse-tree` that demotes
+`:level` properties does NOT work — org-export re-normalizes levels after
+parse-tree filters run (`:headline-offset` is recomputed as `1 - min-level`
+in `org-export--collect-tree-properties`), silently cancelling the demotion.
+The headline-transcoder offset bump above is the correct mechanism.
 
 (defun cg/org-gitlab--export-string (org-text)
   "Export ORG-TEXT (a string of org markup) to GitLab markdown."
