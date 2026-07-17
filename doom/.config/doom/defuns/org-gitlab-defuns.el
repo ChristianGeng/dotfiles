@@ -6,8 +6,6 @@
 ;;   cg/org-yank-as-gitlab-markdown  — clipboard org → markdown buffer
 ;; Spec: docs/superpowers/specs/2026-07-17-org-gitlab-markdown-design.md
 
-(require 'ox)
-
 (defun cg/org-gitlab--link (link contents info)
   "Transcode LINK: id/roam links become plain description text."
   (if (member (org-element-property :type link) '("id" "roam"))
@@ -26,20 +24,26 @@ demotion needed, regardless of the input's absolute levels."
     info (list :headline-offset
                (1+ (or (plist-get info :headline-offset) 0))))))
 
-(defvar cg/org-gitlab--backend
-  (progn
-    (require 'ox-gfm)
-    (org-export-create-backend
-     :name 'gitlab
-     :parent 'gfm
-     :transcoders '((link . cg/org-gitlab--link)
-                    (headline . cg/org-gitlab--headline))))
-  "GFM-derived export backend for GitLab issues/MRs.")
+(defvar cg/org-gitlab--backend nil
+  "GFM-derived export backend for GitLab issues/MRs, built on first use.
+Lazy so loading this file at startup doesn't pull in org/ox/ox-gfm.")
+
+(defun cg/org-gitlab--ensure-backend ()
+  "Return the GitLab export backend, creating it on first call."
+  (or cg/org-gitlab--backend
+      (progn
+        (require 'ox-gfm)
+        (setq cg/org-gitlab--backend
+              (org-export-create-backend
+               :name 'gitlab
+               :parent 'gfm
+               :transcoders '((link . cg/org-gitlab--link)
+                              (headline . cg/org-gitlab--headline)))))))
 
 (defun cg/org-gitlab--export-string (org-text)
   "Export ORG-TEXT (a string of org markup) to GitLab markdown."
   (org-export-string-as
-   org-text cg/org-gitlab--backend t
+   org-text (cg/org-gitlab--ensure-backend) t
    '(:with-toc nil :with-todo-keywords nil :with-tags nil
      :with-author nil :with-date nil :with-timestamps nil
      :headline-levels 6)))
