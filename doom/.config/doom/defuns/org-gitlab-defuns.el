@@ -68,17 +68,38 @@ Lazy so loading this file at startup doesn't pull in org/ox/ox-gfm.")
     (kill-new md)
     (message "Copied %d chars as GitLab markdown" (length md))))
 
-(defun cg/org-yank-as-gitlab-markdown ()
-  "Insert clipboard/kill-ring org content converted to GitLab markdown."
+(defun cg/org-gitlab--markdown-to-org (md-text)
+  "Convert MD-TEXT (GitLab/GitHub-flavored markdown) to org via pandoc."
+  (unless (executable-find "pandoc")
+    (user-error "Cannot convert markdown to org: pandoc not installed"))
+  (with-temp-buffer
+    (insert md-text)
+    (let ((exit-code (call-process-region (point-min) (point-max) "pandoc"
+                                          t t nil "-f" "gfm" "-t" "org")))
+      (unless (zerop exit-code)
+        (user-error "pandoc failed (exit %d): %s" exit-code
+                    (string-trim (buffer-string)))))
+    ;; pandoc artifacts: CUSTOM_ID drawers from GFM auto heading ids
+    ;; (the gfm_auto_identifiers reader extension can't be disabled in
+    ;; pandoc 2.9), and unicode checkboxes instead of org's [ ]/[X].
+    (goto-char (point-min))
+    (while (re-search-forward
+            "^[ \t]*:PROPERTIES:\n\\(?:[ \t]*:CUSTOM_ID:.*\n\\)+[ \t]*:END:\n"
+            nil t)
+      (replace-match ""))
+    (goto-char (point-min))
+    (while (re-search-forward "[☐☒]" nil t)
+      (replace-match (if (string= (match-string 0) "☒") "[X]" "[ ]")))
+    (buffer-string)))
+
+(defun cg/markdown-yank-as-org ()
+  "Insert clipboard/kill-ring markdown content converted to org.
+For capturing GitLab issue text or local markdown files into org notes."
   (interactive)
-  (insert (cg/org-gitlab--export-string (current-kill 0))))
+  (insert (cg/org-gitlab--markdown-to-org (current-kill 0))))
 
 (after! org
   (map! :map org-mode-map
         :localleader
-        :desc "Copy as GitLab markdown" "y" #'cg/org-copy-as-gitlab-markdown))
-
-(after! markdown-mode
-  (map! :map markdown-mode-map
-        :localleader
-        :desc "Yank org as GitLab markdown" "y" #'cg/org-yank-as-gitlab-markdown))
+        :desc "Copy as GitLab markdown" "y" #'cg/org-copy-as-gitlab-markdown
+        :desc "Yank markdown as org"    "Y" #'cg/markdown-yank-as-org))

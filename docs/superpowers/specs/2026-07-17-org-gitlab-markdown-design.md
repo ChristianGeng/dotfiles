@@ -89,6 +89,29 @@ stripping). Verify the copy command's output pastes correctly into a GitLab
 comment preview, and the yank command round-trips the same content into a
 markdown buffer. Also verify OSC 52 copy works over an SSH session.
 
+## Revision (2026-07-17, after live use)
+
+The org→markdown *yank* command (`cg/org-yank-as-gitlab-markdown`) was
+dropped: drafting GitLab text in Emacs markdown buffers turned out not to be
+part of the real workflow. The yank direction that matters is the reverse —
+capturing GitLab issue text or local markdown into org notes. Replaced by:
+
+- **`cg/org-gitlab--markdown-to-org (md-text)`** — converts GFM to org via
+  `pandoc -f gfm -t org` (pandoc required; `user-error` if missing).
+  Post-processing removes pandoc artifacts: `:CUSTOM_ID:` property drawers
+  (the `gfm_auto_identifiers` reader extension cannot be disabled in
+  pandoc 2.9) and unicode checkboxes (`☐`/`☒` → `[ ]`/`[X]`).
+- **`cg/markdown-yank-as-org`** (interactive, org-mode) — converts
+  `(current-kill 0)` and inserts at point.
+- Keybindings now both live in org-mode's localleader: `y` copies out
+  (org → GitLab markdown), `Y` yanks in (markdown → org). The
+  markdown-mode binding was removed. `Y` verified free at top level
+  (org-roam's `Y` is under the dailies prefix).
+
+Conversion-direction rule that drove this: Emacs can only convert at the end
+of the pipe it controls — org→GitLab must convert on copy (browser receives
+the paste), markdown→org must convert on yank (browser can't convert on copy).
+
 ## Out of scope
 
 - Resolving `id:` links to public URLs (org-roam notes have no GitLab-visible

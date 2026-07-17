@@ -5,6 +5,7 @@
 (unless (fboundp 'after!) (defmacro after! (_pkg &rest _body) nil))
 
 (require 'ert)
+(require 'cl-lib)
 (require 'ox-gfm)
 (load (expand-file-name "../defuns/org-gitlab-defuns.el"
                         (file-name-directory (or load-file-name buffer-file-name))))
@@ -97,12 +98,40 @@
     (fundamental-mode)
     (should-error (cg/org-copy-as-gitlab-markdown) :type 'user-error)))
 
-(ert-deftest cg/org-gitlab-yank-converts-clipboard-org ()
+(ert-deftest cg/org-gitlab-md-to-org-basic ()
+  (let ((org (cg/org-gitlab--markdown-to-org
+              "## Heading\n\nSee [GitLab](https://gitlab.com) and `code`.")))
+    (should (string-match-p "^\\*\\* Heading" org))
+    (should (string-match-p "\\[\\[https://gitlab\\.com\\]\\[GitLab\\]\\]" org))
+    (should (string-match-p "=code=" org))))
+
+(ert-deftest cg/org-gitlab-md-to-org-strips-custom-id-drawers ()
+  (let ((org (cg/org-gitlab--markdown-to-org "## My Section\n\ntext")))
+    (should-not (string-match-p ":PROPERTIES:" org))
+    (should-not (string-match-p ":CUSTOM_ID:" org))
+    (should (string-match-p "^\\*\\* My Section\n\ntext" org))))
+
+(ert-deftest cg/org-gitlab-md-to-org-table ()
+  (let ((org (cg/org-gitlab--markdown-to-org
+              "| a | b |\n|---|---|\n| 1 | 2 |")))
+    (should (string-match-p "^| a | b |" org))
+    (should (string-match-p "^| 1 | 2 |" org))))
+
+(ert-deftest cg/org-gitlab-md-to-org-task-checkboxes ()
+  (let ((org (cg/org-gitlab--markdown-to-org "- [x] done\n- [ ] open")))
+    (should (string-match-p "- \\[X\\] done" org))
+    (should (string-match-p "- \\[ \\] open" org))
+    (should-not (string-match-p "[☐☒]" org))))
+
+(ert-deftest cg/org-gitlab-md-yank-inserts-org ()
   (with-temp-buffer
-    (kill-new "* Note\nsee [[id:abc][That Page]]")
-    (cg/org-yank-as-gitlab-markdown)
-    (should (string-match-p "^## Note" (buffer-string)))
-    (should (string-match-p "That Page" (buffer-string)))
-    (should-not (string-match-p "id:abc" (buffer-string)))))
+    (kill-new "## Note\n\nsome **bold** text")
+    (cg/markdown-yank-as-org)
+    (should (string-match-p "^\\*\\* Note" (buffer-string)))
+    (should (string-match-p "\\*bold\\*" (buffer-string)))))
+
+(ert-deftest cg/org-gitlab-md-to-org-errors-without-pandoc ()
+  (cl-letf (((symbol-function 'executable-find) (lambda (&rest _) nil)))
+    (should-error (cg/org-gitlab--markdown-to-org "text") :type 'user-error)))
 
 (provide 'org-gitlab-defuns-test)
