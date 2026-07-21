@@ -48,6 +48,26 @@
                ":work:"
                (cg/org-gitlab--export-string "* Heading :work:"))))
 
+(ert-deftest cg/org-gitlab-underscores-not-subscripts ()
+  ;; Bare underscores in identifiers must NOT become <sub> markup.
+  (let ((md (cg/org-gitlab--export-string
+             "IVA_SLM_MODEL__MODEL_PATH_OR_UID and INFERENCE_MODE")))
+    (should-not (string-match-p "<sub>" md))
+    (should (string-match-p "IVA_SLM_MODEL" md))
+    (should (string-match-p "INFERENCE_MODE" md))))
+
+(ert-deftest cg/org-gitlab-ellipsis-stays-literal ()
+  ;; \"...\" must stay literal, not become the … HTML entity.
+  (let ((md (cg/org-gitlab--export-string "keep whole-JSON ...")))
+    (should (string-match-p "\\.\\.\\." md))
+    (should-not (string-match-p "&#x2026;" md))))
+
+(ert-deftest cg/org-gitlab-underscores-in-table-cells ()
+  (let ((md (cg/org-gitlab--export-string
+             "| var | new |\n|-----+-----|\n| IVA_SLM_LORA | IVA_SLM_MODEL__LORA |")))
+    (should-not (string-match-p "<sub>" md))
+    (should (string-match-p "IVA_SLM_LORA" md))))
+
 (ert-deftest cg/org-gitlab-code-block-fenced-with-language ()
   (let ((md (cg/org-gitlab--export-string
              "#+begin_src python\nprint(1)\n#+end_src")))

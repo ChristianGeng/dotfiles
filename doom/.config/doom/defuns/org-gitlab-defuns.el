@@ -24,6 +24,14 @@ demotion needed, regardless of the input's absolute levels."
     info (list :headline-offset
                (1+ (or (plist-get info :headline-offset) 0))))))
 
+(defun cg/org-gitlab--plain-text (text info)
+  "Transcode plain TEXT via gfm, then drop the backslash before underscores.
+ox-md escapes every `_' as `\\_' to avoid emphasis, but GFM does not treat
+intraword underscores as emphasis, so the escaping is just noise that makes
+identifiers like IVA_SLM_MODEL_PATH unreadable in the raw markdown."
+  (replace-regexp-in-string
+   "\\\\_" "_" (org-export-with-backend 'gfm text info)))
+
 (defvar cg/org-gitlab--backend nil
   "GFM-derived export backend for GitLab issues/MRs, built on first use.
 Lazy so loading this file at startup doesn't pull in org/ox/ox-gfm.")
@@ -38,14 +46,21 @@ Lazy so loading this file at startup doesn't pull in org/ox/ox-gfm.")
                :name 'gitlab
                :parent 'gfm
                :transcoders '((link . cg/org-gitlab--link)
-                              (headline . cg/org-gitlab--headline)))))))
+                              (headline . cg/org-gitlab--headline)
+                              (plain-text . cg/org-gitlab--plain-text)))))))
 
 (defun cg/org-gitlab--export-string (org-text)
   "Export ORG-TEXT (a string of org markup) to GitLab markdown."
   (org-export-string-as
    org-text (cg/org-gitlab--ensure-backend) t
+   ;; :with-sub-superscript {} (note: SINGULAR key — ox.el's option is
+   ;; `:with-sub-superscript`) — bare a_b / a^b are NOT sub/superscripts
+   ;; (only explicit a_{b}), so identifiers like IVA_SLM_MODEL_PATH keep
+   ;; their literal underscores instead of turning into <sub> markup.
+   ;; :with-special-strings nil — keep "..." literal, not the … entity.
    '(:with-toc nil :with-todo-keywords nil :with-tags nil
      :with-author nil :with-date nil :with-timestamps nil
+     :with-sub-superscript {} :with-special-strings nil
      :headline-levels 6)))
 
 (defun cg/org-copy-as-gitlab-markdown ()
