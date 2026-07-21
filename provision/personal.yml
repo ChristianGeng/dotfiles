@@ -6,6 +6,12 @@
   hosts: all
   become: yes
 
+  vars:
+    # Control-node checkout of cgeng-ai-skills (Claude skills+MCP framework),
+    # rsync'd to the box so bootstrap-claude.sh can run here (no agent needed).
+    # lookup('env','HOME') resolves on the control node, where box-hook.sh runs.
+    cgeng_ai_skills_src: "{{ lookup('env', 'HOME') }}/work/cgeng/cgeng-ai-skills"
+
   tasks:
     - name: Ensure the myfiles work directory exists
       file:
@@ -193,3 +199,32 @@
             tool (commands exit 1 with no output). `$TMPDIR` is a per-user dir
             with a daily cleanup cron.
       become: false
+
+    # cgeng-ai-skills + Claude Code bootstrap. Moved here from the ec2 playbook
+    # so the personal layer lives ONLY in this POST_HOOK. rsync the control-node
+    # checkout to the box, then bootstrap-claude.sh registers the behavior-core
+    # skills + the 4 MCP servers (brave, perplexity, livekit-docs, org-roam)
+    # into the default ~/.claude. org-roam's DATA still needs the cgeng/org
+    # notes, cloned separately by the interactive clone script.
+    - name: Deploy cgeng-ai-skills to the box (rsync from control node)
+      tags: [claude, skills]
+      ansible.posix.synchronize:
+        src: "{{ cgeng_ai_skills_src }}/"
+        dest: "/home/ubuntu/project/{{ username }}/work/cgeng/cgeng-ai-skills/"
+        rsync_opts:
+          - "--exclude=.venv"
+          - "--exclude=build"
+          - "--exclude=htmlcov"
+          - "--exclude=.coverage"
+          - "--exclude=.cache"
+          - "--exclude=__pycache__"
+          - "--exclude=*.egg-info"
+      become: false
+
+    - name: Bootstrap Claude Code (skills + MCPs)
+      tags: [claude, skills]
+      command:
+        cmd: scripts/bootstrap-claude.sh
+        chdir: "/home/ubuntu/project/{{ username }}/work/cgeng/cgeng-ai-skills"
+      become: false
+      changed_when: true
