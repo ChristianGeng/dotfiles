@@ -58,9 +58,12 @@ Lazy so loading this file at startup doesn't pull in org/ox/ox-gfm.")
    ;; (only explicit a_{b}), so identifiers like IVA_SLM_MODEL_PATH keep
    ;; their literal underscores instead of turning into <sub> markup.
    ;; :with-special-strings nil — keep "..." literal, not the … entity.
+   ;; :with-smart-quotes nil — keep "x" and 'x' as straight ASCII quotes, not
+   ;; “x” / ‘x’ HTML entities. Pinned (not left to the user's global
+   ;; org-export-with-smart-quotes) so pasted code/JSON stays copy-pasteable.
    '(:with-toc nil :with-todo-keywords nil :with-tags nil
      :with-author nil :with-date nil :with-timestamps nil
-     :with-sub-superscript {} :with-special-strings nil
+     :with-sub-superscript {} :with-special-strings nil :with-smart-quotes nil
      :headline-levels 6)))
 
 (defun cg/org-copy-as-gitlab-markdown ()
