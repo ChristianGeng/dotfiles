@@ -9,5 +9,6 @@
 # Local shell (not via ssh) intentionally has no entry -> stays the default,
 # untinted theme + tab, so "untinted == I'm local".
 
-iva-p4d-param*       host-red.conf    #ff5555
+iva-p4d*             host-red.conf    #ff5555
+iva-p5*              host-red.conf    #ff5555
 *iva-demo*           host-blue.conf   #5599ff
