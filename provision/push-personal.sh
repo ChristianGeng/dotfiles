@@ -25,7 +25,10 @@
 #   push-personal.sh iva-p5                                  # cluster: -> ~/work
 #   push-personal.sh iva-demo-test-cgeng project/cgeng/work  # demo box: -> ~/project/cgeng/work
 #
-# Pass-through env (forwarded to the remote runner if set): PERSONAL, CLAUDE.
+# Pass-through env (forwarded to the remote runner if set): PERSONAL, CLAUDE,
+# PERSONAL_TARGET, GITLAB_TOKEN, GITLAB_HOST. The runner is environment-aware and
+# auto-detects the profile (demo vs cluster) from the target's filesystem, so
+# normally only the remote_work argument differs between the two targets.
 set -euo pipefail
 
 HOST="${1:?usage: push-personal.sh <ssh-host> [remote_work]}"
@@ -72,8 +75,11 @@ echo
 echo "== [4/4] run personal-bootstrap.sh on $HOST (WORK=$REMOTE_WORK) =="
 # Forward selected env if set in this control-node shell.
 REMOTE_ENV=""
-[ -n "${PERSONAL:-}" ] && REMOTE_ENV+="PERSONAL=$(printf %q "$PERSONAL") "
-[ -n "${CLAUDE:-}" ]   && REMOTE_ENV+="CLAUDE=$(printf %q "$CLAUDE") "
+[ -n "${PERSONAL:-}" ]        && REMOTE_ENV+="PERSONAL=$(printf %q "$PERSONAL") "
+[ -n "${CLAUDE:-}" ]          && REMOTE_ENV+="CLAUDE=$(printf %q "$CLAUDE") "
+[ -n "${PERSONAL_TARGET:-}" ] && REMOTE_ENV+="PERSONAL_TARGET=$(printf %q "$PERSONAL_TARGET") "
+[ -n "${GITLAB_TOKEN:-}" ]    && REMOTE_ENV+="GITLAB_TOKEN=$(printf %q "$GITLAB_TOKEN") "
+[ -n "${GITLAB_HOST:-}" ]     && REMOTE_ENV+="GITLAB_HOST=$(printf %q "$GITLAB_HOST") "
 ssh -o BatchMode=yes "$HOST" \
   "${REMOTE_ENV}bash ~/personal-bootstrap.sh $REMOTE_WORK"
 

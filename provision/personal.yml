@@ -2,6 +2,21 @@
 # Personal box setup, run as a POST_HOOK after the generic box playbook.
 # Standalone: invoked by provision/box-hook.sh via the ec2 repo's ansible venv,
 # reusing that repo's inventory (so {{ username }} resolves from the inventory).
+#
+# CONVERGENCE (see provision/personal-bootstrap.sh): the shared personal-layer
+# core — user tools, stow emacs+doom, environment-aware Doom, Claude Code
+# (skills + MCPs), and the demo-only Claude TMPDIR hygiene — now lives in ONE
+# script, personal-bootstrap.sh, used by BOTH targets (this demo POST_HOOK and
+# the iva-p5 clusters via provision/push-personal.sh). This playbook is now a
+# THIN demo-only wrapper that:
+#   1. stages the two repos on the box (myfiles from GitHub; cgeng-ai-skills
+#      rsync'd from the control node),
+#   2. lays down the FULL dotfiles set with stow-deploy.sh — the ONE demo-only
+#      task deliberately NOT in the shared core (bash/git/tmux/node/... ; the
+#      shared core stows ONLY emacs+doom to keep a narrow footprint on the
+#      shared clusters), and
+#   3. runs personal-bootstrap.sh (WORK=~/project/cgeng/work, PERSONAL_TARGET=demo)
+#      for everything else.
 - name: cgeng personal box setup
   hosts: all
   become: yes
@@ -11,136 +26,10 @@
     # rsync'd to the box so bootstrap-claude.sh can run here (no agent needed).
     # lookup('env','HOME') resolves on the control node, where box-hook.sh runs.
     cgeng_ai_skills_src: "{{ lookup('env', 'HOME') }}/work/cgeng/cgeng-ai-skills"
+    work_root: "/home/ubuntu/project/{{ username }}/work"
 
   tasks:
-    - name: Ensure the myfiles work directory exists
-      file:
-        path: "/home/ubuntu/project/{{ username }}/work/myfiles"
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
-      become: false
-
-    # Clone the personal dotfiles from GitHub (public, reachable) and deploy
-    # them with GNU stow. stow-deploy.sh's default packages include bash, so
-    # this also lays down .bashrc/.bash_aliases/.bash_path/.shell_scripts.
-    # Runs as the ubuntu user so symlinks target /home/ubuntu.
-    - name: Clone personal dotfiles (myfiles) from GitHub
-      tags: [dotfiles]
-      git:
-        repo: https://github.com/ChristianGeng/dotfiles.git
-        dest: "/home/ubuntu/project/{{ username }}/work/myfiles/dotfiles"
-        version: main
-        # The box is a deploy target, not a dev workspace for these dotfiles
-        # (you edit locally → push → box pulls). Doom tangles config.org into
-        # the stow-symlinked config.el, which dirties the working tree and makes
-        # a plain pull abort with "Local modifications exist". force: yes
-        # discards those so re-runs are idempotent.
-        force: yes
-      become: false
-      register: myfiles_dotfiles
-
-    - name: Deploy myfiles dotfiles with GNU stow
-      tags: [dotfiles]
-      command:
-        cmd: ./stow-deploy.sh
-        chdir: "/home/ubuntu/project/{{ username }}/work/myfiles/dotfiles"
-      environment:
-        HOME: /home/ubuntu
-      become: false
-      register: stow_myfiles
-      changed_when: true
-
-    # Doom Emacs framework. The user's stowed ~/.config/doom holds the Doom
-    # CONFIG (init.el/packages.el/config.el as stow symlinks); this installs the
-    # framework itself. It lives at ~/doom-emacs to match the chemacs "doom"
-    # profile (user-emacs-directory ~/doom-emacs) and the ~/doom-emacs/bin PATH
-    # entry from .bash_path. Doom writes only inside ~/doom-emacs, so the stowed
-    # config symlinks are never touched. Runs as the ubuntu user.
-    - name: Clone Doom Emacs framework from GitHub
-      tags: [doom]
-      git:
-        repo: https://github.com/doomemacs/doomemacs.git
-        dest: /home/ubuntu/doom-emacs
-        version: master
-        depth: 1
-      become: false
-      register: doom_framework
-
-    # `doom install` bootstraps the framework and installs packages. --force
-    # makes it non-interactive (no TTY on the box). This Doom (v2.x) has no
-    # --no-fonts flag and installs no fonts; --no-env/--no-config keep it from
-    # writing an env file or clobbering the stowed ~/.config/doom. Guarded by the
-    # .local build dir it creates, so it only runs on first setup.
-    - name: Install Doom Emacs (bootstrap framework + packages)
-      tags: [doom]
-      command:
-        cmd: /home/ubuntu/doom-emacs/bin/doom install --force --no-env --no-config
-        creates: /home/ubuntu/doom-emacs/.local
-      environment:
-        DOOMDIR: /home/ubuntu/.config/doom
-        HOME: /home/ubuntu
-      become: false
-
-    # Sync packages against the stowed config. Runs when the framework was just
-    # cloned or updated, OR when the myfiles checkout changed (a plain pull that
-    # brings in new package!/module declarations in the stowed config). Without
-    # the myfiles clause, a re-run that only adds config-only packages would skip
-    # the sync and never install them. doom sync is idempotent (~8s no-op when
-    # everything is up to date), so the extra trigger is cheap.
-    - name: Sync Doom Emacs packages with the stowed config
-      tags: [doom]
-      command:
-        cmd: /home/ubuntu/doom-emacs/bin/doom sync
-      environment:
-        DOOMDIR: /home/ubuntu/.config/doom
-        HOME: /home/ubuntu
-      become: false
-      when: doom_framework is changed or myfiles_dotfiles is changed
-      changed_when: true
-
-    # Make Doom the DEFAULT chemacs profile on this box. The stowed
-    # ~/.emacs-profiles.el (from personal dotfiles) leaves the chemacs default
-    # profile as "default" -> ~/emacs-conf, which is the user's *local*
-    # workstation config and is never deployed here. Without this marker, a
-    # plain `emacs` on the box loads the "default" profile pointing at a
-    # nonexistent ~/emacs-conf, so Doom (and all its default keybindings, e.g.
-    # SPC b d = kill-current-buffer) never loads. chemacs reads ~/.emacs-profile
-    # to override the default profile name, so writing "doom" here makes plain
-    # `emacs` load the Doom profile (~/doom-emacs) that the tasks above install.
-    # This is box-specific and deliberately NOT put in the shared dotfiles,
-    # where "default" -> ~/emacs-conf is intentional for the multi-config local
-    # machine. Users can still pick other profiles with `emacs --with-profile`.
-    - name: Set Doom as the default chemacs profile (~/.emacs-profile marker)
-      tags: [doom]
-      copy:
-        content: "doom"
-        dest: /home/ubuntu/.emacs-profile
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-      become: false
-
-    # Web-dev formatters/linters for Doom's :lang web (stylelint, js-beautify).
-    # Installed as npm globals into the nvm-managed Node prefix (tidy comes from
-    # apt above). become: false so they land under the ubuntu user's nvm.
-    - name: Install web formatters/linters via npm (Doom :lang web)
-      tags: [tools, node, doom]
-      shell: |
-        export NVM_DIR="$HOME/.nvm"
-        . "$NVM_DIR/nvm.sh"
-        npm install -g stylelint js-beautify
-      args:
-        executable: /bin/bash
-        creates: /home/ubuntu/.nvm/versions/node/*/bin/js-beautify
-      become: false
-
-    # Claude Code: move TMPDIR off /tmp, which fills up on the box and silently
-    # breaks Claude's Bash tool (commands exit 1). Targets the default ~/.claude
-    # that plain `claude` reads. All tasks converge (idempotent).
-    - name: Ensure Claude config dir + per-user temp dir exist
-      tags: [claude, tmpdir]
+    - name: Ensure the work checkout dirs exist
       file:
         path: "{{ item }}"
         state: directory
@@ -148,69 +37,28 @@
         group: ubuntu
         mode: '0755'
       loop:
-        - /home/ubuntu/.claude
-        - /home/ubuntu/.tmp
+        - "{{ work_root }}/myfiles"
+        - "{{ work_root }}/cgeng"
       become: false
 
-    - name: Read existing Claude settings.json (if any)
-      tags: [claude, tmpdir]
-      slurp:
-        path: /home/ubuntu/.claude/settings.json
-      register: claude_settings_raw
-      failed_when: false
+    # Clone the personal dotfiles from GitHub (public, reachable). force: yes
+    # discards the working-tree changes Doom tangles into the stow-symlinked
+    # config.el, so a re-run pull never aborts with "Local modifications exist".
+    - name: Clone personal dotfiles (myfiles) from GitHub
+      tags: [dotfiles]
+      git:
+        repo: https://github.com/ChristianGeng/dotfiles.git
+        dest: "{{ work_root }}/myfiles/dotfiles"
+        version: main
+        force: yes
       become: false
 
-    - name: Set TMPDIR in Claude settings.json (merged, not overwritten)
-      tags: [claude, tmpdir]
-      vars:
-        existing: "{{ (claude_settings_raw.content | b64decode | from_json) if (claude_settings_raw.content is defined) else {} }}"
-      copy:
-        content: |
-          {{ existing | combine({'env': {'TMPDIR': '/home/ubuntu/.tmp'}}, recursive=True) | to_nice_json }}
-        dest: /home/ubuntu/.claude/settings.json
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-      become: false
-
-    - name: Daily cleanup of Claude TMPDIR (7-day retention, 03:00)
-      tags: [claude, tmpdir]
-      cron:
-        name: "Cleanup Claude TMPDIR"
-        minute: "0"
-        hour: "3"
-        job: "find /home/ubuntu/.tmp -mindepth 1 -mtime +7 -delete"
-        user: ubuntu
-      become: true
-
-    - name: Tell Claude to use $TMPDIR (global instructions)
-      tags: [claude, tmpdir]
-      blockinfile:
-        path: /home/ubuntu/.claude/CLAUDE.md
-        create: yes
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-        marker: "<!-- {mark} ANSIBLE: tmpdir -->"
-        block: |
-          ## Filesystem / shell
-          - Use `$TMPDIR` (or `mktemp`) for temporary files, never hardcode
-            `/tmp/...`. `/tmp` on this box fills up and silently breaks the Bash
-            tool (commands exit 1 with no output). `$TMPDIR` is a per-user dir
-            with a daily cleanup cron.
-      become: false
-
-    # cgeng-ai-skills + Claude Code bootstrap. Moved here from the ec2 playbook
-    # so the personal layer lives ONLY in this POST_HOOK. rsync the control-node
-    # checkout to the box, then bootstrap-claude.sh registers the behavior-core
-    # skills + the 4 MCP servers (brave, perplexity, livekit-docs, org-roam)
-    # into the default ~/.claude. org-roam's DATA still needs the cgeng/org
-    # notes, cloned separately by the interactive clone script.
+    # Stage cgeng-ai-skills from the control node (no GitLab creds on the box).
     - name: Deploy cgeng-ai-skills to the box (rsync from control node)
       tags: [claude, skills]
       ansible.posix.synchronize:
         src: "{{ cgeng_ai_skills_src }}/"
-        dest: "/home/ubuntu/project/{{ username }}/work/cgeng/cgeng-ai-skills/"
+        dest: "{{ work_root }}/cgeng/cgeng-ai-skills/"
         rsync_opts:
           - "--exclude=.venv"
           - "--exclude=build"
@@ -221,10 +69,33 @@
           - "--exclude=*.egg-info"
       become: false
 
-    - name: Bootstrap Claude Code (skills + MCPs)
-      tags: [claude, skills]
+    # DEMO-ONLY: lay down the FULL dotfiles set (bash/git/tmux/node/emacs/doom).
+    # personal-bootstrap.sh deliberately stows ONLY emacs+doom (narrow footprint
+    # on the shared clusters); the demo box is a single-user personal box, so we
+    # want the whole shell config here. Runs first so personal-bootstrap's own
+    # emacs+doom stow is a harmless no-op and `doom sync` sees the stowed config.
+    - name: Deploy the full myfiles dotfiles set with GNU stow
+      tags: [dotfiles]
       command:
-        cmd: scripts/bootstrap-claude.sh
-        chdir: "/home/ubuntu/project/{{ username }}/work/cgeng/cgeng-ai-skills"
+        cmd: ./stow-deploy.sh
+        chdir: "{{ work_root }}/myfiles/dotfiles"
+      environment:
+        HOME: /home/ubuntu
+      become: false
+      changed_when: true
+
+    # Shared personal-layer core: user tools, stow emacs+doom, environment-aware
+    # Doom (in-place on this normal-disk box), Claude Code (skills + MCPs), and
+    # the demo TMPDIR hygiene. PERSONAL_TARGET=demo forces the demo profile even
+    # though FS auto-detection would already pick it on this ext4 box.
+    - name: Run the shared personal-bootstrap (core + demo hygiene)
+      tags: [personal, claude, doom]
+      command:
+        cmd: bash provision/personal-bootstrap.sh {{ work_root }}
+        chdir: "{{ work_root }}/myfiles/dotfiles"
+      environment:
+        HOME: /home/ubuntu
+        PERSONAL_TARGET: demo
+        PATH: "/home/ubuntu/.local/bin:{{ ansible_env.PATH }}"
       become: false
       changed_when: true
