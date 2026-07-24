@@ -87,7 +87,7 @@ PATH is the path in pass store, SECRET is the secret value."
    (list (completing-read "Credential path: " 
                           (split-string (shell-command-to-string "pass list --flat") "\n" t))))
   (if (executable-find "pass")
-      (let ((secret (string-trim (shell-command-to-string (concat "pass show " path)))))
+      (let ((secret (string-trim (shell-command-to-string (concat "gopass show -o " path)))))
         (if (not (string-empty-p secret))
             (message "%s: %s" path secret)
           (user-error "Credential not found: %s" path)))

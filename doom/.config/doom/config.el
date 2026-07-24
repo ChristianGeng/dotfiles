@@ -613,11 +613,11 @@ kitty's dark tints would be unreadable as text)."
 (password-store-get "code/openai_api_key")
 
 (setq pass-simple-secret-specs
-  '((anthropic-aud      :pass "code/anthropic_api_key_aud"      :env "ANTHROPIC_API_KEY")
-    (anthropic-personal :pass "code/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY_PERSONAL")
-    (xai                :pass "code/xai_api_key"                :env "XAI_API_KEY")
-    (perplexity         :pass "code/perplexity_api_key"         :env "PPLX_API_KEY")
-    (openai-personal    :pass "code/openai_api_key"             :env "OPENAI_API_KEY")))
+  '((anthropic-aud      :pass "aud/api/anthropic/anthropic_api_key_aud" :env "ANTHROPIC_API_KEY")
+    (anthropic-personal :pass "personal/api/anthropic/anthropic_api_key_personal" :env "ANTHROPIC_API_KEY_PERSONAL")
+    (xai                :pass "personal/api/xai/xai_api_key"                :env "XAI_API_KEY")
+    (perplexity         :pass "personal/api/perplexity/perplexity_api_key"  :env "PPLX_API_KEY")
+    (openai-personal    :pass "aud/api/openai/openai_api_key"          :env "OPENAI_API_KEY")))
 
 ;; Run at startup
 (add-hook 'after-init-hook #'pass-simple-export-env)
@@ -656,10 +656,10 @@ kitty's dark tints would be unreadable as text)."
   :config
   ;; Initialize API keys when aidermacs is actually loaded - using pass-simple
   (when (fboundp 'pass-simple-set-env)
-    (pass-simple-set-env "OPENAI_API_KEY"     "code/openai_api_key"     "openai.com")
-    (pass-simple-set-env "ANTHROPIC_API_KEY"  "code/anthropic_api_key_personal"  "anthropic.com")
-    (pass-simple-set-env "XAI_API_KEY"        "code/xai_api_key"        "x.ai")
-    (pass-simple-set-env "PPLX_API_KEY"       "code/perplexity_api_key" "perplexity.ai"))
+    (pass-simple-set-env "OPENAI_API_KEY"     "aud/api/openai/openai_api_key"     "openai.com")
+    (pass-simple-set-env "ANTHROPIC_API_KEY"  "personal/api/anthropic/anthropic_api_key_personal"  "anthropic.com")
+    (pass-simple-set-env "XAI_API_KEY"        "personal/api/xai/xai_api_key"        "x.ai")
+    (pass-simple-set-env "PPLX_API_KEY"       "personal/api/perplexity/perplexity_api_key" "perplexity.ai"))
 
   ;; Customize aidermacs behavior
   ;; (setq aidermacs-model "gpt-4o")   ; or "claude-3-5-sonnet-20241022"
@@ -676,12 +676,12 @@ kitty's dark tints would be unreadable as text)."
   (advice-add 'aidermacs-start :before
               (lambda (&rest _)
                 (when (fboundp 'pass-simple-set-env)
-                  (pass-simple-set-env "OPENAI_API_KEY" "code/openai_api_key" "openai.com"))))
+                  (pass-simple-set-env "OPENAI_API_KEY" "aud/api/openai/openai_api_key" "openai.com"))))
 
   (advice-add 'aidermacs-send-prompt :before
               (lambda (&rest _)
                 (when (fboundp 'pass-simple-set-env)
-                  (pass-simple-set-env "OPENAI_API_KEY" "code/openai_api_key" "openai.com")))))
+                  (pass-simple-set-env "OPENAI_API_KEY" "aud/api/openai/openai_api_key" "openai.com")))))
 
 (map! :leader
       (:prefix ("A" . "AI / LLM")

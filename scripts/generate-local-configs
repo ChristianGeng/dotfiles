@@ -60,8 +60,8 @@ print_error() {
 
 # Check dependencies
 check_deps() {
-  if ! command -v pass &> /dev/null; then
-    print_error "pass is not installed. Please install pass first."
+  if ! command -v gopass &> /dev/null; then
+    print_error "gopass is not installed. Please install gopass first."
     exit 1
   fi
 
@@ -119,7 +119,7 @@ dry_run() {
         (let* ((name (car spec))
                (pass-path (plist-get (cdr spec) :pass))
                (env-var (plist-get (cdr spec) :env))
-               (has-value (string-empty-p (string-trim (shell-command-to-string (concat \"pass show \" pass-path \" 2>/dev/null || echo ''\"))))))
+               (has-value (string-empty-p (string-trim (shell-command-to-string (concat \"gopass show -o \" pass-path \" 2>/dev/null || echo ''\"))))))
           (princ (format \"  %-20s -> %-30s %s\\n\" 
                         env-var 
                         pass-path 

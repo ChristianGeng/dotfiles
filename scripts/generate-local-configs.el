@@ -22,7 +22,7 @@
     (let* ((name (car spec))
            (pass-path (plist-get (cdr spec) :pass))
            (env-var (plist-get (cdr spec) :env))
-           (pass-value (string-trim (shell-command-to-string (concat "pass show " pass-path " 2>/dev/null || echo ''")))))
+           (pass-value (string-trim (shell-command-to-string (concat "gopass show -o " pass-path " 2>/dev/null || echo ''")))))
       (when (and pass-value (not (string-empty-p pass-value)))
         (setq template-content 
               (replace-regexp-in-string 
