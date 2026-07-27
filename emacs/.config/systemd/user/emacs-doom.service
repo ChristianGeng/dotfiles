@@ -1,0 +1,20 @@
+# Emacs daemon for the iva-p5 login node (chemacs profile "doom").
+# Package loading off Lustre is paid once here; edit via `emacsclient -s doom`.
+# The socket is named "doom" so it never collides with an interactive
+# session's default "server" socket.
+[Unit]
+Description=Emacs daemon (chemacs profile doom, socket "doom")
+# Gate to the iva-p5 login node: /fsx mounted, no worker-local NVMe.
+ConditionPathIsDirectory=/fsx
+ConditionPathExists=!/opt/dlami/nvme
+
+[Service]
+Type=exec
+ExecStart=%h/miniconda/bin/emacs --with-profile doom --fg-daemon=doom
+# Native-comp (libgccjit) and Doom subprocesses need the conda toolchain.
+Environment=PATH=%h/miniconda/bin:%h/doom-emacs/bin:%h/.local/bin:%h/bin:/usr/local/bin:/usr/bin:/bin
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

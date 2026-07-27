@@ -192,3 +192,24 @@ if [ -f "$HOME/.cargo/env" ]; then
    . "$HOME/.cargo/env"
 fi
 alias audio-detect="uvx --from git+https://github.com/ChristianGeng/audio-capture.git audio-detect"
+
+# --- iva-p5 login node: fast Emacs (daemon + node-local caches) -------------
+# $HOME on FSx Lustre is slow for Emacs's small random I/O.  Caches are
+# redirected to /var/tmp/$USER/doom-cache (EBS root; no tmpfiles age policy on
+# this node) by emacs/.emacs.d/early-init.el; here we make sure the dirs exist
+# and the emacs-doom systemd --user daemon is up (socket "doom").
+# Gate: $HOME under /fsx and no worker NVMe => iva-p5 login node only.
+if [[ $HOME == /fsx/* && ! -d /opt/dlami/nvme ]]; then
+    if [ ! -d "/var/tmp/${USER:-$(id -un)}/doom-cache" ]; then
+        mkdir -p "/var/tmp/${USER:-$(id -un)}/doom-cache/eln"
+        chmod 700 "/var/tmp/${USER:-$(id -un)}"   # shared node: keep caches private
+    fi
+    # Idempotent daemon autostart (cheap socket test first).  Lingering is
+    # enabled for this user, so systemd keeps the daemon across logouts; this
+    # hook only matters after a reboot, a daemon exit, or if linger is revoked.
+    if [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/emacs/doom" ]; then
+        systemctl --user start emacs-doom.service 2>/dev/null || true
+    fi
+    alias ecd='emacsclient -s doom -t'       # terminal frame on the daemon
+    alias ecdn='emacsclient -s doom -n'      # no-wait open on the daemon
+fi
