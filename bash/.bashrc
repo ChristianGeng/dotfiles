@@ -210,6 +210,10 @@ if [[ $HOME == /fsx/* && ! -d /opt/dlami/nvme ]]; then
     if [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/emacs/doom" ]; then
         systemctl --user start emacs-doom.service 2>/dev/null || true
     fi
+    # Plain `emacsclient` targets the default "server" socket, which does not
+    # exist here (the daemon binds "doom" to stay clear of any interactive
+    # session's server).  Point emacsclient at the daemon by default:
+    export EMACS_SOCKET_NAME=doom
     alias ecd='emacsclient -s doom -t'       # terminal frame on the daemon
     alias ecdn='emacsclient -s doom -n'      # no-wait open on the daemon
 fi
