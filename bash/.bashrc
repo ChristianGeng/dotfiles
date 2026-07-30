@@ -214,6 +214,12 @@ if [[ $HOME == /fsx/* && ! -d /opt/dlami/nvme ]]; then
     # exist here (the daemon binds "doom" to stay clear of any interactive
     # session's server).  Point emacsclient at the daemon by default:
     export EMACS_SOCKET_NAME=doom
+    # emacsclient lives only in ~/miniconda/bin (same Emacs as the daemon);
+    # conda does not activate base in every shell, so pin a PATH-stable link:
+    if [ ! -e "$HOME/.local/bin/emacsclient" ] && [ -x "$HOME/miniconda/bin/emacsclient" ]; then
+        mkdir -p "$HOME/.local/bin"
+        ln -s "$HOME/miniconda/bin/emacsclient" "$HOME/.local/bin/emacsclient"
+    fi
     alias ecd='emacsclient -s doom -t'       # terminal frame on the daemon
     alias ecdn='emacsclient -s doom -n'      # no-wait open on the daemon
 fi
