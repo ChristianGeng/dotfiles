@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
-# personal-bootstrap.sh — REMOTE-SIDE runner for the control-node PUSH model.
+# personal-bootstrap.sh — runner for the personal-layer deploy (push model).
 #
-# ONE idempotent, environment-aware personal-layer deploy for BOTH targets:
+# ONE idempotent, environment-aware personal-layer deploy for ALL targets:
 #
 #   - DEMO box     : WORK=~/project/cgeng/work; normal instance disk (ext4);
 #                    HAS a GitLab tunnel (glab API works). Provisioned as the
 #                    ec2 POST_HOOK (provision/box-hook.sh -> personal.yml) and/or
 #                    manually via provision/push-personal.sh.
 #   - iva-p5 etc.  : WORK=~/work; $HOME on /fsx (Lustre, slow for Doom package
-#                    loads); NO GitLab tunnel (glab 401s — must be non-fatal);
+#                    loads); glab works via the gopass-rendered ~/.audeering_configs
+#                    (since 2026-07-24), but auth stays best-effort/non-fatal;
 #                    node-local scratch at $NVME_LOCAL (default /opt/dlami/nvme).
+#   - LOCAL        : the control node itself (auto-detected by its gopass
+#                    stores). Converges tools + full dotfiles stow, but is
+#                    DELIBERATELY conservative: it never touches the laptop's
+#                    hand-managed Emacs (no clone/sync/.emacs-profile) and skips
+#                    bootstrap-claude unless CLAUDE_CONFIG_DIR is set explicitly
+#                    (the laptop uses split claude-work/claude-personal configs;
+#                    plain ~/.claude is unused there). Run via `make local`
+#                    (provision/Makefile) or ./personal-bootstrap.sh directly.
 #
 # Runs ON the target and assumes the repos are ALREADY staged under $WORK — the
 # control node rsyncs them here first (see provision/push-personal.sh). This
@@ -99,10 +108,15 @@ case "$HOME_FSTYPE" in
 esac
 [ -n "$NVME_LOCAL" ] && [ -d "$NVME_LOCAL" ] && NETWORK_FS="yes"
 
-# Target profile: explicit override wins, else derive from the FS signal.
+# Target profile: explicit override wins; else the control node (identified by
+# its gopass stores — the root of trust only the laptop holds) is "local", so a
+# plain-ext4 laptop can never be misdetected as a demo box and get demo hygiene;
+# else derive from the FS signal.
 PERSONAL_TARGET="${PERSONAL_TARGET:-}"
 if [ -z "$PERSONAL_TARGET" ]; then
-  if [ "$NETWORK_FS" = "yes" ]; then PERSONAL_TARGET="cluster"; else PERSONAL_TARGET="demo"; fi
+  if [ -d "$HOME/.local/share/gopass/stores" ]; then PERSONAL_TARGET="local"
+  elif [ "$NETWORK_FS" = "yes" ]; then PERSONAL_TARGET="cluster"
+  else PERSONAL_TARGET="demo"; fi
 fi
 
 echo "== personal-bootstrap: WORK=$WORK  home_fs=$HOME_FSTYPE  network_fs=$NETWORK_FS  target=$PERSONAL_TARGET =="
@@ -118,11 +132,18 @@ else curl -fsSL https://claude.ai/install.sh | bash || warn "claude install fail
 hash -r
 
 # ---------------------------------------------------------------------------
-step "dotfiles: stow ONLY the emacs + doom packages (repos already staged)"
+# Dotfiles. LOCAL: the laptop wants the FULL stow set and already has the
+# canonical checkout — use the repo's own stow-deploy.sh. Remote targets get
+# ONLY emacs + doom (narrow footprint on shared boxes; the demo POST_HOOK
+# layers a full stow separately via personal.yml).
 # ---------------------------------------------------------------------------
-if [ ! -d "$MYFILES" ]; then
+if [ "$PERSONAL_TARGET" = "local" ] && [ -x "$MYFILES/stow-deploy.sh" ]; then
+  step "dotfiles (local): full stow via $MYFILES/stow-deploy.sh"
+  ( cd "$MYFILES" && ./stow-deploy.sh ) || warn "stow-deploy.sh failed"
+elif [ ! -d "$MYFILES" ]; then
   warn "no dotfiles at $MYFILES (did the control node rsync run?); skipped dotfiles"
 elif command -v stow >/dev/null 2>&1 && [ -d "$MYFILES/emacs" ]; then
+  step "dotfiles: stow ONLY the emacs + doom packages (repos already staged)"
   # Back up any pre-existing REAL files that would block stow (chemacs seeds
   # ~/.emacs.d/*.el), then stow just these two packages into $HOME. Re-running
   # is a no-op: stow leaves symlinks it already owns untouched.
@@ -141,8 +162,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-step "Doom Emacs (env-aware: node-local staging on a network FS, in-place otherwise)"
+# Doom Emacs. LOCAL: the laptop's Emacs is hand-managed and its packages are
+# already built — an unprompted `doom sync` here could churn the primary
+# editor, so the whole section is skipped (run `doom sync` yourself when you
+# mean it). Remote targets converge as before.
 # ---------------------------------------------------------------------------
+if [ "$PERSONAL_TARGET" = "local" ]; then
+  step "Doom Emacs: skipped on the local profile (hand-managed on the laptop)"
+else
+step "Doom Emacs (env-aware: node-local staging on a network FS, in-place otherwise)"
 export DOOMDIR="${DOOMDIR:-$HOME/.config/doom}"   # stowed config; never relocated
 
 # doom_sync_tree <doom-root>: idempotent install (once) + non-interactive sync.
@@ -258,6 +286,7 @@ fi
 
 # Make Doom the default chemacs profile on this box (idempotent overwrite).
 printf 'doom' > "$HOME/.emacs-profile"
+fi  # end of the non-local Doom section
 
 # ---------------------------------------------------------------------------
 step "GitLab env bridge (non-fatal): normalize GITLAB_TOKEN/GITLAB_HOST"
@@ -266,8 +295,9 @@ step "GitLab env bridge (non-fatal): normalize GITLAB_TOKEN/GITLAB_HOST"
 # reads GITLAB_API_TOKEN and defaults the host to gitlab.audeering.com. Bridge
 # the names here so either convention works. This ONLY exports env for the
 # bootstrap-claude call below — it never authenticates and never fails: the demo
-# box authenticates through its tunnel, and iva-p5 has no tunnel (glab 401s),
-# which must NOT abort the deploy.
+# box authenticates through its tunnel, iva-p5 through the gopass-rendered
+# ~/.audeering_configs (working since 2026-07-24). Auth problems on any target
+# must NOT abort the deploy.
 export GITLAB_HOST="${GITLAB_HOST:-gitlab.audeering.com}"
 if [ -z "${GITLAB_API_TOKEN:-}" ] && [ -n "${GITLAB_TOKEN:-}" ]; then
   export GITLAB_API_TOKEN="$GITLAB_TOKEN"
@@ -278,7 +308,13 @@ echo "  GITLAB_HOST=$GITLAB_HOST  (glab auth is best-effort / non-fatal)"
 # ---------------------------------------------------------------------------
 step "Claude Code: skills + MCP servers (cgeng-ai-skills bootstrap)"
 # ---------------------------------------------------------------------------
-if [ -x "$SKILLS/scripts/bootstrap-claude.sh" ]; then
+# LOCAL guard: the laptop runs split configs (CLAUDE_CONFIG_DIR=~/.claude-work /
+# ~/.claude-personal); plain ~/.claude is deliberately unused there. Without an
+# explicit CLAUDE_CONFIG_DIR, bootstrap-claude would populate ~/.claude — skip.
+if [ "$PERSONAL_TARGET" = "local" ] && [ -z "${CLAUDE_CONFIG_DIR:-}" ]; then
+  echo "  local profile without CLAUDE_CONFIG_DIR — skipped (set it to opt in," \
+       "e.g. CLAUDE_CONFIG_DIR=~/.claude-work)"
+elif [ -x "$SKILLS/scripts/bootstrap-claude.sh" ]; then
   "$SKILLS/scripts/bootstrap-claude.sh" || warn "bootstrap-claude failed"
 else
   warn "bootstrap-claude.sh not found in $SKILLS; skipped Claude setup"
