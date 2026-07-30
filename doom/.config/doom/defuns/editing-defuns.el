@@ -277,3 +277,27 @@ region-end is used."
   (while (not (looking-at "}"))
     (join-line -1))
   (back-to-indentation))
+
+;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph
+;;; see https://www.emacswiki.org/emacs/UnfillParagraph
+(defun cg/unfill-paragraph (&optional region)
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive (progn (barf-if-buffer-read-only) '(t)))
+  (let ((fill-column (point-max))
+        ;; This would override `fill-column' if it's an integer.
+        (emacs-lisp-docstring-fill-column t))
+    (fill-paragraph nil region)))
+
+(defun cg/unfill-buffer ()
+  "Unfill every paragraph in the buffer into one line each."
+  (interactive)
+  (let ((fill-column (point-max))
+        (emacs-lisp-docstring-fill-column t))
+    (fill-region (point-min) (point-max))))
+
+(defun cg/unfill-dwim ()
+  "Unfill: region if active, else the whole buffer."
+  (interactive)
+  (if (use-region-p)
+      (cg/unfill-paragraph t)
+    (cg/unfill-buffer)))
