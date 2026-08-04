@@ -72,6 +72,6 @@
 	editor = emacsclient
 	# pager = less -F -X
 	pager =
-	excludesFile = /home/cgeng/.config/git/ignore
+	excludesFile = ~/.config/git/ignore
 [init]
 	defaultBranch = main
