@@ -214,4 +214,24 @@ else
   warn "AWS smoke test failed, but identity is unchanged/was already invalid — rendered files left in place; investigate"
 fi
 
+# --------------------------------- 9. stale live processes (p5)
+# Files are fresh now, but every ALREADY-RUNNING process keeps the env it was
+# born with: a tmux server caches its global env at startup, and claude/emacs
+# launched from pre-deploy panes carry old tokens until restarted. Interactive
+# shells self-heal (.bashrc/.profile re-source the deployed files); running
+# processes do not. Warn by name so the stale ones get restarted.
+say "checking for long-lived processes that predate this deploy"
+ssh "$TARGET" bash -s <<'EOSH' || true
+set -u
+me="$(id -un)"
+if command -v tmux >/dev/null 2>&1 && ts="$(tmux display-message -p '#{start_time}' 2>/dev/null)" && [ -n "$ts" ]; then
+  echo "!! tmux server running since $(date -d "@$ts" 2>/dev/null || echo "@$ts") — its panes' processes hold PRE-DEPLOY secrets"
+fi
+stale="$(ps -u "$me" -o lstart=,comm= 2>/dev/null | grep -E ' (claude|emacs)$' || true)"
+if [ -n "$stale" ]; then
+  echo "!! restart these to pick up the new secrets (their env is frozen at launch):"
+  echo "$stale" | sed 's/^/!!   /'
+fi
+EOSH
+
 say "done (backup: $BACKUP_DIR on $TARGET)"
