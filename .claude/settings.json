@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "../../cgeng/audeering-dotfiles",
+      "../../cgeng/cgeng-ai-skills",
+      "../../research/research/iva/aws/ec2-instance-setup"
+    ]
+  }
+}

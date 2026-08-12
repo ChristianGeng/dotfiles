@@ -6,6 +6,9 @@
 *.bak
 *~
 
+# Claude Code personal project settings
+.claude/settings.local.json
+
 # Ignore system files
 .DS_Store
 Thumbs.db
