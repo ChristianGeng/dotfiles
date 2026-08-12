@@ -132,6 +132,68 @@ else curl -fsSL https://claude.ai/install.sh | bash || warn "claude install fail
 hash -r
 
 # ---------------------------------------------------------------------------
+step "uv -> internal PyPI (CodeArtifact): keyring backend + config"
+# ---------------------------------------------------------------------------
+# uv authenticates against the audEERING CodeArtifact index via the keyring
+# subprocess provider; that needs (a) a `keyring` CLI with the
+# keyrings.codeartifact backend and (b) ~/.config/{uv/uv.toml,
+# python_keyring/keyringrc.cfg}. All of it is per-machine state that no other
+# script owned — a re-provision silently lost it (iva-p5, 2026-08-03).
+#
+# GUARD: uv.toml sets authenticate = "always", so with no credentials or no
+# backend EVERY uv resolve fails, public packages included — it masquerades as
+# a permissions problem or a broken uv. Therefore: skip entirely unless the
+# audEERING-CodeArtifact AWS profile is present (deploy secrets first), and
+# install the backend BEFORE writing the config.
+if ! grep -qs "audEERING-CodeArtifact" "$HOME/.aws/config" "$HOME/.aws/credentials"; then
+  echo "  no audEERING-CodeArtifact AWS profile — skipped (deploy secrets first, then re-run)"
+else
+  # keyring CLI with the CodeArtifact backend, rootless: ~/.local/bin shadows
+  # any system keyring that lacks the plugin.
+  if keyring --list-backends 2>/dev/null | grep -qi codeartifact; then
+    echo "  keyring CodeArtifact backend present"
+  else
+    uv tool install keyring --with keyrings.codeartifact >/dev/null 2>&1 \
+      && hash -r && echo "  installed keyring + keyrings.codeartifact (uv tool)" \
+      || warn "keyring/keyrings.codeartifact install failed — internal PyPI will not work"
+  fi
+
+  # Config files: prefer the staged audeering-dotfiles copies (canonical, stow
+  # manages them on LOCAL); fall back to embedded content. NEVER overwrite —
+  # existing files/symlinks win.
+  AUD_CFG="$WORK/cgeng/audeering-dotfiles/config/.config"
+  mkdir -p "$HOME/.config/uv" "$HOME/.config/python_keyring"
+  if [ -e "$HOME/.config/uv/uv.toml" ]; then
+    echo "  exists: ~/.config/uv/uv.toml"
+  elif [ -f "$AUD_CFG/uv/uv.toml" ]; then
+    cp "$AUD_CFG/uv/uv.toml" "$HOME/.config/uv/uv.toml" && echo "  copied uv.toml (audeering-dotfiles)"
+  else
+    cat > "$HOME/.config/uv/uv.toml" <<'EOF'
+# audEERING internal PyPI (CodeArtifact); auth via keyrings.codeartifact.
+# Canonical copy: audeering-dotfiles/config/.config/uv/uv.toml — this fallback
+# is written by personal-bootstrap.sh only when that repo is not staged.
+keyring-provider = "subprocess"
+
+[[index]]
+name = "codeartifact"
+url = "https://aws@audeering-278029335176.d.codeartifact.eu-central-1.amazonaws.com/pypi/pypi/simple/"
+authenticate = "always"
+EOF
+    echo "  wrote uv.toml (embedded fallback)"
+  fi
+  if [ -e "$HOME/.config/python_keyring/keyringrc.cfg" ]; then
+    echo "  exists: ~/.config/python_keyring/keyringrc.cfg"
+  elif [ -f "$AUD_CFG/python_keyring/keyringrc.cfg" ]; then
+    cp "$AUD_CFG/python_keyring/keyringrc.cfg" "$HOME/.config/python_keyring/keyringrc.cfg" \
+      && echo "  copied keyringrc.cfg (audeering-dotfiles)"
+  else
+    printf '[codeartifact]\nprofile_name = audEERING-CodeArtifact\n' \
+      > "$HOME/.config/python_keyring/keyringrc.cfg"
+    echo "  wrote keyringrc.cfg (embedded fallback)"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Dotfiles. LOCAL: the laptop wants the FULL stow set and already has the
 # canonical checkout — use the repo's own stow-deploy.sh. Remote targets get
 # ONLY emacs + doom (narrow footprint on shared boxes; the demo POST_HOOK
