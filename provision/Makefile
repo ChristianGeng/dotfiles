@@ -9,6 +9,7 @@
 #   make p5           push + converge the iva-p5 login node
 #   make p5-secrets   render + ship the secret files to iva-p5
 #   make demo         push + converge a demo box   (HOST=iva-demo-<user> required)
+#   make restack      move cgeng/agents back onto the head of the ec2 MR stack
 #
 # Everything is safe to re-run. Remote pushes rsync the control node's
 # checkouts — the control node is the single source of truth; target-side
@@ -17,7 +18,7 @@
 HERE := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 HOST ?=
 
-.PHONY: help local secrets secrets-yaml p5 p5-secrets demo
+.PHONY: help local secrets secrets-yaml p5 p5-secrets demo restack
 
 help:
 	@sed -n 's/^#   //p' $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -43,3 +44,10 @@ p5-secrets:
 demo:
 	@test -n "$(HOST)" || { echo "usage: make demo HOST=iva-demo-<user>"; exit 1; }
 	$(HERE)push-personal.sh $(HOST) project/cgeng/work
+
+# cgeng/agents holds the AI assistant files that must never reach main. It sits
+# one commit above demo-instance-setup and does NOT follow it: nothing restacks
+# a child branch when its parent is rewritten. Run this after any force-push to
+# demo-instance-setup. Safe to re-run; a no-op when already at the head.
+restack:
+	$(HERE)restack-agents.sh
