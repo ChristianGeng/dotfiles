@@ -99,3 +99,48 @@
         PATH: "/home/ubuntu/.local/bin:{{ ansible_env.PATH }}"
       become: false
       changed_when: true
+
+    # Clone the audEERING repos. This lives HERE, not in the ec2 playbook:
+    # which repos to clone and what layout to put them in is a personal
+    # decision, so ec2-instance-setup deliberately does not do it. Until now
+    # the clone only ran from that repo's roll-up cron, which meant a plain
+    # `terraform apply` left the box without repos and the step was typed by
+    # hand afterwards.
+    #
+    # The script is the one the ec2 playbook stages on the box. It is agent-free
+    # (HTTPS + the PAT already in the box's environment) and finishes by running
+    # setup-livekit.sh. Skipped without failing if the box has no copy of it, so
+    # this playbook still works against a box provisioned some other way.
+    #
+    # PERSONAL_REPOS comes from the environment: roll.env exports it for the
+    # roll-up path, and it is harmlessly empty on a plain `terraform apply`,
+    # which wait-and-run-ansible.sh does not forward it through.
+    - name: Check for the staged clone script on the box
+      tags: [personal, clone]
+      stat:
+        path: /home/ubuntu/tunnel-install/clone-audeering-repos.sh
+      become: false
+      register: clone_script
+
+    - name: Clone the audEERING repos (+ LiveKit stack) into the work tree
+      tags: [personal, clone]
+      command:
+        cmd: /home/ubuntu/tunnel-install/clone-audeering-repos.sh {{ work_root }}
+      environment:
+        HOME: /home/ubuntu
+        PERSONAL_REPOS: "{{ lookup('env', 'PERSONAL_REPOS') | default('', true) }}"
+        PATH: "/home/ubuntu/.local/bin:{{ ansible_facts['env'].PATH }}"
+      become: false
+      when: clone_script.stat.exists
+      register: clone_result
+      failed_when: false
+      changed_when: true
+
+    - name: Report the clone outcome
+      tags: [personal, clone]
+      ansible.builtin.debug:
+        msg: >-
+          {{ 'clone skipped: no clone-audeering-repos.sh on the box'
+             if not clone_script.stat.exists
+             else ('clone finished rc=' ~ clone_result.rc
+                   ~ (' (non-fatal; re-run by hand to retry)' if clone_result.rc != 0 else '')) }}
