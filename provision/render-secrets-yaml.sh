@@ -30,6 +30,10 @@ set -uo pipefail
 EC2_REPO="${EC2_REPO:-$HOME/work/research/research/iva/aws/ec2-instance-setup}"
 OUT="${OUT:-$EC2_REPO/secrets.yaml}"
 PRINT_ONLY=0
+# My demo env file. ec2-instance-setup deliberately has NO default for this —
+# it must not know which demo I run — so the path is supplied from here, which
+# is where my personal layout belongs. Emitted only if the file exists.
+DEMO_ENV="${DEMO_ENV:-$HOME/work/research/research/iva/demos/klara-tradeshow/.env.local}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -108,6 +112,17 @@ trap 'rm -f "$tmp"' EXIT
   echo "gitlab:"
   echo "  api_token: $(yq "$GITLAB_TOKEN_V")"
   echo "  host: gitlab.audeering.com"
+  echo
+  echo "paths:"
+  if [ -f "$DEMO_ENV" ]; then
+    echo "  demo_env: $(yq "$DEMO_ENV")"
+  else
+    warn "demo env not found at $DEMO_ENV — leaving paths.demo_env empty (the box will provision, the demo will not run)"
+    echo "  demo_env: ''"
+  fi
+  echo "  # tunnel_key and audeering_dotfiles are left unset on purpose: the"
+  echo "  # playbook defaults (~/.ssh/gpuserver.key, ~/work/cgeng/audeering-dotfiles)"
+  echo "  # already match this machine."
   echo
   echo "huggingface:"
   echo "  token: $(yq "$HF_V")"
