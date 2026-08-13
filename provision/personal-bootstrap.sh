@@ -199,8 +199,14 @@ fi
 # ONLY emacs + doom (narrow footprint on shared boxes; the demo POST_HOOK
 # layers a full stow separately via personal.yml).
 # ---------------------------------------------------------------------------
-if [ "$PERSONAL_TARGET" = "local" ] && [ -x "$MYFILES/stow-deploy.sh" ]; then
-  step "dotfiles (local): full stow via $MYFILES/stow-deploy.sh"
+# LOCAL and DEMO both want the FULL set: the laptop is the canonical machine,
+# and a demo box is single-user, so withholding the shell config there just
+# means no aliases, no PATH additions, no shell functions — `q` and
+# `emacs-doom` missing on an otherwise working box (2026-08-13). Only the
+# shared clusters get the narrow emacs+doom footprint. personal.yml already
+# did the full stow for the POST_HOOK path; this makes `make demo` agree.
+if { [ "$PERSONAL_TARGET" = "local" ] || [ "$PERSONAL_TARGET" = "demo" ]; } && [ -x "$MYFILES/stow-deploy.sh" ]; then
+  step "dotfiles ($PERSONAL_TARGET): full stow via $MYFILES/stow-deploy.sh"
   ( cd "$MYFILES" && ./stow-deploy.sh ) || warn "stow-deploy.sh failed"
 elif [ ! -d "$MYFILES" ]; then
   warn "no dotfiles at $MYFILES (did the control node rsync run?); skipped dotfiles"
@@ -379,18 +385,23 @@ printf 'doom' > "$HOME/.emacs-profile"
 # from.
 doom_path_line='[ -d "$HOME/doom-emacs/bin" ] && case ":$PATH:" in *":$HOME/doom-emacs/bin:"*) ;; *) PATH="$HOME/doom-emacs/bin:$PATH";; esac'
 for rc in "$HOME/.bashrc" "$HOME/.profile"; do
+  # NEVER append to a stowed rc: it is a symlink into the dotfiles checkout, so
+  # >> would edit the repo on the target. The stowed .bashrc carries this line
+  # itself (bash/.bash_path), so skipping it is correct, not a compromise.
+  [ -L "$rc" ] && continue
   [ -e "$rc" ] || : > "$rc"
   grep -qF 'doom-emacs/bin' "$rc" 2>/dev/null \
     || printf '\n# --- doom on PATH (personal-bootstrap.sh) ---\n%s\nexport PATH\n' "$doom_path_line" >> "$rc"
 done
-echo "  doom on PATH via ~/.bashrc and ~/.profile"
+echo "  doom on PATH (stowed rc files carry it via bash/.bash_path)"
 
 # Same problem, same fix: nvm's own installer writes only to ~/.bashrc, which
 # Ubuntu returns early from for non-interactive shells. So `node` and anything
 # npm-global (stylelint, js-beautify for Doom's :lang web) is invisible to cron,
 # `ssh host cmd`, and `bash -lc` — installed but unreachable. Mirror it into
 # ~/.profile.
-if [ -s "$HOME/.nvm/nvm.sh" ] && ! grep -q "NVM_DIR" "$HOME/.profile" 2>/dev/null; then
+if [ -s "$HOME/.nvm/nvm.sh" ] && [ ! -L "$HOME/.profile" ] \
+   && ! grep -q "NVM_DIR" "$HOME/.profile" 2>/dev/null; then
   {
     printf '\n# --- nvm (personal-bootstrap.sh: .bashrc-only is invisible to non-interactive shells) ---\n'
     printf 'export NVM_DIR="$HOME/.nvm"\n'

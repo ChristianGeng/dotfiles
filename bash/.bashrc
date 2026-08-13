@@ -108,6 +108,13 @@ if [ -f ~/.audeering_configs ]; then
 fi
 
 # local config files not maintaned here
+# Rendered by ec2-instance-setup's playbook from its secrets.yaml (demo boxes).
+# The two files below are the gopass-rendered pair; this is the same secrets by
+# a different route, so guard all three and take whichever exists.
+if [ -f ~/.config/iva-demo/secrets.env ]; then
+    . ~/.config/iva-demo/secrets.env
+fi
+
 if [ -f ~/.local_configs ]; then
     . ~/.local_configs
 fi
