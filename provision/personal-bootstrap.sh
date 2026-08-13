@@ -248,12 +248,24 @@ doom_sync_tree() {
     # no packages fetched. It hangs forever rather than failing, so the whole
     # provision stalls with no error. `timeout` bounds it either way — a hung
     # editor must not be able to wedge an unattended deploy.
-    if [ ! -d "$root/.local" ]; then
-      yes 2 | timeout "${DOOM_INSTALL_TIMEOUT:-900}" "$root/bin/doom" install --force --no-env --no-config \
-        || warn "doom install failed or timed out ($root)"
-    fi
-    yes 2 | timeout "${DOOM_SYNC_TIMEOUT:-1800}" "$root/bin/doom" sync \
-      || warn "doom sync failed or timed out ($root)"
+    # `yes 2 | doom ...` gets SIGPIPE'd once doom stops reading, so `yes` exits
+    # 141 and pipefail reports the whole pipeline as failed even when doom
+    # succeeded. Check the STATUS OF DOOM (PIPESTATUS[1]), not the pipeline —
+    # otherwise a clean sync prints "doom sync failed" and sends you hunting a
+    # bug that is not there.
+    doom_run() {  # <label> <timeout> <args...>
+      local label="$1" tmo="$2"; shift 2
+      yes 2 | timeout "$tmo" "$root/bin/doom" "$@"
+      local rc=${PIPESTATUS[1]}
+      case "$rc" in
+        0)   echo "  doom $label: ok" ;;
+        124) warn "doom $label timed out after ${tmo}s ($root)" ;;
+        *)   warn "doom $label failed rc=$rc ($root)" ;;
+      esac
+      return 0
+    }
+    [ -d "$root/.local" ] || doom_run install "${DOOM_INSTALL_TIMEOUT:-900}" install --force --no-env --no-config
+    doom_run sync "${DOOM_SYNC_TIMEOUT:-1800}" sync
   else
     warn "no emacs on PATH — skipped Doom sync (load your emacs module, then re-run)"
   fi
@@ -357,6 +369,21 @@ fi
 
 # Make Doom the default chemacs profile on this box (idempotent overwrite).
 printf 'doom' > "$HOME/.emacs-profile"
+
+# Put `doom` on PATH. This script installs Doom but stows only the emacs+doom
+# packages on a remote target, so the shell config that would normally export
+# this never arrives — leaving a working Doom whose CLI is not runnable
+# ("command not found: doom", demo box 2026-08-13). Guarded marker, appended to
+# both rc files: .bashrc for interactive shells, .profile for login shells
+# including non-interactive `bash -lc`, which Ubuntu's .bashrc returns early
+# from.
+doom_path_line='[ -d "$HOME/doom-emacs/bin" ] && case ":$PATH:" in *":$HOME/doom-emacs/bin:"*) ;; *) PATH="$HOME/doom-emacs/bin:$PATH";; esac'
+for rc in "$HOME/.bashrc" "$HOME/.profile"; do
+  [ -e "$rc" ] || : > "$rc"
+  grep -qF 'doom-emacs/bin' "$rc" 2>/dev/null \
+    || printf '\n# --- doom on PATH (personal-bootstrap.sh) ---\n%s\nexport PATH\n' "$doom_path_line" >> "$rc"
+done
+echo "  doom on PATH via ~/.bashrc and ~/.profile"
 fi  # end of the non-local Doom section
 
 # ---------------------------------------------------------------------------

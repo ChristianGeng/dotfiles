@@ -93,6 +93,12 @@ API_KEYS=(
   "speechmatics|audeering/iva/speechmatics/api-key"
   "nvidia|audeering/iva/nvidia/api-key"
   "gradium|personal/api/gradium/gradium_api_key"
+  # The Claude MCP servers read these two. Mode A copied ~/.local_configs
+  # wholesale, so they arrived for free; Mode B renders only what is listed
+  # here, so omitting them left brave-search and perplexity-ask installed but
+  # non-functional ("Missing environment variables", demo box 2026-08-13).
+  "brave|personal/api/brave/BRAVE_API_KEY"
+  "perplexity|personal/api/perplexity/perplexity_api_key"
 )
 
 [ -n "$GITLAB_TOKEN_V" ] \

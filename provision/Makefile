@@ -41,9 +41,16 @@ p5:
 p5-secrets:
 	$(HERE)deploy-secrets-iva-p5.sh
 
+# PERSONAL_TARGET=demo is REQUIRED, not optional. The runner auto-detects the
+# profile from the filesystem, and the demo box has /opt/dlami/nvme, which the
+# detection reads as a cluster — so without this, `make demo` silently produced
+# target=cluster and skipped the whole demo-hygiene block (Claude TMPDIR dir,
+# settings.json env.TMPDIR, the cleanup cron, the CLAUDE.md guidance, the web
+# formatters). personal.yml already forces it for the POST_HOOK path; this makes
+# the two paths agree.
 demo:
-	@test -n "$(HOST)" || { echo "usage: make demo HOST=iva-demo-<user>"; exit 1; }
-	$(HERE)push-personal.sh $(HOST) project/cgeng/work
+	@test -n "$(HOST)" || { echo "usage: make demo HOST=iva-demo-test-<user>"; exit 1; }
+	PERSONAL_TARGET=demo $(HERE)push-personal.sh $(HOST) project/cgeng/work
 
 # cgeng/agents holds the AI assistant files that must never reach main. It sits
 # one commit above demo-instance-setup and does NOT follow it: nothing restacks
