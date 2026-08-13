@@ -384,6 +384,20 @@ for rc in "$HOME/.bashrc" "$HOME/.profile"; do
     || printf '\n# --- doom on PATH (personal-bootstrap.sh) ---\n%s\nexport PATH\n' "$doom_path_line" >> "$rc"
 done
 echo "  doom on PATH via ~/.bashrc and ~/.profile"
+
+# Same problem, same fix: nvm's own installer writes only to ~/.bashrc, which
+# Ubuntu returns early from for non-interactive shells. So `node` and anything
+# npm-global (stylelint, js-beautify for Doom's :lang web) is invisible to cron,
+# `ssh host cmd`, and `bash -lc` — installed but unreachable. Mirror it into
+# ~/.profile.
+if [ -s "$HOME/.nvm/nvm.sh" ] && ! grep -q "NVM_DIR" "$HOME/.profile" 2>/dev/null; then
+  {
+    printf '\n# --- nvm (personal-bootstrap.sh: .bashrc-only is invisible to non-interactive shells) ---\n'
+    printf 'export NVM_DIR="$HOME/.nvm"\n'
+    printf '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"\n'
+  } >> "$HOME/.profile"
+  echo "  nvm also sourced from ~/.profile"
+fi
 fi  # end of the non-local Doom section
 
 # ---------------------------------------------------------------------------
