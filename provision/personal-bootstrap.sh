@@ -242,9 +242,18 @@ export DOOMDIR="${DOOMDIR:-$HOME/.config/doom}"   # stowed config; never relocat
 doom_sync_tree() {
   local root="$1"
   if command -v emacs >/dev/null 2>&1 && [ -x "$root/bin/doom" ]; then
-    [ -d "$root/.local" ] || "$root/bin/doom" install --force --no-env --no-config \
-      || warn "doom install failed ($root)"
-    yes 2 | "$root/bin/doom" sync || warn "doom sync failed ($root)"
+    # BOTH commands need the prompt guard, not just sync. `doom install`
+    # blocks on the same straight.el prompt: observed on a fresh demo box
+    # 2026-08-13, emacs parked in pipe_read with 0s of CPU for 6+ minutes and
+    # no packages fetched. It hangs forever rather than failing, so the whole
+    # provision stalls with no error. `timeout` bounds it either way — a hung
+    # editor must not be able to wedge an unattended deploy.
+    if [ ! -d "$root/.local" ]; then
+      yes 2 | timeout "${DOOM_INSTALL_TIMEOUT:-900}" "$root/bin/doom" install --force --no-env --no-config \
+        || warn "doom install failed or timed out ($root)"
+    fi
+    yes 2 | timeout "${DOOM_SYNC_TIMEOUT:-1800}" "$root/bin/doom" sync \
+      || warn "doom sync failed or timed out ($root)"
   else
     warn "no emacs on PATH — skipped Doom sync (load your emacs module, then re-run)"
   fi
