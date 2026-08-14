@@ -113,7 +113,10 @@ The ec2 repo has no default for it: it must not presume which demo you run.
 - **`terraform apply` does NOT run your personal layer.** The `POST_HOOK` that
   runs it comes from `ec2-instance-setup/scripts/roll.env`, and that file is
   sourced by `roll-up.sh` only — never by a plain `apply`. So step 3 above is
-  required, not optional. (The roll-up cron is not currently installed either.)
+  required, not optional. The roll-up cron would source it, but the two cron
+  jobs install independently now (`install-cron.sh up|down`) and only
+  roll-down is armed here — an unattended roll-up creates a paid GPU instance
+  every weekday, a roll-down only removes one.
 - **The demo box looks like a cluster to the FS heuristic.** It has
   `/opt/dlami/nvme`, so auto-detection reports `target=cluster` and silently
   skips the demo-hygiene block. Always force `PERSONAL_TARGET=demo`; the
