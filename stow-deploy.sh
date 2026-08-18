@@ -110,6 +110,48 @@ install_kitty_terminfo() {
   fi
 }
 
+# Point file:// URLs at Emacs so paths printed by terminals and agents open in
+# the editor instead of the file manager.
+#
+# The subtle part: ~/.config/mimeapps.list is NOT stowable. Applications
+# rewrite it at runtime (a browser's "always open with", Okular, an installer
+# adding its own handler), so a stow symlink would either churn the repo on
+# every such change or be replaced by a regular file behind stow's back. We
+# therefore express intent with xdg-mime, which MERGES one key into whatever
+# else is in there.
+#
+# The key is the SCHEME handler, not the file type. text/plain already maps to
+# emacsclient here, but a terminal hands over a file:// URL, and that resolves
+# via x-scheme-handler/file — unset by default, which falls back to the desktop
+# file manager. Directories then open in dired, which is intended.
+#
+# Idempotent and best-effort: silently does nothing without xdg-mime or the
+# desktop entry, and never fails the deploy.
+set_default_applications() {
+  command -v xdg-mime >/dev/null 2>&1 || return 0
+
+  local entry="emacsclient.desktop"
+  local found=""
+  local dir
+  for dir in "$HOME/.local/share/applications" /usr/share/applications; do
+    [ -f "$dir/$entry" ] && { found=1; break; }
+  done
+  if [ -z "$found" ]; then
+    print_warn "$entry not found; leaving file:// handler unchanged"
+    return 0
+  fi
+
+  if [ "$(xdg-mime query default x-scheme-handler/file 2>/dev/null)" = "$entry" ]; then
+    return 0
+  fi
+
+  if xdg-mime default "$entry" x-scheme-handler/file 2>/dev/null; then
+    print_msg "file:// URLs now open in Emacs ($entry)"
+  else
+    print_warn "could not set the file:// handler (no desktop session?)"
+  fi
+}
+
 # Back up pre-existing *real* (non-symlink) files that would block stow.
 # Tools like byobu (~/.byobu/.tmux.conf) and chemacs (~/.emacs.d/*.el) seed real
 # files where we want symlinks; stow aborts on those. Detect them with a dry
@@ -255,6 +297,9 @@ done
 
 # Ensure kitty's terminfo is available so plain `ssh` from kitty works here
 install_kitty_terminfo
+
+# Make file:// links from terminals/agents open in Emacs, not the file manager
+set_default_applications
 
 # Generate local configs if requested
 if $GENERATE_CONFIGS; then
