@@ -131,24 +131,46 @@ set_default_applications() {
   command -v xdg-mime >/dev/null 2>&1 || return 0
 
   local entry="emacsclient.desktop"
-  local found=""
+  local user_apps="$HOME/.local/share/applications"
+  local path=""
   local dir
-  for dir in "$HOME/.local/share/applications" /usr/share/applications; do
-    [ -f "$dir/$entry" ] && { found=1; break; }
+  for dir in "$user_apps" /usr/share/applications; do
+    [ -f "$dir/$entry" ] && { path="$dir/$entry"; break; }
   done
-  if [ -z "$found" ]; then
+  if [ -z "$path" ]; then
     print_warn "$entry not found; leaving file:// handler unchanged"
     return 0
   fi
 
-  if [ "$(xdg-mime query default x-scheme-handler/file 2>/dev/null)" = "$entry" ]; then
-    return 0
+  # Setting the default is NOT enough on its own. glib only offers an
+  # application for a type it DECLARES: with x-scheme-handler/file missing
+  # from MimeType=, `gio mime x-scheme-handler/file` reports the default but
+  # then "No registered applications", and the click falls through to the file
+  # manager. So declare the scheme, rebuild mimeinfo.cache, then set default.
+  if ! grep -q '^MimeType=.*x-scheme-handler/file' "$path"; then
+    if [ -w "$path" ]; then
+      sed -i 's|^MimeType=|MimeType=x-scheme-handler/file;|' "$path"
+      print_msg "declared x-scheme-handler/file in $entry"
+    else
+      print_warn "$path is not writable; file:// may still open the file manager"
+    fi
   fi
 
-  if xdg-mime default "$entry" x-scheme-handler/file 2>/dev/null; then
-    print_msg "file:// URLs now open in Emacs ($entry)"
-  else
-    print_warn "could not set the file:// handler (no desktop session?)"
+  # Keep %f, do not "fix" it to %u: emacsclient takes a PATH, and the desktop
+  # spec has the launcher convert a local file:// URI to a path for %f. With
+  # %u emacsclient would receive the literal "file:///..." and treat it as a
+  # filename.
+
+  if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$user_apps" 2>/dev/null || true
+  fi
+
+  if [ "$(xdg-mime query default x-scheme-handler/file 2>/dev/null)" != "$entry" ]; then
+    if xdg-mime default "$entry" x-scheme-handler/file 2>/dev/null; then
+      print_msg "file:// URLs now open in Emacs ($entry)"
+    else
+      print_warn "could not set the file:// handler (no desktop session?)"
+    fi
   fi
 }
 
